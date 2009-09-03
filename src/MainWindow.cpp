@@ -9,6 +9,7 @@
 #include <QLabel>
 #include <QStyle>
 #include <QStatusBar>
+#include "configure.h"
 
 namespace Absencoid {
 
@@ -101,7 +102,8 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Stavový řádek */
     setStatusBar(new QStatusBar(this));
-    statusBar()->addWidget(new QLabel(tr("Absencoid k vašim službám.")));
+    statusBar()->addWidget(new QLabel(tr("Absencoid k vašim službám.")), 1);
+    statusBar()->addWidget(new QLabel(SVN_VERSION));
 
     /* Změna velikosti na nejmenší výšku v poměru stran 4:3 */
     resize(sizeHint().height()*8/5, sizeHint().height());
