@@ -15,6 +15,8 @@ namespace Absencoid {
 
 /* Konstruktor */
 MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
+    setWindowTitle(tr("Absencoid"));
+
     tabWidget->setTabPosition(QTabWidget::West);
     tabWidget->setUsesScrollButtons(false);
 
@@ -87,18 +89,11 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Další "dummy" taby */
     tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
+    tabWidget->addTab(new QLabel(tr("Zde bude seznam učitelů")), tr("Učitelé"));
+    tabWidget->addTab(new QLabel(tr("Zde bude seznam předmětů")), tr("Předměty"));
     tabWidget->addTab(new QLabel(tr("Zde bude rozvrh")), tr("Rozvrh"));
-
-    /* Administrátorské taby */
-    int teachers = tabWidget->addTab(new QLabel(), tr("Učitelé"));
-    int cancelledHours = tabWidget->addTab(new QLabel(), tr("Suply"));
-    int vacations = tabWidget->addTab(new QLabel(), tr("Volna"));
-    tabWidget->setTabEnabled(teachers, false);
-    tabWidget->setTabEnabled(cancelledHours, false);
-    tabWidget->setTabEnabled(vacations, false);
-
-    /* Nastavení */
-    tabWidget->addTab(new QLabel(tr("Krapet toho nastavení")), tr("Nastavení"));
+    tabWidget->addTab(new QLabel(tr("Zde bude seznam přesunutých a změněných hodin")), tr("Suply"));
+    tabWidget->addTab(new QLabel(tr("Zde bude seznam odpadnutých hodin a volných dnů")), tr("Volna"));
 
     /* Stavový řádek */
     setStatusBar(new QStatusBar(this));
