@@ -6,4 +6,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/configure.h.cmake ${CMAKE_CURRENT_BIN
 
 qt4_wrap_cpp(AbsencoidMOC MainWindow.h)
 add_executable(absencoid main.cpp MainWindow.cpp ${AbsencoidMOC})
-target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY})
