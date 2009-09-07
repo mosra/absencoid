@@ -174,4 +174,40 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
     return false;
 }
 
+/* Přidání nového učitele */
+bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
+    beginInsertRows(parent, row, row);
+
+    /* Otestujeme, jestli zde nejsou dva nepojmenovaní učitelé */
+    Teacher test; foreach(test, teachers) {
+        qDebug() << tr("Nelze přidat dva nepojmenované učitele!");
+        return false;
+    }
+
+    /* Přidání do DB (prvně, protože se musí zjistit ID nového učitele) */
+    QSqlQuery query;
+    if(!query.exec("INSERT INTO teachers (gradeId, name, flags) VALUES (1, \"\", 2)")) {
+        qDebug() << tr("Nepovedlo se přidat učitele!") << query.lastError().text()
+        << query.lastQuery();
+        return false;
+    }
+
+    int id = query.lastInsertId().toInt();
+
+    qDebug() << id;
+
+    Teacher t;
+    t.id = id;
+    t.name = "";
+    t.flags = 2;
+    teachers.append(t);
+
+    endInsertRows();
+}
+
+/* Přidání nového učitele */
+void TeachersModel::addTeacher() {
+    insertRow(teachers.count());
+}
+
 }

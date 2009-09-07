@@ -118,6 +118,8 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     QPushButton* addTeacher = new QPushButton(tr("Přidat učitele"));
     QPushButton* deleteTeacher = new QPushButton(tr("Odebrat učitele"));
 
+    connect(addTeacher, SIGNAL(clicked(bool)), teachersModel, SLOT(addTeacher()));
+
     /* Layout */
     QVBoxLayout* teachersButtonLayout = new QVBoxLayout;
     teachersButtonLayout->addWidget(addTeacher, 0, Qt::AlignTop);

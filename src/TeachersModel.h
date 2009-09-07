@@ -11,6 +11,8 @@ namespace Absencoid {
  * Obousměrný přístup k datům učitelů.
  */
 class TeachersModel: public QAbstractTableModel {
+    Q_OBJECT
+
     public:
         /**
          * @brief Konstruktor
@@ -58,6 +60,11 @@ class TeachersModel: public QAbstractTableModel {
          */
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
+        /**
+         * @brief Přidání nového učitele
+         */
+        virtual bool insertRow(int row, const QModelIndex& parent = QModelIndex());
+
     private:
         /** @brief Struktura pro data učitele */
         struct Teacher {
@@ -68,6 +75,9 @@ class TeachersModel: public QAbstractTableModel {
 
         /** @brief Data učitelů */
         QList<Absencoid::TeachersModel::Teacher> teachers;
+
+    public slots:
+        void addTeacher();
 };
 
 }
