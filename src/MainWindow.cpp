@@ -18,6 +18,7 @@
 #include <QSqlRelationalDelegate>
 
 #include "configure.h"
+#include "TeachersModel.h"
 
 namespace Absencoid {
 
@@ -105,14 +106,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     /* --------------------- Učitelé ---------------------------------------- */
 
     /* Tabulka */
-    QSqlRelationalTableModel* teachersModel = new QSqlRelationalTableModel(this);
-    teachersModel->setTable("teachers");
-    teachersModel->setRelation(0, QSqlRelation("grades", "id", "name"));
-    teachersModel->setHeaderData(0, Qt::Horizontal, tr("Třída"));
-    teachersModel->setHeaderData(1, Qt::Horizontal, tr("ID"));
-    teachersModel->setHeaderData(2, Qt::Horizontal, tr("Jméno"));
-    teachersModel->setHeaderData(3, Qt::Horizontal, tr("Vlastnosti"));
-    teachersModel->select();
+    TeachersModel* teachersModel = new TeachersModel(this);
 
     QTableView* teachersView = new QTableView(this);
     teachersView->setModel(teachersModel);
