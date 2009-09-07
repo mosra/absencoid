@@ -110,6 +110,9 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     QTableView* teachersView = new QTableView(this);
     teachersView->setModel(teachersModel);
+    /** @todo Automaticky? */
+    teachersView->setColumnWidth(1, 130);
+    teachersView->setColumnWidth(2, 130);
 
     /* Tlačítka pro přidání / odebrání učitele */
     QPushButton* addTeacher = new QPushButton(tr("Přidat učitele"));
