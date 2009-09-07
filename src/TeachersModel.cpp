@@ -1,9 +1,11 @@
 #include "TeachersModel.h"
 
 #include <QSqlQuery>
+#include <QSqlError>
 #include <QList>
 #include <QStyle>
 #include <QApplication>
+#include <QDebug>
 
 namespace Absencoid {
 
@@ -91,6 +93,57 @@ QVariant TeachersModel::data(const QModelIndex& index, int role) const {
 
     /* Nejspíše se nehodila role */
     return QVariant();
+}
+
+/* Flags */
+Qt::ItemFlags TeachersModel::flags(const QModelIndex& index) const {
+    if(!index.isValid() ||
+        index.row() > teachers.size() ||
+        index.column() > 2) return Qt::ItemIsEnabled;
+
+    /* Slupec jména učitele */
+    if(index.column() == 0)
+        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+
+    /* Boolean sloupce */
+    return Qt::ItemIsUserCheckable;
+}
+
+/* Zápisový přístup k datům */
+bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if(!index.isValid() ||
+        index.row() > teachers.size() ||
+        index.column() > 2) return false;
+
+    /* Editujeme ... */
+    if(role == Qt::EditRole) {
+
+        /* Jméno učitele */
+        if(index.column() == 0) {
+            if(value.toString().isEmpty()) return false;
+
+            /* Aktualizace dat */
+            teachers[index.row()].name = value.toString();
+
+            /* Aktualizace DB */
+            QSqlQuery query;
+            query.prepare("UPDATE teachers SET name = :name WHERE id = :id;");
+            query.bindValue(":name", teachers[index.row()].name);
+            query.bindValue(":id", teachers[index.row()].id);
+
+            if(!query.exec()) {
+                qDebug() << tr("Nepovedlo se aktualizovat!") << query.lastError().text()
+                         << query.lastQuery();
+                return false;
+            }
+
+            emit dataChanged(index, index);
+
+            return true;
+        }
+    }
+
+    return false;
 }
 
 }

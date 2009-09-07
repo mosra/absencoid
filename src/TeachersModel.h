@@ -33,7 +33,7 @@ class TeachersModel: public QAbstractTableModel {
         virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
         /**
-         * @brief Přístup k datům
+         * @brief Čtecí přístup k datům
          *
          * Vlastnosti učitelů jsou zobrazovány s ikonkami (Ano/Ne)
          */
@@ -45,6 +45,18 @@ class TeachersModel: public QAbstractTableModel {
          * Vertikální hlavička zobrazuje ID učitelů, horizontální klasické popisky
          */
         virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+
+        /**
+         * @brief Flags
+         *
+         * Například pro zjištění, zda je položka daného indexu editovatelná.
+         */
+        virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+
+        /**
+         * @brief Zápisový přístup k datům
+         */
+        virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
     private:
         /** @brief Struktura pro data učitele */
