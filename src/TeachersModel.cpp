@@ -134,6 +134,10 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
         query.bindValue(":name", teachers[index.row()].name);
         query.bindValue(":id", teachers[index.row()].id);
 
+        /** @todo Ověřit duplicitu jmen */
+        /** @todo Spojit query.exec() do jednoho */
+        /** @todo Zavolat sort() po změně jména */
+
         if(!query.exec()) {
             qDebug() << tr("Nepovedlo se aktualizovat!") << query.lastError().text()
                      << query.lastQuery();
@@ -180,6 +184,7 @@ bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
 
     /* Otestujeme, jestli zde nejsou dva nepojmenovaní učitelé */
     Teacher test; foreach(test, teachers) {
+        /** @todo Vyhodit hlášku! */
         qDebug() << tr("Nelze přidat dva nepojmenované učitele!");
         return false;
     }
