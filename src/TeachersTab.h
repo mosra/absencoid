@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class QTableView;
+
 namespace Absencoid {
 
 class TeachersModel;
@@ -11,6 +13,8 @@ class TeachersModel;
  * @brief Tab s daty učitelů
  */
 class TeachersTab: public QWidget {
+    Q_OBJECT
+
     public:
         /**
          * @brief Konstruktor
@@ -19,6 +23,13 @@ class TeachersTab: public QWidget {
 
     private:
         TeachersModel* teachersModel;   /** @brief Model s daty učitelů */
+
+    private slots:
+
+        /**
+         * @brief Přidání učitele
+         */
+        void addTeacher();
 };
 
 }
