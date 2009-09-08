@@ -239,7 +239,7 @@ bool TeachersModel::removeRows(int row, int count, const QModelIndex& parent) {
 
 /* Přidání nového učitele */
 void TeachersModel::addTeacher() {
-
+    insertRow(teachers.count());
 }
 
 }
