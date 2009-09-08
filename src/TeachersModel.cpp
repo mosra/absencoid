@@ -184,9 +184,11 @@ bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
 
     /* Otestujeme, jestli zde nejsou dva nepojmenovaní učitelé */
     Teacher test; foreach(test, teachers) {
-        /** @todo Vyhodit hlášku! */
-        qDebug() << tr("Nelze přidat dva nepojmenované učitele!");
-        return false;
+        if(test.name.isEmpty()) {
+            /** @todo Vyhodit hlášku! */
+            qDebug() << tr("Nelze přidat dva nepojmenované učitele!");
+            return false;
+        }
     }
 
     /* Přidání do DB (prvně, protože se musí zjistit ID nového učitele) */
