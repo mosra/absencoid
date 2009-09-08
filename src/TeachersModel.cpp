@@ -212,9 +212,34 @@ bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
     endInsertRows();
 }
 
+/* Odstranění učitelů */
+bool TeachersModel::removeRows(int row, int count, const QModelIndex& parent) {
+    beginRemoveRows(parent, row, row+count-1);
+
+    QSqlQuery query;
+    query.prepare("DELETE FROM teachers WHERE id = :id");
+    for(int i = 0; i != count; i++) {
+
+        /* Smazání z DB (připravený dotaz, aby to nebylo tak příšerně pomalý). */
+        query.bindValue(":id", row+i);
+
+        /* Chybička se vloudila... */
+        if(!query.exec()) {
+            qDebug() << tr("Nelze odstranit učitele!") << query.lastError().text()
+                     << query.lastQuery();
+            return false;
+
+        /* Pokud smazání proběhlo OK, smažeme i z listu */
+        } else teachers.removeAt(row+i);
+    }
+
+    endRemoveRows();
+    return true;
+}
+
 /* Přidání nového učitele */
 void TeachersModel::addTeacher() {
-    insertRow(teachers.count());
+
 }
 
 }
