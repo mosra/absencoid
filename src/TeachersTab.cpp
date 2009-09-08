@@ -3,6 +3,7 @@
 #include <QTableView>
 #include <QPushButton>
 #include <QBoxLayout>
+#include <QMessageBox>
 
 #include "TeachersModel.h"
 
@@ -10,9 +11,9 @@ namespace Absencoid {
 
 /* Konstruktor */
 TeachersTab::TeachersTab(QWidget* parent): QWidget(parent),
-teachersModel(new TeachersModel(this)) {
+teachersModel(new TeachersModel(this)), teachersView(new QTableView(this)) {
 
-    QTableView* teachersView = new QTableView(this);
+    /* Nastavení modelu pro zobrazení */
     teachersView->setModel(teachersModel);
     /** @todo Automaticky? */
     teachersView->setColumnWidth(1, 130);
@@ -20,15 +21,16 @@ teachersModel(new TeachersModel(this)) {
 
     /* Tlačítka pro přidání / odebrání učitele */
     QPushButton* addTeacher = new QPushButton(tr("Přidat učitele"));
-    QPushButton* deleteTeacher = new QPushButton(tr("Odebrat učitele"));
+    QPushButton* deleteTeachers = new QPushButton(tr("Odebrat vybrané"));
 
     /* Propojení tlačítek s funkcemi */
     connect(addTeacher, SIGNAL(clicked(bool)), this, SLOT(addTeacher()));
+    connect(deleteTeachers, SIGNAL(clicked(bool)), this, SLOT(removeTeachers()));
 
     /* Layout */
     QVBoxLayout* teachersButtonLayout = new QVBoxLayout;
     teachersButtonLayout->addWidget(addTeacher, 0, Qt::AlignTop);
-    teachersButtonLayout->addWidget(deleteTeacher, 1, Qt::AlignTop);
+    teachersButtonLayout->addWidget(deleteTeachers, 1, Qt::AlignTop);
     QHBoxLayout* teachersLayout = new QHBoxLayout;
     teachersLayout->addWidget(teachersView);
     teachersLayout->addLayout(teachersButtonLayout);
@@ -39,6 +41,45 @@ teachersModel(new TeachersModel(this)) {
 /* Přidání učitele */
 void TeachersTab::addTeacher() {
     teachersModel->insertRow(teachersModel->rowCount());
+}
+
+/* Odebrání vybraných učitelů */
+void TeachersTab::removeTeachers() {
+    /* Nic není vybráno */
+    if(!teachersView->selectionModel()->hasSelection()) return;
+
+    /* Protože se vybírají jednotlivé buňky, může dojít k tomu, že je vybráno
+        více buněk ve stejném řádku. Pročištění, aby byly řádky unikátní. */
+    QList<int> rows; QStringList names; QModelIndex index;
+    foreach(index, teachersView->selectionModel()->selectedIndexes()) {
+
+        /* Je to unikátní záznam */
+        if(!rows.contains(index.row())) {
+            rows.append(index.row());
+
+            /* Jméno leží v prvním (0) sloupci daného řádku */
+            names.append(index.sibling(index.row(), 0).data().toString());
+        }
+    }
+
+    /* Seřazení jmen podle abecedy */
+    qSort(names.begin(), names.end());
+
+    /* Uživatel neví, co chce */
+    if(QMessageBox::warning(this, tr("Potvrzení"),
+        tr("<strong>Opravdu smazat tyto učitele?</strong><br/>") + names.join("<br/>"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+            return;
+
+    /* Seřazení řádků od největších čásel k nejmenším. Kdybychom totiž odstranili
+        řádek 1, všechna další čísla by byla o jedničku posunutá, takže by se
+        mazaly jiné řádky! */
+    qSort(rows.begin(), rows.end(), qGreater<int>());
+
+    /* Mazání jednotlivých unikátních řádků */
+    int row; foreach(row, rows) {
+        teachersModel->removeRows(row, 1); /** @todo Mazat celé skupiny? */
+    }
 }
 
 }

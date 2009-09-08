@@ -23,6 +23,7 @@ class TeachersTab: public QWidget {
 
     private:
         TeachersModel* teachersModel;   /** @brief Model s daty učitelů */
+        QTableView* teachersView;       /** @brief Zobrazení učitelů */
 
     private slots:
 
@@ -30,6 +31,11 @@ class TeachersTab: public QWidget {
          * @brief Přidání učitele
          */
         void addTeacher();
+
+        /**
+         * @brief Odebrání vybraných učitelů
+         */
+        void removeTeachers();
 };
 
 }
