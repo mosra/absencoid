@@ -217,11 +217,11 @@ bool TeachersModel::removeRows(int row, int count, const QModelIndex& parent) {
     beginRemoveRows(parent, row, row+count-1);
 
     QSqlQuery query;
-    query.prepare("DELETE FROM teachers WHERE id = :id");
+    query.prepare("DELETE FROM teachers WHERE id = :id;");
     for(int i = 0; i != count; i++) {
 
         /* Smazání z DB (připravený dotaz, aby to nebylo tak příšerně pomalý). */
-        query.bindValue(":id", row+i);
+        query.bindValue(":id", teachers[row+i].id);
 
         /* Chybička se vloudila... */
         if(!query.exec()) {
