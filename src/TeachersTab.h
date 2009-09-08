@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+class QPushButton;
 class QTableView;
 
 namespace Absencoid {
@@ -22,8 +23,9 @@ class TeachersTab: public QWidget {
         TeachersTab(QWidget* parent = 0);
 
     private:
-        TeachersModel* teachersModel;   /** @brief Model s daty učitelů */
-        QTableView* teachersView;       /** @brief Zobrazení učitelů */
+        TeachersModel* teachersModel;       /** @brief Model s daty učitelů */
+        QTableView* teachersView;           /** @brief Zobrazení učitelů */
+        QPushButton* removeTeachersButton;  /** @brief Tlačítko pro odstranění učitelů */
 
     private slots:
 
@@ -36,6 +38,14 @@ class TeachersTab: public QWidget {
          * @brief Odebrání vybraných učitelů
          */
         void removeTeachers();
+
+        /**
+         * @brief Zašedne / povolí tlačítko pro odebírání vybraných učitelů
+         *
+         * Volané při změně výběru. Pokud není nic vybrané, tlačítko je
+         * zašedlé.
+         */
+        void updateRemoveButton();
 };
 
 }

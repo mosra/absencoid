@@ -21,16 +21,21 @@ teachersModel(new TeachersModel(this)), teachersView(new QTableView(this)) {
 
     /* Tlačítka pro přidání / odebrání učitele */
     QPushButton* addTeacher = new QPushButton(tr("Přidat učitele"));
-    QPushButton* deleteTeachers = new QPushButton(tr("Odebrat vybrané"));
+    removeTeachersButton = new QPushButton(tr("Odstranit vybrané"));
 
     /* Propojení tlačítek s funkcemi */
     connect(addTeacher, SIGNAL(clicked(bool)), this, SLOT(addTeacher()));
-    connect(deleteTeachers, SIGNAL(clicked(bool)), this, SLOT(removeTeachers()));
+    connect(removeTeachersButton, SIGNAL(clicked(bool)), this, SLOT(removeTeachers()));
+
+    /* Tlačítko mazání je aktivní jen pokud je něco vybráno */
+    removeTeachersButton->setDisabled(true);
+    connect(teachersView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(updateRemoveButton()));
 
     /* Layout */
     QVBoxLayout* teachersButtonLayout = new QVBoxLayout;
     teachersButtonLayout->addWidget(addTeacher, 0, Qt::AlignTop);
-    teachersButtonLayout->addWidget(deleteTeachers, 1, Qt::AlignTop);
+    teachersButtonLayout->addWidget(removeTeachersButton, 1, Qt::AlignTop);
     QHBoxLayout* teachersLayout = new QHBoxLayout;
     teachersLayout->addWidget(teachersView);
     teachersLayout->addLayout(teachersButtonLayout);
@@ -80,6 +85,14 @@ void TeachersTab::removeTeachers() {
     int row; foreach(row, rows) {
         teachersModel->removeRows(row, 1); /** @todo Mazat celé skupiny? */
     }
+}
+
+/* Zašednutí / povolení mazacího tlačítka */
+void TeachersTab::updateRemoveButton() {
+    if(!teachersView->selectionModel()->hasSelection())
+        removeTeachersButton->setDisabled(true);
+    else
+        removeTeachersButton->setDisabled(false);
 }
 
 }
