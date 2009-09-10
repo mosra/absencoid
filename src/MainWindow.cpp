@@ -20,6 +20,7 @@
 #include "configure.h"
 #include "TeachersModel.h"
 #include "TeachersTab.h"
+#include "ClassesModel.h"
 
 namespace Absencoid {
 
@@ -110,20 +111,10 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* --------------------- Předměty --------------------------------------- */
     /* Tabulka */
-    QSqlRelationalTableModel* classesModel = new QSqlRelationalTableModel(this);
-    classesModel->setTable("classes");
-    classesModel->setRelation(0, QSqlRelation("grades", "id", "name"));
-    classesModel->setRelation(3, QSqlRelation("teachers", "id", "name"));
-    classesModel->setHeaderData(0, Qt::Horizontal, tr("Třída"));
-    classesModel->setHeaderData(1, Qt::Horizontal, tr("ID"));
-    classesModel->setHeaderData(2, Qt::Horizontal, tr("Předmět"));
-    classesModel->setHeaderData(3, Qt::Horizontal, tr("Učitel"));
-    classesModel->setHeaderData(4, Qt::Horizontal, tr("Vlastnosti"));
-    classesModel->select();
+    ClassesModel* classesModel = new ClassesModel(this);
 
     QTableView* classesView = new QTableView(this);
     classesView->setModel(classesModel);
-    classesView->setItemDelegateForColumn(3, new QSqlRelationalDelegate(classesView));
 
     /* Tlačítka pro přidání / odebrání třídy */
     QPushButton* addClass = new QPushButton(tr("Přidat předmět"));
