@@ -207,7 +207,9 @@ bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
     t.id = id;
     t.name = "";
     t.flags = 2;
-    teachers.append(t);
+
+    /* Přidání na danou pozici */
+    teachers.insert(row, t);
 
     endInsertRows();
 }
