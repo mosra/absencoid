@@ -61,11 +61,12 @@ QVariant TeachersModel::data(const QModelIndex& index, int role) const {
         index.column() > 2) return QVariant();
 
     /* Jméno */
-    else if(index.column() == 0 && role == Qt::DisplayRole)
-        return teachers[index.row()].name;
+    else if(index.column() == 0) {
+        if(role == Qt::DisplayRole || role == Qt::EditRole)
+            return teachers[index.row()].name;
 
     /* Zda zapisuje absence */
-    else if(index.column() == 1) {
+    } else if(index.column() == 1) {
         /* Text */
         if(role == Qt::DisplayRole)
             return teachers[index.row()].flags & 0x01 ? tr("Zapisuje") : tr("Nezapisuje");
