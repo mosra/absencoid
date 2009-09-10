@@ -38,19 +38,17 @@ int TeachersModel::rowCount(const QModelIndex& parent) const {
 QVariant TeachersModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
     /* Horizontální hlavičky */
-    if(orientation == Qt::Horizontal) {
-        if(role == Qt::DisplayRole) switch(section) {
-            case 0:     return QVariant(tr("Jméno"));
-            case 1:     return QVariant(tr("Absence"));
-            case 2:     return QVariant(tr("Školní akce"));
+    if(orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch(section) {
+            case 0:     return tr("Jméno");
+            case 1:     return tr("Absence");
+            case 2:     return tr("Školní akce");
         }
     }
 
     /* Vertikální hlavičky = ID učitele */
-    if(orientation == Qt::Vertical) {
-        if(role == Qt::DisplayRole && section >= 0 && section < teachers.count())
-            return QVariant(teachers[section].id);
-    }
+    if(orientation == Qt::Vertical && role == Qt::DisplayRole && section >= 0 && section < teachers.count())
+            return teachers[section].id;
 
     return QAbstractItemModel::headerData(section, orientation, role);
 }
