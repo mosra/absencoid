@@ -200,8 +200,6 @@ bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
 
     int id = query.lastInsertId().toInt();
 
-    qDebug() << id;
-
     Teacher t;
     t.id = id;
     t.name = "";
