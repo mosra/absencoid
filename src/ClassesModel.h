@@ -34,6 +34,18 @@ class ClassesModel: public QAbstractTableModel {
          */
         virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
+        /**
+         * @brief Flags
+         *
+         * Zda je položka editovatelná
+         */
+        virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+
+        /**
+         * @brief Zápisový přístup k datům
+         */
+        virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+
     private:
         /** @brief Struktura pro předmět */
         struct Class {

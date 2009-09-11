@@ -54,7 +54,6 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation orientation, int 
     return QAbstractItemModel::headerData(section, orientation, role);
 }
 
-
 /* Čtecí přístup k datům */
 QVariant ClassesModel::data(const QModelIndex& index, int role) const {
     if(!index.isValid() ||
@@ -62,7 +61,7 @@ QVariant ClassesModel::data(const QModelIndex& index, int role) const {
         index.row() >= classes.count()) return false;
 
     /* Jméno */
-    if(index.column() == 0 && role == Qt::DisplayRole)
+    if(index.column() == 0 && (role == Qt::DisplayRole || role == Qt::EditRole))
         return classes[index.row()].name;
 
     /* Učitel */
@@ -71,6 +70,48 @@ QVariant ClassesModel::data(const QModelIndex& index, int role) const {
 
     /* Něco jiného */
     return QVariant();
+}
+
+/* Flags */
+Qt::ItemFlags ClassesModel::flags(const QModelIndex& index) const {
+    if(!index.isValid() ||
+        index.column() > 1 ||
+        index.row() >= classes.count()) return Qt::ItemIsEnabled;
+
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+}
+
+/* Zápisový přístup k datům */
+bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if(!index.isValid() ||
+        index.column() > 1 ||
+        index.row() >= classes.count()) return false;
+
+    /* Jméno předmětu */
+    if(index.column() == 0 && role == Qt::EditRole) {
+        if(value.toString().isEmpty()) return false;
+
+        /* Aktualizace dat */
+        classes[index.row()].name = value.toString();
+
+        /* Aktualizace DB */
+        QSqlQuery query;
+        query.prepare("UPDATE classes SET name = :name WHERE id = :id;");
+        query.bindValue(":name", classes[index.row()].name);
+        query.bindValue(":id", classes[index.row()].id);
+
+        if(!query.exec()) {
+            qDebug() << tr("Nepovedlo se aktualizovat předmět!") << query.lastError()
+                     << query.lastQuery();
+            return false;
+        }
+
+        emit dataChanged(index, index);
+
+        return true;
+    }
+
+    return false;
 }
 
 }
