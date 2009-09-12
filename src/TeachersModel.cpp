@@ -235,4 +235,13 @@ QModelIndex TeachersModel::indexFromId(int id) const {
     return index(-1,0);
 }
 
+/* Získání ID z indexu */
+int TeachersModel::idFromIndex(int row) const {
+    /* Pokud je číslo řádku špatné, vrácení 0 (a takové ID v DB neexistuje) */
+    if(row < 0 || row > teachers.count()) return 0;
+
+    return teachers[row].id;
+}
+
+
 }
