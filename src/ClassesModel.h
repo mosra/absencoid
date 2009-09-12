@@ -7,6 +7,8 @@ namespace Absencoid {
 class TeachersModel;
 
 class ClassesModel: public QAbstractTableModel {
+    Q_OBJECT
+
     public:
         /**
          * @brief Konstruktor
@@ -63,6 +65,15 @@ class ClassesModel: public QAbstractTableModel {
 
         /** @brief Model učitelů */
         Absencoid::TeachersModel* teachersModel;
+
+    private slots:
+        /**
+         * @brief Zjištění změn v modelu učitelů
+         *
+         * Zjistí, zda se změny v modelu očitelů projeví na tomto modelu, pokud
+         * ano, vyšle signál dataChanged.
+         */
+        void checkTeacherChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 };
 
 }

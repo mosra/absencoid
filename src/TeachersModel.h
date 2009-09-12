@@ -75,6 +75,11 @@ class TeachersModel: public QAbstractTableModel {
          */
         QModelIndex indexFromId(int id) const;
 
+        /**
+         * @brief Získání ID učitele z předaného indexu či čísla řádku
+         */
+        inline int idFromIndex(int row) const { return teachers[row].id; }
+
     private:
         /** @brief Struktura pro data učitele */
         struct Teacher {
