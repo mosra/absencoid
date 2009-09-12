@@ -21,6 +21,7 @@
 #include "TeachersModel.h"
 #include "TeachersTab.h"
 #include "ClassesModel.h"
+#include "ClassesDelegate.h"
 
 namespace Absencoid {
 
@@ -116,6 +117,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     QTableView* classesView = new QTableView(this);
     classesView->setModel(classesModel);
+    classesView->setItemDelegate(new ClassesDelegate(teachersTab->getTeachersModel(), classesView));
 
     /* Tlačítka pro přidání / odebrání třídy */
     QPushButton* addClass = new QPushButton(tr("Přidat předmět"));

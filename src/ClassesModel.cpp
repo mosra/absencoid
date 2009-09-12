@@ -69,9 +69,14 @@ QVariant ClassesModel::data(const QModelIndex& index, int role) const {
         return classes[index.row()].name;
 
     /* Učitel */
-    if(index.column() == 1 && role == Qt::DisplayRole) {
+    if(index.column() == 1) {
         /* Vrácení dat z TeachersModel, aby byly aktuální */
-        return teachersModel->indexFromId(classes[index.row()].teacherId).data();
+        if(role == Qt::DisplayRole)
+            return teachersModel->indexFromId(classes[index.row()].teacherId).data();
+
+        /* Vrácení čísla řádku z modelu učitelů */
+        if(role == Qt::EditRole)
+            return teachersModel->indexFromId(classes[index.row()].teacherId).row();
     }
 
     /* Něco jiného */
@@ -109,6 +114,31 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
         if(!query.exec()) {
             qDebug() << tr("Nepovedlo se aktualizovat předmět!") << query.lastError()
                      << query.lastQuery();
+            return false;
+        }
+
+        emit dataChanged(index, index);
+
+        return true;
+    }
+
+    /* Učitel */
+    if(index.column() == 1 && role == Qt::EditRole) {
+        /* Zjištění ID učitele z indexu */
+        int teacherId = teachersModel->idFromIndex(value.toInt());
+
+        /* Aktualizace dat */
+        classes[index.row()].teacherId = teacherId;
+
+        /* Aktualizace DB */
+        QSqlQuery query;
+        query.prepare("UPDATE classes SET teacherId = :teacherId WHERE id = :id;");
+        query.bindValue(":teacherId", classes[index.row()].teacherId);
+        query.bindValue(":id", classes[index.row()].id);
+
+        if(!query.exec()) {
+            qDebug() << tr("Nepovedlo se aktualizovat předmět!") << query.lastError()
+            << query.lastQuery();
             return false;
         }
 
