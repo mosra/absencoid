@@ -10,11 +10,14 @@ qt4_wrap_cpp(AbsencoidMOC
     MainWindow.h
     TeachersTab.h
     ClassesModel.h
-    ClassesTab.h)
+    ClassesTab.h
+    TimetableTab.h
+    )
 add_executable(absencoid
     main.cpp MainWindow.cpp
     TeachersModel.cpp TeachersTab.cpp
     ClassesModel.cpp ClassesDelegate.cpp ClassesTab.cpp
-    TimetableTab.cpp
-    ${AbsencoidMOC})
+    TimetableListModel.cpp TimetableTab.cpp
+    ${AbsencoidMOC}
+    )
 target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY})
