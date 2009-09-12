@@ -70,7 +70,7 @@ class ClassesModel: public QAbstractTableModel {
         /**
          * @brief Zjištění změn v modelu učitelů
          *
-         * Zjistí, zda se změny v modelu očitelů projeví na tomto modelu, pokud
+         * Zjistí, zda se změny v modelu učitelů projeví na tomto modelu, pokud
          * ano, vyšle signál dataChanged.
          */
         void checkTeacherChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight);
