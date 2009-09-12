@@ -98,6 +98,8 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
         index.column() > 1 ||
         index.row() >= classes.count()) return false;
 
+    QSqlQuery query;
+
     /* Jméno předmětu */
     if(index.column() == 0 && role == Qt::EditRole) {
         if(value.toString().isEmpty()) return false;
@@ -105,49 +107,38 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
         /* Aktualizace dat */
         classes[index.row()].name = value.toString();
 
-        /* Aktualizace DB */
-        QSqlQuery query;
+        /* SQL dotaz */
         query.prepare("UPDATE classes SET name = :name WHERE id = :id;");
         query.bindValue(":name", classes[index.row()].name);
         query.bindValue(":id", classes[index.row()].id);
 
-        if(!query.exec()) {
-            qDebug() << tr("Nepovedlo se aktualizovat předmět!") << query.lastError()
-                     << query.lastQuery();
-            return false;
-        }
-
-        emit dataChanged(index, index);
-
-        return true;
-    }
-
     /* Učitel */
-    if(index.column() == 1 && role == Qt::EditRole) {
+    } else if(index.column() == 1 && role == Qt::EditRole) {
         /* Zjištění ID učitele z indexu */
         int teacherId = teachersModel->idFromIndex(value.toInt());
 
         /* Aktualizace dat */
         classes[index.row()].teacherId = teacherId;
 
-        /* Aktualizace DB */
-        QSqlQuery query;
+        /* SQL dotaz */
         query.prepare("UPDATE classes SET teacherId = :teacherId WHERE id = :id;");
         query.bindValue(":teacherId", classes[index.row()].teacherId);
         query.bindValue(":id", classes[index.row()].id);
 
-        if(!query.exec()) {
-            qDebug() << tr("Nepovedlo se aktualizovat předmět!") << query.lastError()
-            << query.lastQuery();
-            return false;
-        }
+    /* Něco jiného */
+    } else return false;
 
-        emit dataChanged(index, index);
-
-        return true;
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepovedlo se aktualizovat předmět!") << query.lastError()
+        << query.lastQuery();
+        return false;
     }
 
-    return false;
+    emit dataChanged(index, index);
+
+    return true;
+
 }
 
 /* Zjištění změn v modelu učitelů */
