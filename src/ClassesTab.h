@@ -4,12 +4,15 @@
 #include <QWidget>
 
 namespace Absencoid {
+class ClassesModel;
 class TeachersModel;
 
 /**
  * @brief Tab s předměty
  */
 class ClassesTab: public QWidget {
+    Q_OBJECT
+
     public:
         /**
          * @brief Konstruktor
@@ -18,6 +21,15 @@ class ClassesTab: public QWidget {
          * @param   parent          Rodičovský widget
          */
         ClassesTab(TeachersModel* teachersModel, QWidget* parent = 0);
+
+    private:
+        ClassesModel* classesModel; /** @brief Model předmětů */
+
+    private slots:
+        /**
+         * @brief Přidání předmětu
+         */
+        void addClass();
 };
 
 }

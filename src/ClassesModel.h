@@ -52,6 +52,15 @@ class ClassesModel: public QAbstractTableModel {
          */
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
+        /**
+         * @brief Přidání dalšího předmětu
+         *
+         * Předmět se přidá do lokálních dat, až po napsání jména a vybrání
+         * učitele se uloží do DB. Dokud není předmět uložen v DB, je v hlavičce
+         * řádku hvězdička místo ID.
+         */
+        virtual bool insertRow(int row, const QModelIndex& parent = QModelIndex());
+
     private:
         /** @brief Struktura pro předmět */
         struct Class {
@@ -65,6 +74,17 @@ class ClassesModel: public QAbstractTableModel {
 
         /** @brief Model učitelů */
         Absencoid::TeachersModel* teachersModel;
+
+        /**
+         * @brief Uložení nového předmětu do databáze
+         *
+         * Uloží nový předmět (označený hvězdičkou) do databáze a aktualizuje
+         * hlavičku na ID přidaného řádku. Voláno z
+         * Absencoid::ClassesModel::insertRow, když jsou všechna data zapsána.
+         * @param   row     Řádek, který se má uložit
+         * @return  Zda se povedlo uložit
+         */
+        bool saveRow(int index);
 
     private slots:
         /**

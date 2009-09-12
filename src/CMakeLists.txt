@@ -7,7 +7,8 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/configure.h.cmake ${CMAKE_CURRENT_BIN
 qt4_wrap_cpp(AbsencoidMOC
     MainWindow.h
     TeachersTab.h
-    ClassesModel.h)
+    ClassesModel.h
+    ClassesTab.h)
 add_executable(absencoid
     main.cpp MainWindow.cpp
     TeachersModel.cpp TeachersTab.cpp

@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QFont>
 
 #include "TeachersModel.h"
 
@@ -52,8 +53,19 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation orientation, int 
     }
 
     /* Vertikální hlavičky */
-    else if(orientation == Qt::Vertical && section < classes.count() && role == Qt::DisplayRole)
-        return classes[section].id;
+    else if(orientation == Qt::Vertical && section < classes.count()) {
+
+        /* Pokud je nějaký záznam ještě neuložený, má v hlavičce hvězdičku místo ID */
+        if(role == Qt::DisplayRole)
+            return classes[section].id == 0 ? QVariant("*") : QVariant(classes[section].id);
+
+        /* Nové položky mají zvýrazněnou hlavičku (tučný text) */
+        if(role == Qt::FontRole && classes[section].id == 0) {
+            QFont font;
+            font.setBold(true);
+            return font;
+        }
+    }
 
     return QAbstractItemModel::headerData(section, orientation, role);
 }
@@ -107,6 +119,13 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
         /* Aktualizace dat */
         classes[index.row()].name = value.toString();
 
+        /* Když se jedná o nový záznam, nemůžeme dělat UPDATE, ale INSERT.
+            Emitujeme signál a zkusíme řádek uložit. */
+        if(classes[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
+
         /* SQL dotaz */
         query.prepare("UPDATE classes SET name = :name WHERE id = :id;");
         query.bindValue(":name", classes[index.row()].name);
@@ -119,6 +138,13 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
 
         /* Aktualizace dat */
         classes[index.row()].teacherId = teacherId;
+
+        /* Když se jedná o nový záznam, nemůžeme dělat UPDATE, ale INSERT.
+            Emitujeme signál a zkusíme řádek uložit. */
+        if(classes[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
 
         /* SQL dotaz */
         query.prepare("UPDATE classes SET teacherId = :teacherId WHERE id = :id;");
@@ -136,9 +162,7 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
     }
 
     emit dataChanged(index, index);
-
     return true;
-
 }
 
 /* Zjištění změn v modelu učitelů */
@@ -165,6 +189,48 @@ void ClassesModel::checkTeacherChanges(const QModelIndex& topLeft, const QModelI
                 emit dataChanged(index(i, 1), index(i, 1));
         }
     }
+}
+
+/* Přidání nového předmětu */
+bool ClassesModel::insertRow(int row, const QModelIndex& parent) {
+    beginInsertRows(parent, row, row);
+
+    /* Předmět s prázdným ID a ID učitele */
+    Class c;
+    c.id = 0;
+    c.teacherId = 0;
+    classes.insert(row, c);
+
+    /* Do DB se zapíše až při zadání jména a učitele */
+
+    endInsertRows();
+}
+
+/* Uložení nového ředmětu do DB */
+bool ClassesModel::saveRow(int row) {
+    /* Špatný index */
+    if(row < 0 || row >= classes.count()) return false;
+
+    /* Pokud ještě není vše vyplněno, konec. Vrací se true, protože k žádné chybě
+        nedošlo a toto je očekáváné chování (uloží se jindy). */
+    if(classes[row].name.isEmpty() || classes[row].teacherId == 0) return true;
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("INSERT INTO classes (gradeId, name, teacherId) VALUES (1, :name, :teacherId)");
+    query.bindValue(":name", classes[row].name);
+    query.bindValue(":teacherId", classes[row].teacherId);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se uložit předmět do databáze!") << query.lastError()
+                 << query.lastQuery();
+        return false;
+    }
+
+    /* Aktualizace ID třídy, vyslání signálu o změně hlavičky */
+    classes[row].id = query.lastInsertId().toInt();
+    emit headerDataChanged(Qt::Vertical, row, row);
 }
 
 }

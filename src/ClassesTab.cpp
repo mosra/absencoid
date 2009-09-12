@@ -12,7 +12,7 @@ namespace Absencoid {
 /* Konstruktor */
 ClassesTab::ClassesTab(TeachersModel* teachersModel, QWidget* parent): QWidget(parent) {
     /* Model předmětů */
-    ClassesModel* classesModel = new ClassesModel(teachersModel, this);
+    classesModel = new ClassesModel(teachersModel, this);
 
     /* Tabulka předmětů */
     QTableView* classesView = new QTableView(this);
@@ -23,6 +23,9 @@ ClassesTab::ClassesTab(TeachersModel* teachersModel, QWidget* parent): QWidget(p
     QPushButton* addClass = new QPushButton(tr("Přidat předmět"));
     QPushButton* deleteClass = new QPushButton(tr("Odebrat předmět"));
 
+    /* Propojení tlačítek s jejich funkcemi */
+    connect(addClass, SIGNAL(clicked(bool)), this, SLOT(addClass()));
+
     /* Layout */
     QVBoxLayout* classesButtonLayout = new QVBoxLayout;
     classesButtonLayout->addWidget(addClass, 0, Qt::AlignTop);
@@ -32,7 +35,11 @@ ClassesTab::ClassesTab(TeachersModel* teachersModel, QWidget* parent): QWidget(p
     classesLayout->addLayout(classesButtonLayout);
 
     setLayout(classesLayout);
+}
 
+/* Přidání třídy */
+void ClassesTab::addClass() {
+    classesModel->insertRow(classesModel->rowCount());
 }
 
 }
