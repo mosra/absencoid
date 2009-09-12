@@ -47,6 +47,9 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
     followedBy->setModelColumn(1);
     followedBy->setMaximumWidth(deleteLessons->sizeHint().width());
 
+    /* Při změně aktuální položky změnit tooltip */
+    connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(changeFollowedByTooltip(int)));
+
     /* Layout tlačítek vpravo */
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
     buttonsLayout->addWidget(addTimetable, 0, Qt::AlignTop);
@@ -97,6 +100,11 @@ void TimetableTab::loadTimetable(int index) {
     followedBy->setCurrentIndex(
         timetableListModel->indexFromId(timetableListModel->index(index, 3).data().toInt())
     );
+}
+
+/* Změna tooltipu u položky pro následující rozvrh */
+void TimetableTab::changeFollowedByTooltip(int index) {
+    followedBy->setToolTip(timetableListModel->index(index, 0).data().toString());
 }
 
 }

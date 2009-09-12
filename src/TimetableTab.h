@@ -38,11 +38,18 @@ class TimetableTab: public QWidget {
     private slots:
 
         /**
-        * @brief Načtení rozvrhu
-        *
-        * @param    index           Index aktuální položky
-        */
+         * @brief Načtení rozvrhu
+         *
+         * @param   index           Index aktuální položky
+         */
         void loadTimetable(int index);
+
+        /**
+         * @brief Změna tooltipu u comboboxu pro následující rozvrh
+         *
+         * @param   index           Index aktuální položky
+         */
+        void changeFollowedByTooltip(int index);
 };
 
 }
