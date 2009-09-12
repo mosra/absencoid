@@ -60,4 +60,15 @@ QVariant TimetableListModel::data(const QModelIndex& index, int role) const {
     return QVariant();
 }
 
+/* Zjištění indexu z ID rozvrhu */
+int TimetableListModel::indexFromId(int id) const {
+    for(int i = 0; i != timetableList.count(); ++i) {
+        if(timetableList[i].id == id) return i;
+    }
+
+    /* Nic nenalezeno, vracíme neplatný index */
+    return -1;
+}
+
+
 }

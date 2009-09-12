@@ -33,6 +33,7 @@ class TimetableTab: public QWidget {
         QLineEdit* description;     /** @brief Popisek rozvrhu */
         QDateEdit *validFrom,       /** @brief Počátek platnosti aktuálního rozvrhu */
                   *validTo;         /** @brief Konec platnosti aktuálního rozvrhu */
+        QComboBox* followedBy;      /** @brief Výběr rozvrhu, který bude tento následovat */
 
     private slots:
 

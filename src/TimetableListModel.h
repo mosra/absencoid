@@ -31,6 +31,11 @@ class TimetableListModel: public QAbstractTableModel {
          */
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
+        /**
+         * @brief Zjištění indexu z ID rozvrhu
+         */
+        int indexFromId(int id) const;
+
     private:
         /** @brief Struktura pro rozvrh */
         struct Timetable {

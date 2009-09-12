@@ -16,7 +16,7 @@ namespace Absencoid {
 TimetableTab::TimetableTab(ClassesModel* classesModel, QWidget* parent):
 QWidget(parent), timetableListModel(new TimetableListModel(this)),
 timetableCombo(new QComboBox), description(new QLineEdit),
-validFrom(new QDateEdit), validTo(new QDateEdit) {
+validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
     /* Nastavení modelu pro výběr rozvrhu */
     timetableCombo->setModel(timetableListModel);
 
@@ -32,7 +32,7 @@ validFrom(new QDateEdit), validTo(new QDateEdit) {
 
     /* Tlačítka atd. vpravo */
     QPushButton* addTimetable = new QPushButton(tr("Nový rozvrh"));
-    QPushButton* deleteTimetable = new QPushButton(tr("Smazat rozvrh"));
+    QPushButton* deleteTimetable = new QPushButton(tr("Odstranit rozvrh"));
 
     QPushButton* switchDirection = new QPushButton(tr("Svislý směr"));
     switchDirection->setCheckable(true);
@@ -40,7 +40,12 @@ validFrom(new QDateEdit), validTo(new QDateEdit) {
     validFrom->setDisplayFormat("dd.MM.yyyy");
     validTo->setDisplayFormat("dd.MM.yyyy");
 
-    QPushButton* deleteLessons = new QPushButton(tr("Smazat vybrané"));
+    QPushButton* deleteLessons = new QPushButton(tr("Odstranit vybrané"));
+
+    /* Nastavení modelu a max. šířky comba pro následující rozvrh */
+    followedBy->setModel(timetableListModel);
+    followedBy->setModelColumn(1);
+    followedBy->setMaximumWidth(deleteLessons->sizeHint().width());
 
     /* Layout tlačítek vpravo */
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
@@ -57,6 +62,9 @@ validFrom(new QDateEdit), validTo(new QDateEdit) {
     buttonsLayout->addSpacing(8);
     buttonsLayout->addWidget(new QLabel(tr("Platnost do:")), 0, Qt::AlignTop);
     buttonsLayout->addWidget(validTo, 0, Qt::AlignTop);
+    buttonsLayout->addSpacing(8);
+    buttonsLayout->addWidget(new QLabel(tr("Následován s:")), 0, Qt::AlignTop);
+    buttonsLayout->addWidget(followedBy, 0, Qt::AlignTop);
     buttonsLayout->addSpacing(16);
     buttonsLayout->addWidget(deleteLessons, 1, Qt::AlignTop);
 
@@ -78,9 +86,17 @@ validFrom(new QDateEdit), validTo(new QDateEdit) {
 
 /* Načtení rozvrhu */
 void TimetableTab::loadTimetable(int index) {
+    /* Nastavení popisku */
     description->setText(timetableListModel->index(index, 1).data().toString());
+
+    /* Nastavení začátku a konce platnosti */
     validFrom->setDate(timetableListModel->index(index, 2).data().toDate());
     validTo->setDate(timetableListModel->index(index, 3).data().toDate());
+
+    /* Nastavení následujícího rozvrhu */
+    followedBy->setCurrentIndex(
+        timetableListModel->indexFromId(timetableListModel->index(index, 3).data().toInt())
+    );
 }
 
 }
