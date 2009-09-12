@@ -14,6 +14,7 @@
 #include "TeachersModel.h"
 #include "TeachersTab.h"
 #include "ClassesTab.h"
+#include "TimetableTab.h"
 
 namespace Absencoid {
 
@@ -98,19 +99,20 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     summary->setLayout(summaryLayout);
     tabWidget->addTab(summary, tr("Souhrn"));
 
-    /* --------------------- Učitelé ---------------------------------------- */
-
+    /* Učitelé */
     TeachersTab* teachersTab = new TeachersTab(tabWidget);
     tabWidget->addTab(teachersTab, tr("Učitelé"));
 
-    /* --------------------- Předměty --------------------------------------- */
-
-    ClassesTab* classesTab = new ClassesTab(teachersTab->getTeachersModel());
+    /* Předměty */
+    ClassesTab* classesTab = new ClassesTab(teachersTab->getTeachersModel(), tabWidget);
     tabWidget->addTab(classesTab, tr("Předměty"));
+
+    /* Rozvrh hodin */
+    TimetableTab* timetableTab = new TimetableTab(classesTab->getClassesModel(), tabWidget);
+    tabWidget->addTab(timetableTab, tr("Rozvrhy hodin"));
 
     /* --------------------- Další "dummy" taby ----------------------------- */
     tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
-    tabWidget->addTab(new QLabel(tr("Zde bude rozvrh")), tr("Rozvrh"));
     tabWidget->addTab(new QLabel(tr("Zde bude seznam přesunutých a změněných hodin")), tr("Suply"));
     tabWidget->addTab(new QLabel(tr("Zde bude seznam odpadnutých hodin a volných dnů")), tr("Volna"));
 

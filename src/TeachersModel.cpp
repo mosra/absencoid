@@ -262,7 +262,6 @@ bool TeachersModel::saveRow(int row) {
     return true;
 }
 
-
 /* Získání indexu z ID */
 QModelIndex TeachersModel::indexFromId(int id) const {
     /* Hledání ID */
