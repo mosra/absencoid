@@ -1,6 +1,5 @@
 #include "MainWindow.h"
 
-#include <QWidget>
 #include <QTabWidget>
 #include <QPushButton>
 #include <QBoxLayout>
@@ -10,12 +9,6 @@
 #include <QStyle>
 #include <QStatusBar>
 #include <QSqlDatabase>
-#include <QSqlRelationalTableModel>
-#include <QTableView>
-
-// Workaround pro Qt 4.5 (QSqlRelationalDelegate není bez QT_GUI_LIB definován)
-#define QT_GUI_LIB
-#include <QSqlRelationalDelegate>
 
 #include "configure.h"
 #include "TeachersModel.h"
