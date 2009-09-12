@@ -20,8 +20,7 @@
 #include "configure.h"
 #include "TeachersModel.h"
 #include "TeachersTab.h"
-#include "ClassesModel.h"
-#include "ClassesDelegate.h"
+#include "ClassesTab.h"
 
 namespace Absencoid {
 
@@ -112,29 +111,9 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     tabWidget->addTab(teachersTab, tr("Učitelé"));
 
     /* --------------------- Předměty --------------------------------------- */
-    /* Tabulka */
-    ClassesModel* classesModel = new ClassesModel(teachersTab->getTeachersModel(), this);
 
-    QTableView* classesView = new QTableView(this);
-    classesView->setModel(classesModel);
-    classesView->setItemDelegate(new ClassesDelegate(teachersTab->getTeachersModel(), classesView));
-
-    /* Tlačítka pro přidání / odebrání třídy */
-    QPushButton* addClass = new QPushButton(tr("Přidat předmět"));
-    QPushButton* deleteClass = new QPushButton(tr("Odebrat předmět"));
-
-    /* Layout */
-    QVBoxLayout* classesButtonLayout = new QVBoxLayout;
-    classesButtonLayout->addWidget(addClass, 0, Qt::AlignTop);
-    classesButtonLayout->addWidget(deleteClass, 1, Qt::AlignTop);
-    QHBoxLayout* classesLayout = new QHBoxLayout;
-    classesLayout->addWidget(classesView);
-    classesLayout->addLayout(classesButtonLayout);
-
-    QWidget* classes = new QWidget(this);
-    classes->setLayout(classesLayout);
-
-    tabWidget->addTab(classes, tr("Předměty"));
+    ClassesTab* classesTab = new ClassesTab(teachersTab->getTeachersModel());
+    tabWidget->addTab(classesTab, tr("Předměty"));
 
     /* --------------------- Další "dummy" taby ----------------------------- */
     tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
