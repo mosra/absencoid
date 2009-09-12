@@ -230,6 +230,9 @@ QModelIndex TeachersModel::indexFromId(int id) const {
     /** @todo Nějaká lepší optimalizace */
     for(QList<Teacher>::size_type i = 0; i != teachers.count(); ++i)
         if(teachers[i].id == id) return index(i, 0);
+
+    /* Vrácení neplatného indexu */
+    return index(-1,0);
 }
 
 }
