@@ -61,12 +61,11 @@ QVariant TeachersModel::data(const QModelIndex& index, int role) const {
         index.column() > 2) return QVariant();
 
     /* Jméno */
-    else if(index.column() == 0) {
-        if(role == Qt::DisplayRole || role == Qt::EditRole)
+    if(index.column() == 0 && (role == Qt::DisplayRole || role == Qt::EditRole))
             return teachers[index.row()].name;
 
     /* Zda zapisuje absence */
-    } else if(index.column() == 1) {
+    else if(index.column() == 1) {
         /* Text */
         if(role == Qt::DisplayRole)
             return teachers[index.row()].flags & 0x01 ? tr("Zapisuje") : tr("Nezapisuje");
@@ -120,6 +119,8 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
         index.row() > teachers.size() ||
         index.column() > 2) return false;
 
+    QSqlQuery query;
+
     /* Jméno učitele */
     if(index.column() == 0 && role == Qt::EditRole) {
         if(value.toString().isEmpty()) return false;
@@ -127,25 +128,13 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
         /* Aktualizace dat */
         teachers[index.row()].name = value.toString();
 
-        /* Aktualizace DB */
-        QSqlQuery query;
+        /* SQL dotaz */
         query.prepare("UPDATE teachers SET name = :name WHERE id = :id;");
         query.bindValue(":name", teachers[index.row()].name);
         query.bindValue(":id", teachers[index.row()].id);
 
         /** @todo Ověřit duplicitu jmen */
-        /** @todo Spojit query.exec() do jednoho */
         /** @todo Zavolat sort() po změně jména */
-
-        if(!query.exec()) {
-            qDebug() << tr("Nepovedlo se aktualizovat!") << query.lastError().text()
-                     << query.lastQuery();
-            return false;
-        }
-
-        emit dataChanged(index, index);
-
-        return true;
 
     /* Flags */
     } else if(index.column() >= 1 && index.column() <= 2 && role == Qt::CheckStateRole) {
@@ -157,24 +146,23 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
         else
             teachers[index.row()].flags &= ~index.column();
 
-        /* Aktualizace DB */
-        QSqlQuery query;
+        /* SQL dotaz */
         query.prepare("UPDATE teachers SET flags = :flags WHERE id = :id;");
         query.bindValue(":flags", teachers[index.row()].flags);
         query.bindValue(":id", teachers[index.row()].id);
 
-        if(!query.exec()) {
-            qDebug() << tr("Nepovedlo se aktualizovat!") << query.lastError().text()
-                     << query.lastQuery();
-            return false;
-        }
+    /* Něco jiného */
+    } else return false;
 
-        emit dataChanged(index, index);
-
-        return true;
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepovedlo se aktualizovat učitele!") << query.lastError().text()
+        << query.lastQuery();
+        return false;
     }
 
-    return false;
+    emit dataChanged(index, index);
+    return true;
 }
 
 /* Přidání nového učitele */
