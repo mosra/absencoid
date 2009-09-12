@@ -4,13 +4,17 @@
 #include <QAbstractTableModel>
 
 namespace Absencoid {
+class TeachersModel;
 
 class ClassesModel: public QAbstractTableModel {
     public:
         /**
          * @brief Konstruktor
+         *
+         * @param   _teachersModel  Ukazatel na model učitelů (pro zjištění dat)
+         * @param   parent          Rodičovský widget
          */
-        ClassesModel(QObject* parent = 0);
+        ClassesModel(TeachersModel* _teachersModel, QObject* parent = 0);
 
         /**
          * @brief Počet sloupců
@@ -50,12 +54,15 @@ class ClassesModel: public QAbstractTableModel {
         /** @brief Struktura pro předmět */
         struct Class {
             int id;             /** @brief ID předmětu */
+            int teacherId;      /** @brief ID učitele */
             QString name;       /** @brief Jméno učitele */
-            QString teacher;    /** @brief Jméno učitele */
         };
 
         /** @brief Data tříd */
         QList<Absencoid::ClassesModel::Class> classes;
+
+        /** @brief Model učitelů */
+        Absencoid::TeachersModel* teachersModel;
 };
 
 }

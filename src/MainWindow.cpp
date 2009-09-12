@@ -107,11 +107,12 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* --------------------- Učitelé ---------------------------------------- */
 
-    tabWidget->addTab(new TeachersTab(tabWidget), tr("Učitelé"));
+    TeachersTab* teachersTab = new TeachersTab(tabWidget);
+    tabWidget->addTab(teachersTab, tr("Učitelé"));
 
     /* --------------------- Předměty --------------------------------------- */
     /* Tabulka */
-    ClassesModel* classesModel = new ClassesModel(this);
+    ClassesModel* classesModel = new ClassesModel(teachersTab->getTeachersModel(), this);
 
     QTableView* classesView = new QTableView(this);
     classesView->setModel(classesModel);

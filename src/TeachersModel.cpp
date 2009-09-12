@@ -236,4 +236,12 @@ bool TeachersModel::removeRows(int row, int count, const QModelIndex& parent) {
     return true;
 }
 
+/* Získání indexu z ID */
+QModelIndex TeachersModel::indexFromId(int id) const {
+    /* Hledání ID */
+    /** @todo Nějaká lepší optimalizace */
+    for(QList<Teacher>::size_type i = 0; i != teachers.count(); ++i)
+        if(teachers[i].id == id) return index(i, 0);
+}
+
 }

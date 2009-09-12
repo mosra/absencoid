@@ -22,6 +22,11 @@ class TeachersTab: public QWidget {
          */
         TeachersTab(QWidget* parent = 0);
 
+        /**
+         * @brief Vrácení ukazatele na model
+         */
+        inline TeachersModel* getTeachersModel(void) const { return teachersModel; }
+
     private:
         TeachersModel* teachersModel;       /** @brief Model s daty učitelů */
         QTableView* teachersView;           /** @brief Zobrazení učitelů */

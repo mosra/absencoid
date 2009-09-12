@@ -4,15 +4,15 @@
 #include <QSqlError>
 #include <QDebug>
 
+#include "TeachersModel.h"
+
 namespace Absencoid {
 
 /* Konstruktor */
-ClassesModel::ClassesModel(QObject* parent): QAbstractTableModel(parent) {
+ClassesModel::ClassesModel(TeachersModel* _teachersModel, QObject* parent):
+QAbstractTableModel(parent), teachersModel(_teachersModel) {
     /* Dotaz */
-    QSqlQuery query("SELECT classes.id AS classesId, classes.name AS classesName, teachers.name AS teachersName "
-                    "FROM classes LEFT JOIN teachers "
-                    "ON classes.teacherId = teachers.id "
-                    "ORDER BY classesName;");
+    QSqlQuery query("SELECT id, name, teacherId FROM classes ORDER by name;");
 
     /** @todo Ošetřit errory */
 
@@ -21,7 +21,7 @@ ClassesModel::ClassesModel(QObject* parent): QAbstractTableModel(parent) {
         Class c;
         c.id = query.value(0).toInt();
         c.name = query.value(1).toString();
-        c.teacher = query.value(2).toString();
+        c.teacherId = query.value(2).toInt();
         classes.append(c);
     }
 }
@@ -65,8 +65,10 @@ QVariant ClassesModel::data(const QModelIndex& index, int role) const {
         return classes[index.row()].name;
 
     /* Učitel */
-    if(index.column() == 1 && role == Qt::DisplayRole)
-        return classes[index.row()].teacher;
+    if(index.column() == 1 && role == Qt::DisplayRole) {
+        /* Vrácení dat z TeachersModel, aby byly aktuální */
+        return teachersModel->indexFromId(classes[index.row()].teacherId).data();
+    }
 
     /* Něco jiného */
     return QVariant();

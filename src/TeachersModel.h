@@ -68,6 +68,13 @@ class TeachersModel: public QAbstractTableModel {
          */
         virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
+        /**
+         * @brief Získání indexu odpovídajícího předanému ID učitele
+         *
+         * Index ukazuje na první položku odpovídajícího řádku (tj. jméno)
+         */
+        QModelIndex indexFromId(int id) const;
+
     private:
         /** @brief Struktura pro data učitele */
         struct Teacher {
