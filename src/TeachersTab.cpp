@@ -63,7 +63,12 @@ void TeachersTab::removeTeachers() {
             rows.append(index.row());
 
             /* Jméno leží v prvním (0) sloupci daného řádku */
-            names.append(index.sibling(index.row(), 0).data().toString());
+            QString name = index.sibling(index.row(), 0).data().toString();
+
+            /* Při mazání čerstvě přidaných učitelů */
+            if(name.isEmpty()) name = tr("(prázdný)");
+
+            names.append(name);
         }
     }
 

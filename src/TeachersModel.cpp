@@ -6,6 +6,7 @@
 #include <QStyle>
 #include <QApplication>
 #include <QDebug>
+#include <QFont>
 
 namespace Absencoid {
 
@@ -47,8 +48,19 @@ QVariant TeachersModel::headerData(int section, Qt::Orientation orientation, int
     }
 
     /* Vertikální hlavičky = ID učitele */
-    if(orientation == Qt::Vertical && role == Qt::DisplayRole && section >= 0 && section < teachers.count())
-            return teachers[section].id;
+    if(orientation == Qt::Vertical && section >= 0 && section < teachers.count()) {
+
+        /* Pokud je nějaký učitel neuložený, má v hlavičce hvězdičku místo ID */
+        if(role == Qt::DisplayRole)
+            return teachers[section].id == 0 ? QVariant("*") : QVariant(teachers[section].id);
+
+        /* Nové položky mají zvýrazněnou hlavičku (tučný text) */
+        if(role == Qt::FontRole && teachers[section].id == 0) {
+            QFont font;
+            font.setBold(true);
+            return font;
+        }
+    }
 
     return QAbstractItemModel::headerData(section, orientation, role);
 }
@@ -128,6 +140,13 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
         /* Aktualizace dat */
         teachers[index.row()].name = value.toString();
 
+        /* Když se jedná o nový záznam, nemůžeme dělat UPDATE ale INSERT.
+            Emitujeme signál o změně dat a pokusíme se záznam uložit. */
+        if(teachers[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
+
         /* SQL dotaz */
         query.prepare("UPDATE teachers SET name = :name WHERE id = :id;");
         query.bindValue(":name", teachers[index.row()].name);
@@ -169,32 +188,12 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
 bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
     beginInsertRows(parent, row, row);
 
-    /* Otestujeme, jestli zde nejsou dva nepojmenovaní učitelé */
-    Teacher test; foreach(test, teachers) {
-        if(test.name.isEmpty()) {
-            /** @todo Vyhodit hlášku! */
-            qDebug() << tr("Nelze přidat dva nepojmenované učitele!");
-            return false;
-        }
-    }
-
-    /* Přidání do DB (prvně, protože se musí zjistit ID nového učitele) */
-    QSqlQuery query;
-    if(!query.exec("INSERT INTO teachers (gradeId, name, flags) VALUES (1, \"\", 2)")) {
-        qDebug() << tr("Nepovedlo se přidat učitele!") << query.lastError().text()
-        << query.lastQuery();
-        return false;
-    }
-
-    int id = query.lastInsertId().toInt();
-
     Teacher t;
-    t.id = id;
-    t.name = "";
+    t.id = 0;
     t.flags = 2;
-
-    /* Přidání na danou pozici */
     teachers.insert(row, t);
+
+    /* Do DB se ukládá až při zadání jména */
 
     endInsertRows();
 }
@@ -207,22 +206,55 @@ bool TeachersModel::removeRows(int row, int count, const QModelIndex& parent) {
     query.prepare("DELETE FROM teachers WHERE id = :id;");
     for(int i = 0; i != count; i++) {
 
-        /* Smazání z DB (připravený dotaz, aby to nebylo tak příšerně pomalý). */
-        query.bindValue(":id", teachers[row+i].id);
+        /* Pokud není učitel ještě neuložený, smažeme ho z DB */
+        if(teachers[row+i].id != 0) {
+            /* Smazání z DB (připravený dotaz, aby to nebylo tak příšerně pomalý). */
+            query.bindValue(":id", teachers[row+i].id);
 
-        /* Chybička se vloudila... */
-        if(!query.exec()) {
-            qDebug() << tr("Nelze odstranit učitele!") << query.lastError().text()
-                     << query.lastQuery();
-            return false;
+            /* Chybička se vloudila... */
+            if(!query.exec()) {
+                qDebug() << tr("Nelze odstranit učitele!") << query.lastError().text()
+                        << query.lastQuery();
+                return false;
+            }
+        }
 
-        /* Pokud smazání proběhlo OK, smažeme i z listu */
-        } else teachers.removeAt(row+i);
+        /* Pokud nenastala chyba při mazání z DB, smažeme i z listu */
+        teachers.removeAt(row+i);
     }
 
     endRemoveRows();
     return true;
 }
+
+/* Uložení řádku do DB */
+bool TeachersModel::saveRow(int row) {
+    /* Špatný řádek */
+    if(row < 0 || row >= teachers.count()) return false;
+
+    /* Pokud není vyplněno jméno učitele, konec. Vracíme true, protože k chybě
+        nedošlo (toto je očekáváné chování). Uloží se při další změně jména. */
+    if(teachers[row].name.isEmpty()) return true;
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("INSERT INTO teachers (gradeId, name, flags) VALUES (1, :name, :flags);");
+    query.bindValue(":name", teachers[row].name);
+    query.bindValue(":flags", teachers[row].flags);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se uložit učitele do databáze!") << query.lastError()
+                 << query.lastQuery();
+        return false;
+    }
+
+    /* Aktualizace ID učitele, signál o změně hlavičky */
+    teachers[row].id = query.lastInsertId().toInt();
+    emit headerDataChanged(Qt::Vertical, row, row);
+    return true;
+}
+
 
 /* Získání indexu z ID */
 QModelIndex TeachersModel::indexFromId(int id) const {
@@ -242,6 +274,5 @@ int TeachersModel::idFromIndex(int row) const {
 
     return teachers[row].id;
 }
-
 
 }

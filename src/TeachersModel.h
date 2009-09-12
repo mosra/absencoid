@@ -90,6 +90,17 @@ class TeachersModel: public QAbstractTableModel {
 
         /** @brief Data učitelů */
         QList<Absencoid::TeachersModel::Teacher> teachers;
+
+        /**
+         * @brief Uložení nového učitele do databáze
+         *
+         * Uloží nového učitele (označeného hvězdičkou) do databáze, aktualizuje
+         * hlavičku na ID přidaného řádku. Voláno z
+         * Absencoid::TeachersModel::insertRow, když jsou všechna data zapsána.
+         * @param   row     Řádek, který se má uložit
+         * @return  Zda se povedlo uložit
+         */
+        bool saveRow(int row);
 };
 
 }
