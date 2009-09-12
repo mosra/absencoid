@@ -196,6 +196,7 @@ bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
     /* Do DB se ukládá až při zadání jména */
 
     endInsertRows();
+    return true;
 }
 
 /* Odstranění učitelů */

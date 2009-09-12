@@ -204,6 +204,7 @@ bool ClassesModel::insertRow(int row, const QModelIndex& parent) {
     /* Do DB se zapíše až při zadání jména a učitele */
 
     endInsertRows();
+    return true;
 }
 
 /* Uložení nového ředmětu do DB */
@@ -231,6 +232,7 @@ bool ClassesModel::saveRow(int row) {
     /* Aktualizace ID třídy, vyslání signálu o změně hlavičky */
     classes[row].id = query.lastInsertId().toInt();
     emit headerDataChanged(Qt::Vertical, row, row);
+    return true;
 }
 
 }

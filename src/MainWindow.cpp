@@ -123,4 +123,4 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     resize(sizeHint().height()*8/5, sizeHint().height());
 }
 
-};
+}

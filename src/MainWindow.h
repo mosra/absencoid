@@ -20,6 +20,6 @@ class MainWindow: public QMainWindow {
         QTabWidget* tabWidget;
 };
 
-};
+}
 
 #endif
