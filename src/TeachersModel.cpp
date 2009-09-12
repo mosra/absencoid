@@ -252,7 +252,13 @@ bool TeachersModel::saveRow(int row) {
 
     /* Aktualizace ID učitele, signál o změně hlavičky */
     teachers[row].id = query.lastInsertId().toInt();
+
+    /* Signál o změně hlavičky */
     emit headerDataChanged(Qt::Vertical, row, row);
+
+    /* Signál o změně zobrazení (aby se hlavička přizpůsobila dlouhým ID) */
+    emit layoutChanged();
+
     return true;
 }
 
