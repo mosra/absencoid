@@ -61,6 +61,11 @@ class ClassesModel: public QAbstractTableModel {
          */
         virtual bool insertRow(int row, const QModelIndex& parent = QModelIndex());
 
+        /**
+         * @brief Odebrání předmětů
+         */
+        virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
+
     private:
         /** @brief Struktura pro předmět */
         struct Class {

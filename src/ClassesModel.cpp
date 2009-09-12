@@ -207,6 +207,34 @@ bool ClassesModel::insertRow(int row, const QModelIndex& parent) {
     return true;
 }
 
+/* Odebrání předmětů */
+bool ClassesModel::removeRows(int row, int count, const QModelIndex& parent) {
+    beginRemoveRows(parent, row, row+count-1);
+
+    QSqlQuery query;
+    query.prepare("DELETE FROM classes WHERE id = :id;");
+    for(int i = 0; i != count; ++i) {
+
+        /* Pokud není předmět ještě neuložen, smazání z DB */
+        if(classes[row+i].id != 0) {
+            query.bindValue(":id", classes[row+i].id);
+
+            /* Chyba */
+            if(!query.exec()) {
+                qDebug() << tr("Nelze odstranit předmět!") << query.lastError()
+                         << query.lastQuery();
+                return false;
+            }
+        }
+
+        /* Pokud nenastala chyba při mazání z DB, smazání z listu */
+        classes.removeAt(row+i);
+    }
+
+    endRemoveRows();
+    return true;
+}
+
 /* Uložení nového ředmětu do DB */
 bool ClassesModel::saveRow(int row) {
     /* Špatný index */
