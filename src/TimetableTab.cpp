@@ -78,12 +78,12 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
 
     /* Při změně rozvrhu načíst nový */
     connect(timetableCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadTimetable(int)));
+
     /* Uložit změněny v popisku a datech */
     connect(description, SIGNAL(editingFinished()), this, SLOT(setDescription()));
     connect(validFrom, SIGNAL(editingFinished()), this, SLOT(setValidFrom()));
     connect(validTo, SIGNAL(editingFinished()), this, SLOT(setValidTo()));
-    /* Při změně aktuální položky změnit tooltip */
-    connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(changeFollowedByTooltip(int)));
+    connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(setFollowedBy()));
 
     /** @todo Propojit dataChanged() s inputy */
 
@@ -108,14 +108,9 @@ void TimetableTab::loadTimetable(int index) {
     );
 }
 
-/* Změna tooltipu u položky pro následující rozvrh */
-void TimetableTab::changeFollowedByTooltip(int index) {
-    followedBy->setToolTip(timetableListModel->index(index, 0).data().toString());
-}
-
 /* Nastavení popisku rozvrhu */
 void TimetableTab::setDescription() {
-    /* Pokud se nepovede uložit, vrácení starých dat zpět */
+    /* Pokud se nepovede uložit (např. prázdný popisek), vrácení starých dat zpět */
     if(!timetableListModel->setData(
         timetableListModel->index(timetableCombo->currentIndex(), 1),
         description->text()
@@ -125,22 +120,31 @@ void TimetableTab::setDescription() {
 
 /* Nastavení začátku platnosti */
 void TimetableTab::setValidFrom() {
-    /* Pokud se nepovede uložit, vrácení starých dat zpět */
-    if(!timetableListModel->setData(
+    /* Nastavení dat */
+    timetableListModel->setData(
         timetableListModel->index(timetableCombo->currentIndex(), 2),
-        validFrom->date()
-    ))
-        validFrom->setDate(timetableListModel->index(timetableCombo->currentIndex(), 2).data().toDate());
+        validFrom->date());
 }
 
 /* Nastavení konce platnosti */
 void TimetableTab::setValidTo() {
-    /* Pokud se nepovede uložit, vrácení starých dat zpět */
-    if(!timetableListModel->setData(
+    /* Nastavení dat */
+    timetableListModel->setData(
         timetableListModel->index(timetableCombo->currentIndex(), 3),
-        validTo->date()
-    ))
-        validTo->setDate(timetableListModel->index(timetableCombo->currentIndex(), 3).data().toDate());
+        validTo->date());
+}
+
+/* Nastavení následujícího rozvrhu */
+void TimetableTab::setFollowedBy() {
+    /* Přepočteme index položky na ID rozvrhu */
+    int id = timetableListModel->idFromIndex(followedBy->currentIndex());
+
+    /* Nastavení dat */
+    timetableListModel->setData(
+        timetableListModel->index(timetableCombo->currentIndex(), 4), id);
+
+    /* Změna tooltipu a aktuální (aby byl vidět celý název) */
+    followedBy->setToolTip(timetableListModel->index(followedBy->currentIndex(), 0).data().toString());
 }
 
 }

@@ -45,13 +45,6 @@ class TimetableTab: public QWidget {
         void loadTimetable(int index);
 
         /**
-         * @brief Změna tooltipu u comboboxu pro následující rozvrh
-         *
-         * @param   index           Index aktuální položky
-         */
-        void changeFollowedByTooltip(int index);
-
-        /**
          * @brief Nastavení popisku aktuálního rozvrhu
          */
         void setDescription();
@@ -65,6 +58,11 @@ class TimetableTab: public QWidget {
          * @brief Nastavení konce platnosti aktuálního rozvrhu
          */
         void setValidTo();
+
+        /**
+         * @brief Nastavení následujícího rozvrhu
+         */
+        void setFollowedBy();
 };
 
 }

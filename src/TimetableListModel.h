@@ -46,6 +46,11 @@ class TimetableListModel: public QAbstractTableModel {
          */
         int indexFromId(int id) const;
 
+        /**
+         * @brief Zjištění ID z indexu
+         */
+        int idFromIndex(int index) const;
+
     private:
         /** @brief Struktura pro rozvrh */
         struct Timetable {
