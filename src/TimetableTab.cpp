@@ -8,10 +8,10 @@
 #include <QDateEdit>
 #include <QCalendarWidget>
 #include <QLineEdit>
-#include <QDebug>
+#include <QMessageBox>
 
 #include "TimetableListModel.h"
-#include <QMessageBox>
+#include "TimetableModel.h"
 
 namespace Absencoid {
 
@@ -27,12 +27,13 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
 
     /* Tabulka rozvrhu */
     QTableView* timetableView = new QTableView(this);
+    TimetableModel* timetableModel = new TimetableModel(classesModel, this);
+    timetableView->setModel(timetableModel);
 
     /* Tlačítka atd. vpravo */
     QPushButton* addTimetableButton = new QPushButton(tr("Nový rozvrh"));
     removeTimetableButton = new QPushButton(tr("Odstranit rozvrh"));
-    switchDirectionButton = new QPushButton(tr("Svislý směr"));
-    switchDirectionButton->setCheckable(true);
+    switchDirectionButton = new QPushButton(tr("Přehodit směr"));
     removeLessonsButton = new QPushButton(tr("Odstranit vybrané"));
 
     descriptionLabel = new QLabel(tr("Popisek:"));
@@ -91,6 +92,9 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     /* Nový / smazat rozvrh */
     connect(addTimetableButton, SIGNAL(clicked(bool)), this, SLOT(addTimetable()));
     connect(removeTimetableButton, SIGNAL(clicked(bool)), this, SLOT(removeTimetable()));
+
+    /* Přetočení rozvrhu */
+    connect(switchDirectionButton, SIGNAL(clicked(bool)), timetableModel, SLOT(switchDirection()));
 
     /* Uložit změny v popisku a datech */
     connect(description, SIGNAL(editingFinished()), this, SLOT(setDescription()));
