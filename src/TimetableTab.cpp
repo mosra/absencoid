@@ -17,11 +17,6 @@ TimetableTab::TimetableTab(ClassesModel* classesModel, QWidget* parent):
 QWidget(parent), timetableListModel(new TimetableListModel(this)),
 timetableCombo(new QComboBox), description(new QLineEdit),
 validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
-    /* Nastavení modelu pro výběr rozvrhu */
-    timetableCombo->setModel(timetableListModel);
-
-    /* Při změně rozvrhu načíst nový */
-    connect(timetableCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadTimetable(int)));
 
     QHBoxLayout* selectTimeTableLayout = new QHBoxLayout;
     selectTimeTableLayout->addWidget(new QLabel(tr("Aktuální rozvrh: ")));
@@ -33,22 +28,9 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
     /* Tlačítka atd. vpravo */
     QPushButton* addTimetable = new QPushButton(tr("Nový rozvrh"));
     QPushButton* deleteTimetable = new QPushButton(tr("Odstranit rozvrh"));
-
     QPushButton* switchDirection = new QPushButton(tr("Svislý směr"));
     switchDirection->setCheckable(true);
-
-    validFrom->setDisplayFormat("dd.MM.yyyy");
-    validTo->setDisplayFormat("dd.MM.yyyy");
-
     QPushButton* deleteLessons = new QPushButton(tr("Odstranit vybrané"));
-
-    /* Nastavení modelu a max. šířky comba pro následující rozvrh */
-    followedBy->setModel(timetableListModel);
-    followedBy->setModelColumn(1);
-    followedBy->setMaximumWidth(deleteLessons->sizeHint().width());
-
-    /* Při změně aktuální položky změnit tooltip */
-    connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(changeFollowedByTooltip(int)));
 
     /* Layout tlačítek vpravo */
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
@@ -80,6 +62,23 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->addLayout(selectTimeTableLayout);
     layout->addLayout(bottomLayout);
+
+    /* Nastavení modelu pro výběr rozvrhu */
+    timetableCombo->setModel(timetableListModel);
+
+    /* Formát zobrazení data v datových políčkách */
+    validFrom->setDisplayFormat("dd.MM.yyyy");
+    validTo->setDisplayFormat("dd.MM.yyyy");
+
+    /* Nastavení modelu a max. šířky comba pro následující rozvrh */
+    followedBy->setModel(timetableListModel);
+    followedBy->setModelColumn(1);
+    followedBy->setMaximumWidth(deleteLessons->sizeHint().width());
+
+    /* Při změně rozvrhu načíst nový */
+    connect(timetableCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadTimetable(int)));
+    /* Při změně aktuální položky změnit tooltip */
+    connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(changeFollowedByTooltip(int)));
 
     /* Načtení rozvrhu */
     loadTimetable(timetableCombo->currentIndex());
