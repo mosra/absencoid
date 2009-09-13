@@ -147,8 +147,11 @@ void TimetableTab::loadTimetable(int index) {
 /* Přidání a načtení nového rozvrhu */
 void TimetableTab::addTimetable() {
     int index = timetableListModel->rowCount();
+
+    /* Pokud se podaří přidat, změníme index v comboboxu na nový, což jej
+        současně i načte */
     if(timetableListModel->insertRow(index))
-        loadTimetable(index);
+        timetableCombo->setCurrentIndex(index);
 }
 
 /* Odebrání aktuálně načteného rozvrhu */

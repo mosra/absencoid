@@ -156,6 +156,7 @@ bool TimetableListModel::insertRow(int row, const QModelIndex& parent) {
 
     /* Upravení nového ID */
     t.id = query.lastInsertId().toInt();
+    t.followedBy = t.id;
     timetableList.insert(row, t);
 
     endInsertRows();
