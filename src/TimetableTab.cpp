@@ -6,6 +6,7 @@
 #include <QTableView>
 #include <QPushButton>
 #include <QDateEdit>
+#include <QCalendarWidget>
 #include <QLineEdit>
 #include <QDebug>
 
@@ -64,8 +65,14 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     /* Nastavení modelu pro výběr rozvrhu */
     timetableCombo->setModel(timetableListModel);
 
-    /* Formát zobrazení data v datovém políčku */
+    /* Políčko pro začátek platnosti */
     validFrom->setDisplayFormat("dd.MM.yyyy");
+
+    /* Po kliknutí na šipku vyleze kalendář */
+    QCalendarWidget* calendarWidget = new QCalendarWidget(validFrom);
+    calendarWidget->setFirstDayOfWeek(Qt::Monday);
+    validFrom->setCalendarPopup(true);
+    validFrom->setCalendarWidget(calendarWidget);
 
     /* Nastavení modelu a max. šířky comba pro následující rozvrh */
     followedBy->setModel(timetableListModel);
