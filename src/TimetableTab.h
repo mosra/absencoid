@@ -31,8 +31,7 @@ class TimetableTab: public QWidget {
         TimetableListModel* timetableListModel; /** @brief Model seznamu rozvrhů */
         QComboBox* timetableCombo;  /** @brief Políčko pro výběr rozvrhu */
         QLineEdit* description;     /** @brief Popisek rozvrhu */
-        QDateEdit *validFrom,       /** @brief Počátek platnosti aktuálního rozvrhu */
-                  *validTo;         /** @brief Konec platnosti aktuálního rozvrhu */
+        QDateEdit *validFrom;       /** @brief Počátek platnosti aktuálního rozvrhu */
         QComboBox* followedBy;      /** @brief Výběr rozvrhu, který bude tento následovat */
 
     private slots:
@@ -53,11 +52,6 @@ class TimetableTab: public QWidget {
          * @brief Nastavení začátku platnosti aktuálního rozvrhu
          */
         void setValidFrom();
-
-        /**
-         * @brief Nastavení konce platnosti aktuálního rozvrhu
-         */
-        void setValidTo();
 
         /**
          * @brief Nastavení následujícího rozvrhu

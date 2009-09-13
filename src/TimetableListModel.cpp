@@ -8,7 +8,7 @@ namespace Absencoid {
 
 /* Konstruktor */
 TimetableListModel::TimetableListModel(QObject* parent): QAbstractTableModel(parent) {
-    QSqlQuery query("SELECT id, description, validFrom, validTo, followedBy FROM timetables;");
+    QSqlQuery query("SELECT id, description, validFrom, followedBy FROM timetables;");
 
     /* Ukládání výsledků dotazu */
     while(query.next()) {
@@ -16,16 +16,15 @@ TimetableListModel::TimetableListModel(QObject* parent): QAbstractTableModel(par
         t.id = query.value(0).toInt();
         t.description = query.value(1).toString();
         t.validFrom = query.value(2).toDate();
-        t.validTo = query.value(3).toDate();
         /* Pokud není zadáno, čím je následován, je následován sám sebou */
-        t.followedBy = query.value(4).toInt() == 0 ? t.id : query.value(4).toInt();
+        t.followedBy = query.value(3).toInt() == 0 ? t.id : query.value(3).toInt();
         timetableList.append(t);
     }
 }
 
 /* Počet sloupců */
 int TimetableListModel::columnCount(const QModelIndex& parent) const {
-    return 5;
+    return 4;
 }
 
 /* Počet řádků */
@@ -37,14 +36,13 @@ int TimetableListModel::rowCount(const QModelIndex& parent) const {
 QVariant TimetableListModel::data(const QModelIndex& index, int role) const {
     if(!index.isValid() ||
         index.row() >= timetableList.count() ||
-        index.column() > 4) return QVariant();
+        index.column() > 3) return QVariant();
 
-    /* Popisek: Rozvrh (platný od 01.09.2009 do 30.06.2010) */
+    /* Popisek: Rozvrh (platný od 01.09.2009) */
     if((index.column() == 0 && role == Qt::DisplayRole) ||
        (index.column() == 1 && role == Qt::ToolTipRole))
         return timetableList[index.row()].description + tr(" (platný od ")
-            + timetableList[index.row()].validFrom.toString("dd.MM.yyyy") + " do "
-            + timetableList[index.row()].validTo.toString("dd.MM.yyyy") + ")";
+            + timetableList[index.row()].validFrom.toString("dd.MM.yyyy") + ")";
 
     /* Popisek samotný */
     if(index.column() == 1 && role == Qt::DisplayRole)
@@ -54,12 +52,8 @@ QVariant TimetableListModel::data(const QModelIndex& index, int role) const {
     if(index.column() == 2 && role == Qt::DisplayRole)
         return timetableList[index.row()].validFrom;
 
-    /* Platný do */
-    if(index.column() == 3 && role == Qt::DisplayRole)
-        return timetableList[index.row()].validTo;
-
     /* Následující rozvrh */
-    if(index.column() == 4 && role == Qt::DisplayRole)
+    if(index.column() == 3 && role == Qt::DisplayRole)
         return timetableList[index.row()].followedBy;
 
     /* Něco jiného */
@@ -69,7 +63,7 @@ QVariant TimetableListModel::data(const QModelIndex& index, int role) const {
 /* Flags */
 Qt::ItemFlags TimetableListModel::flags(const QModelIndex& index) const {
     if(!index.isValid() ||
-        index.column() > 4 ||
+        index.column() > 3 ||
         index.row() >= timetableList.count()) return Qt::ItemIsEnabled;
 
     /* Dlouhý popisek není editovatelný */
@@ -81,7 +75,7 @@ Qt::ItemFlags TimetableListModel::flags(const QModelIndex& index) const {
 /* Nastavení dat */
 bool TimetableListModel::setData(const QModelIndex& index, const QVariant& value, int role) {
     if(!index.isValid() ||
-        index.column() > 4 ||
+        index.column() > 3 ||
         index.row() >= timetableList.count()) return false;
 
     QSqlQuery query;
@@ -104,16 +98,8 @@ bool TimetableListModel::setData(const QModelIndex& index, const QVariant& value
         query.bindValue(":validFrom", timetableList[index.row()].validFrom.toString(Qt::ISODate));
         query.bindValue(":id", timetableList[index.row()].id);
 
-    /* Konec platnosti */
-    } else if(index.column() == 3 && role == Qt::EditRole) {
-        timetableList[index.row()].validTo = value.toDate();
-
-        query.prepare("UPDATE timetables SET validTo = :validTo WHERE id = :id;");
-        query.bindValue(":validTo", timetableList[index.row()].validTo.toString(Qt::ISODate));
-        query.bindValue(":id", timetableList[index.row()].id);
-
     /* Následující rozvrh */
-    } else if(index.column() == 4 && role == Qt::EditRole) {
+    } else if(index.column() == 3 && role == Qt::EditRole) {
         timetableList[index.row()].followedBy = value.toInt();
 
         query.prepare("UPDATE timetables SET followedBy = :followedBy WHERE id = :id;");
@@ -130,8 +116,8 @@ bool TimetableListModel::setData(const QModelIndex& index, const QVariant& value
         return false;
     }
 
-    /* Změny v popisku a datech se projeví i v "souhrnném" sloupci */
-    if(index.column() != 4)
+    /* Změny v popisku a datumu se projeví i v "souhrnném" sloupci */
+    if(index.column() != 3)
         emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
 
     emit dataChanged(index, index);

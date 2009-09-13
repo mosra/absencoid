@@ -41,14 +41,12 @@ CREATE TABLE classes (
 -- id           ID rozvrhu
 -- description  Popisek rozvrhu
 -- validFrom    Datum začátku platnosti
--- validTo      Datum konce platnosti (ten den je ještě platný)
 -- followedBy   ID rozvrhu, který tento po konci platnosti nahradí
 CREATE TABLE timetables (
     gradeId INTEGER NOT NULL,
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     description TEXT NOT NULL UNIQUE,
     validFrom TEXT NOT NULL,
-    validTo TEXT,
     followedBy INTEGER
 );
 

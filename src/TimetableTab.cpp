@@ -17,7 +17,7 @@ namespace Absencoid {
 TimetableTab::TimetableTab(ClassesModel* classesModel, QWidget* parent):
 QWidget(parent), timetableListModel(new TimetableListModel(this)),
 timetableCombo(new QComboBox), description(new QLineEdit),
-validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
+validFrom(new QDateEdit), followedBy(new QComboBox) {
 
     QHBoxLayout* selectTimeTableLayout = new QHBoxLayout;
     selectTimeTableLayout->addWidget(new QLabel(tr("Aktuální rozvrh: ")));
@@ -46,9 +46,6 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
     buttonsLayout->addWidget(new QLabel(tr("Platnost od:")), 0, Qt::AlignTop);
     buttonsLayout->addWidget(validFrom, 0, Qt::AlignTop);
     buttonsLayout->addSpacing(8);
-    buttonsLayout->addWidget(new QLabel(tr("Platnost do:")), 0, Qt::AlignTop);
-    buttonsLayout->addWidget(validTo, 0, Qt::AlignTop);
-    buttonsLayout->addSpacing(8);
     buttonsLayout->addWidget(new QLabel(tr("Následován s:")), 0, Qt::AlignTop);
     buttonsLayout->addWidget(followedBy, 0, Qt::AlignTop);
     buttonsLayout->addSpacing(16);
@@ -67,9 +64,8 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
     /* Nastavení modelu pro výběr rozvrhu */
     timetableCombo->setModel(timetableListModel);
 
-    /* Formát zobrazení data v datových políčkách */
+    /* Formát zobrazení data v datovém políčku */
     validFrom->setDisplayFormat("dd.MM.yyyy");
-    validTo->setDisplayFormat("dd.MM.yyyy");
 
     /* Nastavení modelu a max. šířky comba pro následující rozvrh */
     followedBy->setModel(timetableListModel);
@@ -82,7 +78,6 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
     /* Uložit změněny v popisku a datech */
     connect(description, SIGNAL(editingFinished()), this, SLOT(setDescription()));
     connect(validFrom, SIGNAL(editingFinished()), this, SLOT(setValidFrom()));
-    connect(validTo, SIGNAL(editingFinished()), this, SLOT(setValidTo()));
     connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(setFollowedBy()));
 
     /** @todo Propojit dataChanged() s inputy */
@@ -100,11 +95,10 @@ void TimetableTab::loadTimetable(int index) {
 
     /* Nastavení začátku a konce platnosti */
     validFrom->setDate(timetableListModel->index(index, 2).data().toDate());
-    validTo->setDate(timetableListModel->index(index, 3).data().toDate());
 
     /* Nastavení následujícího rozvrhu */
     followedBy->setCurrentIndex(
-        timetableListModel->indexFromId(timetableListModel->index(index, 4).data().toInt())
+        timetableListModel->indexFromId(timetableListModel->index(index, 3).data().toInt())
     );
 }
 
@@ -126,14 +120,6 @@ void TimetableTab::setValidFrom() {
         validFrom->date());
 }
 
-/* Nastavení konce platnosti */
-void TimetableTab::setValidTo() {
-    /* Nastavení dat */
-    timetableListModel->setData(
-        timetableListModel->index(timetableCombo->currentIndex(), 3),
-        validTo->date());
-}
-
 /* Nastavení následujícího rozvrhu */
 void TimetableTab::setFollowedBy() {
     /* Přepočteme index položky na ID rozvrhu */
@@ -141,7 +127,7 @@ void TimetableTab::setFollowedBy() {
 
     /* Nastavení dat */
     timetableListModel->setData(
-        timetableListModel->index(timetableCombo->currentIndex(), 4), id);
+        timetableListModel->index(timetableCombo->currentIndex(), 3), id);
 
     /* Změna tooltipu a aktuální (aby byl vidět celý název) */
     followedBy->setToolTip(timetableListModel->index(followedBy->currentIndex(), 0).data().toString());

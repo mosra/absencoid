@@ -58,7 +58,6 @@ class TimetableListModel: public QAbstractTableModel {
             int followedBy;         /** @brief ID rozvrhu, který tento následuje */
             QString description;    /** @brief Popisek rozvrhu */
             QDate validFrom;        /** @brief Platný od */
-            QDate validTo;          /** @brief Platný do */
         };
 
         /** @brief List s rozvrhy */
