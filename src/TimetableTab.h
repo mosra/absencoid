@@ -50,6 +50,21 @@ class TimetableTab: public QWidget {
          * @param   index           Index aktuální položky
          */
         void changeFollowedByTooltip(int index);
+
+        /**
+         * @brief Nastavení popisku aktuálního rozvrhu
+         */
+        void setDescription();
+
+        /**
+         * @brief Nastavení začátku platnosti aktuálního rozvrhu
+         */
+        void setValidFrom();
+
+        /**
+         * @brief Nastavení konce platnosti aktuálního rozvrhu
+         */
+        void setValidTo();
 };
 
 }

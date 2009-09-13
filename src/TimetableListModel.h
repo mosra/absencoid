@@ -27,9 +27,19 @@ class TimetableListModel: public QAbstractTableModel {
         virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
 
         /**
-         * @brief Data
+         * @brief Čtecí přístup k datům
          */
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
+
+        /**
+         * @brief Flags
+         */
+        virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+
+        /**
+         * @brief Zápisový přístup k datům
+         */
+        virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
         /**
          * @brief Zjištění indexu z ID rozvrhu

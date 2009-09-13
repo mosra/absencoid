@@ -6,9 +6,10 @@
 #include <QTableView>
 #include <QPushButton>
 #include <QDateEdit>
+#include <QLineEdit>
+#include <QDebug>
 
 #include "TimetableListModel.h"
-#include <QLineEdit>
 
 namespace Absencoid {
 
@@ -77,8 +78,14 @@ validFrom(new QDateEdit), validTo(new QDateEdit), followedBy(new QComboBox) {
 
     /* Při změně rozvrhu načíst nový */
     connect(timetableCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadTimetable(int)));
+    /* Uložit změněny v popisku a datech */
+    connect(description, SIGNAL(editingFinished()), this, SLOT(setDescription()));
+    connect(validFrom, SIGNAL(editingFinished()), this, SLOT(setValidFrom()));
+    connect(validTo, SIGNAL(editingFinished()), this, SLOT(setValidTo()));
     /* Při změně aktuální položky změnit tooltip */
     connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(changeFollowedByTooltip(int)));
+
+    /** @todo Propojit dataChanged() s inputy */
 
     /* Načtení rozvrhu */
     loadTimetable(timetableCombo->currentIndex());
@@ -104,6 +111,36 @@ void TimetableTab::loadTimetable(int index) {
 /* Změna tooltipu u položky pro následující rozvrh */
 void TimetableTab::changeFollowedByTooltip(int index) {
     followedBy->setToolTip(timetableListModel->index(index, 0).data().toString());
+}
+
+/* Nastavení popisku rozvrhu */
+void TimetableTab::setDescription() {
+    /* Pokud se nepovede uložit, vrácení starých dat zpět */
+    if(!timetableListModel->setData(
+        timetableListModel->index(timetableCombo->currentIndex(), 1),
+        description->text()
+    ))
+        description->setText(timetableListModel->index(timetableCombo->currentIndex(), 1).data().toString());
+}
+
+/* Nastavení začátku platnosti */
+void TimetableTab::setValidFrom() {
+    /* Pokud se nepovede uložit, vrácení starých dat zpět */
+    if(!timetableListModel->setData(
+        timetableListModel->index(timetableCombo->currentIndex(), 2),
+        validFrom->date()
+    ))
+        validFrom->setDate(timetableListModel->index(timetableCombo->currentIndex(), 2).data().toDate());
+}
+
+/* Nastavení konce platnosti */
+void TimetableTab::setValidTo() {
+    /* Pokud se nepovede uložit, vrácení starých dat zpět */
+    if(!timetableListModel->setData(
+        timetableListModel->index(timetableCombo->currentIndex(), 3),
+        validTo->date()
+    ))
+        validTo->setDate(timetableListModel->index(timetableCombo->currentIndex(), 3).data().toDate());
 }
 
 }
