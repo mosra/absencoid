@@ -54,8 +54,8 @@ CREATE TABLE timetables (
 -- gradeId      ID třídy
 -- timetableId  ID rozvrhu
 -- dateHour     Den v týdnu a hodina (binárně oddělitelné)
---                  0x0F - den v týdnu (0x00 = pondělí)
---                  0xF0 - hodina (0x10 = nultá hodina)
+--                  0xF0 - den v týdnu (0x10 = úterý)
+--                  0x0F - hodina (0x02 = druhá hodina)
 -- classId      ID předmětu
 CREATE TABLE timetableData (
     gradeId INTEGER NOT NULL,
