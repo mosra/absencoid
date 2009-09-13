@@ -3,9 +3,11 @@
 
 #include <QWidget>
 
+class QLabel;
 class QLineEdit;
 class QDateEdit;
 class QComboBox;
+class QPushButton;
 
 namespace Absencoid {
 
@@ -30,9 +32,15 @@ class TimetableTab: public QWidget {
     private:
         TimetableListModel* timetableListModel; /** @brief Model seznamu rozvrhů */
         QComboBox* timetableCombo;  /** @brief Políčko pro výběr rozvrhu */
+        QPushButton* removeTimetableButton; /** @brief Smazání rozvrhu */
+        QPushButton* switchDirectionButton; /** @brief Změna směru rozvrhu */
+        QLabel* descriptionLabel;   /** @brief Label k popisku rozvrhu */
         QLineEdit* description;     /** @brief Popisek rozvrhu */
+        QLabel* validFromLabel;     /** @brief Label k počátku platnosti */
         QDateEdit *validFrom;       /** @brief Počátek platnosti aktuálního rozvrhu */
+        QLabel* followedByLabel;    /** @brief Label k následujícímu rozvrhu */
         QComboBox* followedBy;      /** @brief Výběr rozvrhu, který bude tento následovat */
+        QPushButton* removeLessonsButton;   /** @brief Odstranění vybraných hodin */
 
     private slots:
 
@@ -42,6 +50,20 @@ class TimetableTab: public QWidget {
          * @param   index           Index aktuální položky
          */
         void loadTimetable(int index);
+
+        /**
+         * @brief Přidání rozvrhu
+         *
+         * Přidá nový rozvrh s default údaji a načte jej
+         */
+        void addTimetable();
+
+        /**
+         * @brief Odebrání rozvrhu
+         *
+         * Po potvrzení odebere rozvrh i s daty
+         */
+        void removeTimetable();
 
         /**
          * @brief Nastavení popisku aktuálního rozvrhu

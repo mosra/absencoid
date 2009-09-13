@@ -11,6 +11,7 @@
 #include <QDebug>
 
 #include "TimetableListModel.h"
+#include <QMessageBox>
 
 namespace Absencoid {
 
@@ -28,29 +29,33 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     QTableView* timetableView = new QTableView(this);
 
     /* Tlačítka atd. vpravo */
-    QPushButton* addTimetable = new QPushButton(tr("Nový rozvrh"));
-    QPushButton* deleteTimetable = new QPushButton(tr("Odstranit rozvrh"));
-    QPushButton* switchDirection = new QPushButton(tr("Svislý směr"));
-    switchDirection->setCheckable(true);
-    QPushButton* deleteLessons = new QPushButton(tr("Odstranit vybrané"));
+    QPushButton* addTimetableButton = new QPushButton(tr("Nový rozvrh"));
+    removeTimetableButton = new QPushButton(tr("Odstranit rozvrh"));
+    switchDirectionButton = new QPushButton(tr("Svislý směr"));
+    switchDirectionButton->setCheckable(true);
+    removeLessonsButton = new QPushButton(tr("Odstranit vybrané"));
+
+    descriptionLabel = new QLabel(tr("Popisek:"));
+    validFromLabel = new QLabel(tr("Platnost od:"));
+    followedByLabel = new QLabel(tr("Následován s:"));
 
     /* Layout tlačítek vpravo */
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
-    buttonsLayout->addWidget(addTimetable, 0, Qt::AlignTop);
-    buttonsLayout->addWidget(deleteTimetable, 0, Qt::AlignTop);
+    buttonsLayout->addWidget(addTimetableButton,    0, Qt::AlignTop);
+    buttonsLayout->addWidget(removeTimetableButton, 0, Qt::AlignTop);
     buttonsLayout->addSpacing(16);
-    buttonsLayout->addWidget(switchDirection, 0, Qt::AlignTop);
+    buttonsLayout->addWidget(switchDirectionButton, 0, Qt::AlignTop);
     buttonsLayout->addSpacing(16);
-    buttonsLayout->addWidget(new QLabel(tr("Popisek:")), 0, Qt::AlignTop);
-    buttonsLayout->addWidget(description, 0, Qt::AlignTop);
+    buttonsLayout->addWidget(descriptionLabel,      0, Qt::AlignTop);
+    buttonsLayout->addWidget(description,           0, Qt::AlignTop);
     buttonsLayout->addSpacing(8);
-    buttonsLayout->addWidget(new QLabel(tr("Platnost od:")), 0, Qt::AlignTop);
-    buttonsLayout->addWidget(validFrom, 0, Qt::AlignTop);
+    buttonsLayout->addWidget(validFromLabel,        0, Qt::AlignTop);
+    buttonsLayout->addWidget(validFrom,             0, Qt::AlignTop);
     buttonsLayout->addSpacing(8);
-    buttonsLayout->addWidget(new QLabel(tr("Následován s:")), 0, Qt::AlignTop);
-    buttonsLayout->addWidget(followedBy, 0, Qt::AlignTop);
+    buttonsLayout->addWidget(followedByLabel,       0, Qt::AlignTop);
+    buttonsLayout->addWidget(followedBy,            0, Qt::AlignTop);
     buttonsLayout->addSpacing(16);
-    buttonsLayout->addWidget(deleteLessons, 1, Qt::AlignTop);
+    buttonsLayout->addWidget(removeLessonsButton,   1, Qt::AlignTop);
 
     /* Layout tabulky a tlačítek */
     QHBoxLayout* bottomLayout = new QHBoxLayout;
@@ -74,15 +79,20 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     validFrom->setCalendarPopup(true);
     validFrom->setCalendarWidget(calendarWidget);
 
-    /* Nastavení modelu a max. šířky comba pro následující rozvrh */
+    /* Nastavení modelu a max. šířky comba pro následující rozvrh podle nejširšího
+        tlačítka */
     followedBy->setModel(timetableListModel);
     followedBy->setModelColumn(1);
-    followedBy->setMaximumWidth(deleteLessons->sizeHint().width());
+    followedBy->setMaximumWidth(removeLessonsButton->sizeHint().width());
 
     /* Při změně rozvrhu načíst nový */
     connect(timetableCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadTimetable(int)));
 
-    /* Uložit změněny v popisku a datech */
+    /* Nový / smazat rozvrh */
+    connect(addTimetableButton, SIGNAL(clicked(bool)), this, SLOT(addTimetable()));
+    connect(removeTimetableButton, SIGNAL(clicked(bool)), this, SLOT(removeTimetable()));
+
+    /* Uložit změny v popisku a datech */
     connect(description, SIGNAL(editingFinished()), this, SLOT(setDescription()));
     connect(validFrom, SIGNAL(editingFinished()), this, SLOT(setValidFrom()));
     connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(setFollowedBy()));
@@ -97,6 +107,31 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
 
 /* Načtení rozvrhu */
 void TimetableTab::loadTimetable(int index) {
+    /* Pokud je index záporný (tj. neexistuje žádný rozvrh), zašednutí políček */
+    if(index == -1) {
+        removeTimetableButton->setDisabled(true);
+        switchDirectionButton->setDisabled(true);
+        descriptionLabel->setDisabled(true);
+        description->setDisabled(true);
+        validFromLabel->setDisabled(true);
+        validFrom->setDisabled(true);
+        followedByLabel->setDisabled(true);
+        followedBy->setDisabled(true);
+        removeLessonsButton->setDisabled(true);
+
+    /* Jinak odšednutí */
+    } else {
+        removeTimetableButton->setDisabled(false);
+        switchDirectionButton->setDisabled(false);
+        descriptionLabel->setDisabled(false);
+        description->setDisabled(false);
+        validFromLabel->setDisabled(false);
+        validFrom->setDisabled(false);
+        followedByLabel->setDisabled(false);
+        followedBy->setDisabled(false);
+        removeLessonsButton->setDisabled(false);
+    }
+
     /* Nastavení popisku */
     description->setText(timetableListModel->index(index, 1).data().toString());
 
@@ -107,6 +142,25 @@ void TimetableTab::loadTimetable(int index) {
     followedBy->setCurrentIndex(
         timetableListModel->indexFromId(timetableListModel->index(index, 3).data().toInt())
     );
+}
+
+/* Přidání a načtení nového rozvrhu */
+void TimetableTab::addTimetable() {
+    int index = timetableListModel->rowCount();
+    if(timetableListModel->insertRow(index))
+        loadTimetable(index);
+}
+
+/* Odebrání aktuálně načteného rozvrhu */
+void TimetableTab::removeTimetable() {
+    /* Ověření rozhodnutí */
+    if(QMessageBox::warning(this, tr("Odstranit rozvrh"),
+        tr("<strong>Opravdu ostranit tento rozvrh?</strong><br/>") + description->text() +
+        tr("<br/>(Platný od ") + validFrom->date().toString("dd.MM.yyyy") + tr(")"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
+            return;
+
+    timetableListModel->removeRow(timetableCombo->currentIndex());
 }
 
 /* Nastavení popisku rozvrhu */

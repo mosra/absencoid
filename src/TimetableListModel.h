@@ -42,6 +42,16 @@ class TimetableListModel: public QAbstractTableModel {
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
         /**
+         * @brief Přidání rozvrhu
+         */
+        virtual bool insertRow(int row, const QModelIndex& parent = QModelIndex());
+
+        /**
+         * @brief Odebrání rozvrhu
+         */
+        virtual bool removeRow(int row, const QModelIndex& parent = QModelIndex());
+
+        /**
          * @brief Zjištění indexu z ID rozvrhu
          */
         int indexFromId(int id) const;

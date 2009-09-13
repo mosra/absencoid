@@ -124,6 +124,78 @@ bool TimetableListModel::setData(const QModelIndex& index, const QVariant& value
     return true;
 }
 
+/* Přidání řádku */
+bool TimetableListModel::insertRow(int row, const QModelIndex& parent) {
+    beginInsertRows(parent, row, row);
+
+    /* Zjištění, jestli už zde není nějaký "Nový rozvrh" */
+    for(int i = 0; i != timetableList.count(); ++i) {
+        if(timetableList[i].description == tr("Nový rozvrh")) {
+            qDebug() << tr("Nelze přidat další nepojmenovaný rozvrh!");
+            return false;
+        }
+    }
+
+    /* Default hodnoty */
+    Timetable t;
+    t.description = tr("Nový rozvrh");
+    t.validFrom = QDate(2009,9,1);
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("INSERT INTO timetables (gradeId, description, validFrom) VALUES (1, :description, :validFrom);");
+    query.bindValue(":description", t.description);
+    query.bindValue(":validFrom", t.validFrom);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se přidat nový rozvrh!") << query.lastError()
+                 << query.lastQuery();
+        return false;
+    }
+
+    /* Upravení nového ID */
+    t.id = query.lastInsertId().toInt();
+    timetableList.insert(row, t);
+
+    endInsertRows();
+    return true;
+}
+
+/* Ostranění rozvrhu */
+bool TimetableListModel::removeRow(int row, const QModelIndex& parent) {
+    beginRemoveRows(parent, row, row);
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("DELETE FROM timetables WHERE id = :id;");
+    query.bindValue(":id", timetableList[row].id);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se odstranit rozvrh!") << query.lastError()
+                 << query.lastQuery();
+        return false;
+    }
+
+    /* Smazání dat rozvrhu */
+    query.prepare("DELETE FROM timetableData WHERE timetableId = :idB;");
+    query.bindValue(":idB", timetableList[row].id);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se odstranit rozvrh!") << query.lastError()
+                 << query.lastQuery();
+        return false;
+    }
+
+    /* Pokud se povedlo odstranit z DB, odstranění z dat */
+    timetableList.removeAt(row);
+
+    endRemoveRows();
+    return true;
+}
+
 /* Zjištění indexu z ID rozvrhu */
 int TimetableListModel::indexFromId(int id) const {
     for(int i = 0; i != timetableList.count(); ++i) {
