@@ -66,6 +66,16 @@ class ClassesModel: public QAbstractTableModel {
          */
         virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
+        /**
+         * @brief Získání indexu z ID předmětu
+         */
+        int indexFromId(int id);
+
+        /**
+         * @brief Získání ID předmětu z indexu
+         */
+        int idFromIndex(int index);
+
     private:
         /** @brief Struktura pro předmět */
         struct Class {

@@ -27,7 +27,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
 
     /* Tabulka rozvrhu */
     QTableView* timetableView = new QTableView(this);
-    TimetableModel* timetableModel = new TimetableModel(classesModel, this);
+    timetableModel = new TimetableModel(classesModel, this);
     timetableView->setModel(timetableModel);
 
     /* Tlačítka atd. vpravo */
@@ -135,6 +135,9 @@ void TimetableTab::loadTimetable(int index) {
         followedBy->setDisabled(false);
         removeLessonsButton->setDisabled(false);
     }
+
+    /* Načtení dat rozvrhu */
+    timetableModel->load(timetableListModel->idFromIndex(index));
 
     /* Nastavení popisku */
     description->setText(timetableListModel->index(index, 1).data().toString());

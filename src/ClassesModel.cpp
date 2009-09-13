@@ -235,6 +235,24 @@ bool ClassesModel::removeRows(int row, int count, const QModelIndex& parent) {
     return true;
 }
 
+/* Zjištění indexu z ID předmětu */
+int ClassesModel::indexFromId(int id) {
+    for(int i = 0; i != classes.count(); ++i) {
+        if(classes[i].id == id) return i;
+    }
+
+    /* Nenašli jsme žádné odpovídající ID, vracíme neplatný index */
+    return -1;
+}
+
+/* Zjištění ID předmětu z indexu */
+int ClassesModel::idFromIndex(int index) {
+    /* Pokud je index neplatný, vracíme nula (a takové ID žádný předmět nemá) */
+    if(index < 0 || index >= classes.count()) return 0;
+
+    return classes[index].id;
+}
+
 /* Uložení nového ředmětu do DB */
 bool ClassesModel::saveRow(int row) {
     /* Špatný index */

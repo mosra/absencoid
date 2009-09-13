@@ -1,5 +1,6 @@
 #ifndef TIMETABLEMODEL_H
 #define TIMETABLEMODEL_H
+
 #include <QAbstractTableModel>
 
 namespace Absencoid {
@@ -13,10 +14,18 @@ class TimetableModel: public QAbstractTableModel {
         /**
          * @brief Konstruktor
          *
-         * @param   classesModel    Ukazatel na model předmětů
+         * @param   _classesModel   Ukazatel na model předmětů
          * @param   parent          Rodičovský widget
          */
-        TimetableModel(ClassesModel* classesModel, QObject* parent = 0);
+        TimetableModel(ClassesModel* _classesModel, QObject* parent = 0);
+
+        /**
+         * @brief Načtení rozvrhu
+         *
+         * Načte rozvrh s určeným ID
+         * @param   id              ID rozvrhu, který chceme načíst
+         */
+        void load(int id);
 
         /**
          * @brief Počet sloupců
@@ -44,8 +53,30 @@ class TimetableModel: public QAbstractTableModel {
          */
         void switchDirection();
 
+    private slots:
+        /**
+         * @brief Zjištění změn v modelu předmětů
+         *
+         * Zjistí, zda se změny v modelu předmětů projeví zde, pokud ani, vyšle
+         * signál dataChanged()
+         */
+        void checkClassChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight);
+
     private:
-        bool horizontalLessons; /** @brief Zda jsou hodiny zobrazeny v horizontálním směru */
+        ClassesModel* classesModel; /** @brief Ukazatel na model předmětů */
+        bool horizontalLessons;     /** @brief Zda jsou hodiny zobrazeny v horizontálním směru */
+        int timetableId;            /** @brief Číslo právě používaného rozvrhu hodin */
+
+        /**
+         * @brief Data aktuálního rozvrhu
+         *
+         * Párové hodnoty den/hodina - ID předmětu. Den/hodina je uložena v tomto
+         * tvaru:
+         * <tt>0xF0</tt> - dny (<tt>0x00</tt> = pondělí, <tt>0x40</tt> = pátek)
+         * <tt>0x0F</tt> - hodiny (<tt>0x00</tt> = nultá hodina, <tt>0x09</tt> = devátá hodina)
+         * Tedy <tt>0x23</tt> znamená třetí hodinu ve středu.
+         */
+        QHash<int, int> timetableData;
 
 };
 

@@ -1,10 +1,49 @@
 #include "TimetableModel.h"
 
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
+
+#include "ClassesModel.h"
+
 namespace Absencoid {
 
 /* Konstruktor */
-TimetableModel::TimetableModel(ClassesModel* classesModel, QObject* parent):
-QAbstractTableModel(parent), horizontalLessons(true) {}
+TimetableModel::TimetableModel(ClassesModel* _classesModel, QObject* parent):
+QAbstractTableModel(parent), classesModel(_classesModel), horizontalLessons(true),
+timetableId(0) {
+
+    /* Propojení změn v předmětech se změnami zde */
+    connect(classesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(checkClassChanges(QModelIndex,QModelIndex)));
+}
+
+/* Načtení rozvrhu */
+void TimetableModel::load(int id) {
+    /* Uložení id pro použití při ukládání dat */
+    timetableId = id;
+
+    /* Smazání dosavadních dat */
+    timetableData.clear();
+
+    QSqlQuery query;
+    query.prepare("SELECT dateHour, classId FROM timetableData WHERE timetableId = :id;");
+    query.bindValue(":id", timetableId);
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se načíst data rozvrhu!") << query.lastError()
+                 << query.lastQuery();
+        return;
+    }
+
+    /* Naplnění dat */
+    while(query.next()) {
+        timetableData.insert(query.value(0).toInt(), query.value(1).toInt());
+    }
+
+    /* Vyslání signálu, že se data kompletně změnila */
+    reset();
+}
+
 
 /* Počet sloupců */
 int TimetableModel::columnCount(const QModelIndex& parent) const {
@@ -64,6 +103,38 @@ QVariant TimetableModel::headerData(int section, Qt::Orientation orientation, in
 
 /* Data rozvrhu */
 QVariant TimetableModel::data(const QModelIndex& index, int role) const {
+    if(!index.isValid()) return QVariant();
+
+    if(role == Qt::DisplayRole) {
+
+        /* Číslo dne/hodiny */
+        int dayhour;
+
+        /* Hodiny horizontálně */
+        if(horizontalLessons && index.row() < 5 && index.column() < 10)
+            dayhour = index.row() << 4 | index.column();
+
+        /* Hodiny vertikálně */
+        else if(!horizontalLessons && index.row() < 10 && index.column() < 5)
+            dayhour = index.column() << 4 | index.row();
+
+        /* Nějakej mišmaš */
+        else return QVariant();
+
+        /* ID předmětu pod tímto číslem dne/hodiny */
+        int id = timetableData[dayhour];
+
+        /* Pokud je ID nulové, žádný předmět zde není */
+        if(id == 0) return QVariant();
+
+        /* Index odpovídající tomuto ID předmětu */
+        int index = classesModel->indexFromId(id);
+
+        /* Vrácení textu ve formátu: Předmět (učitel) */
+        return classesModel->index(index, 0).data().toString() + " (" +
+               classesModel->index(index, 1).data().toString() + ")";
+    }
+
     return QVariant();
 }
 
@@ -74,6 +145,29 @@ void TimetableModel::switchDirection() {
     /* Kompletně se změnila struktura, takže je lepší zavolat reset, než
         milionkrát vysílat dataChanged() a headerDataChanged() */
     reset();
+}
+
+/* Zjištění, zda se změny v modelu předmětů projeví zde */
+void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
+    /* Projití jednotlivých řádků a zjištění, zda takové předměty máme v rozvrhu */
+    for(int i = topLeft.row(); i <= bottomRight.row(); ++i) {
+        /* ID předmětu odpovídající indexu řádku */
+        int id = classesModel->idFromIndex(i);
+
+        /* Všechny hodiny s tímto předmětem */
+        QList<int> hours = timetableData.keys(id);
+
+        /* Procházení ovliněných hodin */
+        int hour; foreach(hour, hours) {
+            /* Spočítání souřadnic */
+            QModelIndex idx;
+            if(horizontalLessons) idx = index((hour & 0xF0) >> 4, hour & 0x0F);
+            else                  idx = index(hour & 0x0F, (hour & 0xF0) >> 4);
+
+            /* Vyslání signálu */
+            emit dataChanged(idx, idx);
+        }
+    }
 }
 
 }
