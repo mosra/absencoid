@@ -104,7 +104,7 @@ void TimetableTab::loadTimetable(int index) {
 
     /* Nastavení následujícího rozvrhu */
     followedBy->setCurrentIndex(
-        timetableListModel->indexFromId(timetableListModel->index(index, 3).data().toInt())
+        timetableListModel->indexFromId(timetableListModel->index(index, 4).data().toInt())
     );
 }
 
