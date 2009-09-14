@@ -1,26 +1,26 @@
-#ifndef TEACHERSDELEGATE_H
-#define TEACHERSDELEGATE_H
+#ifndef COMBOBOXDELEGATE_H
+#define COMBOBOXDELEGATE_H
 
 #include <QItemDelegate>
 
+class QAbstractItemModel;
+
 namespace Absencoid {
 
-class TeachersModel;
-
 /**
- * @brief Delegát poskytující editaci předmětů
+ * @brief Delegát poskytující editaci pomocí rozbalovacího seznamu
  *
- * Poskytuje rozbalovací seznam učitelů
+ * Poskytuje rozbalovací seznam pro editaci
  */
-class ClassesDelegate: public QItemDelegate {
+class ComboBoxDelegate: public QItemDelegate {
     public:
         /**
          * @brief Konstruktor
          *
-         * @param   _teachersModel  Model učitelů (pro získání seznamu)
+         * @param   _model          Ukazatel na model pro získání seznamu
          * @param   parent          Rodičovský widget
          */
-        ClassesDelegate(TeachersModel* _teachersModel, QObject* parent = 0);
+        ComboBoxDelegate(QAbstractItemModel* _model, QObject* parent = 0);
 
         /**
          * @brief Vytvoření editoru
@@ -46,7 +46,7 @@ class ClassesDelegate: public QItemDelegate {
             const QStyleOptionViewItem& option, const QModelIndex& index) const;
 
     private:
-        TeachersModel* teachersModel;
+        QAbstractItemModel* model;
 };
 
 }

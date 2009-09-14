@@ -5,8 +5,9 @@
 #include <QBoxLayout>
 #include <QMessageBox>
 
+#include "ComboBoxDelegate.h"
+#include "TeachersModel.h"
 #include "ClassesModel.h"
-#include "ClassesDelegate.h"
 
 namespace Absencoid {
 
@@ -16,7 +17,8 @@ QWidget(parent), classesModel(new ClassesModel(teachersModel, this)),
 classesView(new QTableView(this)) {
 
     classesView->setModel(classesModel);
-    classesView->setItemDelegate(new ClassesDelegate(teachersModel, classesView));
+    /* Pro druhý sloupec delegáta pro editaci pomocí comboboxu */
+    classesView->setItemDelegateForColumn(1, new ComboBoxDelegate(teachersModel, classesView));
 
     /* Tlačítka pro přidání / odebrání třídy */
     QPushButton* addClass = new QPushButton(tr("Přidat předmět"));

@@ -15,9 +15,9 @@ qt4_wrap_cpp(AbsencoidMOC
     TimetableTab.h
     )
 add_executable(absencoid
-    main.cpp MainWindow.cpp
+    main.cpp MainWindow.cpp ComboBoxDelegate.cpp
     TeachersModel.cpp TeachersTab.cpp
-    ClassesModel.cpp ClassesDelegate.cpp ClassesTab.cpp
+    ClassesModel.cpp ClassesTab.cpp
     TimetableListModel.cpp TimetableModel.cpp TimetableTab.cpp
     ${AbsencoidMOC}
     )
