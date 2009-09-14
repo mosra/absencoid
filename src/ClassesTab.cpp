@@ -17,8 +17,10 @@ QWidget(parent), classesModel(new ClassesModel(teachersModel, this)),
 classesView(new QTableView(this)) {
 
     classesView->setModel(classesModel);
-    /* Pro druhý sloupec delegáta pro editaci pomocí comboboxu */
-    classesView->setItemDelegateForColumn(1, new ComboBoxDelegate(teachersModel, classesView));
+    /* První sloupec (souhrn) skryjeme */
+    classesView->setColumnHidden(0, true);
+    /* Pro třetí sloupec delegáta pro editaci pomocí comboboxu */
+    classesView->setItemDelegateForColumn(2, new ComboBoxDelegate(teachersModel, classesView));
 
     /* Tlačítka pro přidání / odebrání třídy */
     QPushButton* addClass = new QPushButton(tr("Přidat předmět"));

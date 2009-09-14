@@ -33,7 +33,7 @@ QAbstractTableModel(parent), teachersModel(_teachersModel) {
 
 /* Počet sloupců */
 int ClassesModel::columnCount(const QModelIndex& parent) const {
-    return 2;
+    return 3;
 }
 
 /* Počet řádků */
@@ -47,8 +47,9 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation orientation, int 
     /* Horizontální hlavičky */
     if(orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         switch(section) {
-            case 0: return tr("Předmět");
-            case 1: return tr("Učitel");
+            case 0: return tr("Předmět (Učitel)");
+            case 1: return tr("Předmět");
+            case 2: return tr("Učitel");
         }
     }
 
@@ -73,15 +74,20 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation orientation, int 
 /* Čtecí přístup k datům */
 QVariant ClassesModel::data(const QModelIndex& index, int role) const {
     if(!index.isValid() ||
-        index.column() > 1 ||
+        index.column() > 2 ||
         index.row() >= classes.count()) return false;
 
+    /* Souhrn */
+    if(index.column() == 0 && role == Qt::DisplayRole)
+        return classes[index.row()].name + " (" +
+            teachersModel->indexFromId(classes[index.row()].teacherId).data().toString() + ")";
+
     /* Jméno */
-    if(index.column() == 0 && (role == Qt::DisplayRole || role == Qt::EditRole))
+    if(index.column() == 1 && (role == Qt::DisplayRole || role == Qt::EditRole))
         return classes[index.row()].name;
 
     /* Učitel */
-    if(index.column() == 1) {
+    if(index.column() == 2) {
         /* Vrácení dat z TeachersModel, aby byly aktuální */
         if(role == Qt::DisplayRole)
             return teachersModel->indexFromId(classes[index.row()].teacherId).data();
@@ -98,8 +104,11 @@ QVariant ClassesModel::data(const QModelIndex& index, int role) const {
 /* Flags */
 Qt::ItemFlags ClassesModel::flags(const QModelIndex& index) const {
     if(!index.isValid() ||
-        index.column() > 1 ||
+        index.column() > 2 ||
         index.row() >= classes.count()) return Qt::ItemIsEnabled;
+
+    /* První sloupec (popisek) je needitovatelný */
+    if(index.column() == 0) return  QAbstractItemModel::flags(index);
 
     return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 }
@@ -107,13 +116,13 @@ Qt::ItemFlags ClassesModel::flags(const QModelIndex& index) const {
 /* Zápisový přístup k datům */
 bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int role) {
     if(!index.isValid() ||
-        index.column() > 1 ||
+        index.column() > 2 ||
         index.row() >= classes.count()) return false;
 
     QSqlQuery query;
 
     /* Jméno předmětu */
-    if(index.column() == 0 && role == Qt::EditRole) {
+    if(index.column() == 1 && role == Qt::EditRole) {
         if(value.toString().isEmpty()) return false;
 
         /* Aktualizace dat */
@@ -123,16 +132,19 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
             Emitujeme signál a zkusíme řádek uložit. */
         if(classes[index.row()].id == 0) {
             emit dataChanged(index, index);
+
+            /* Se změnou učitele se mění i popisek */
+            emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
+
             return saveRow(index.row());
         }
 
         /* SQL dotaz */
         query.prepare("UPDATE classes SET name = :name WHERE id = :id;");
         query.bindValue(":name", classes[index.row()].name);
-        query.bindValue(":id", classes[index.row()].id);
 
     /* Učitel */
-    } else if(index.column() == 1 && role == Qt::EditRole) {
+    } else if(index.column() == 2 && role == Qt::EditRole) {
         /* Zjištění ID učitele z indexu */
         int teacherId = teachersModel->idFromIndex(value.toInt());
 
@@ -143,16 +155,21 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
             Emitujeme signál a zkusíme řádek uložit. */
         if(classes[index.row()].id == 0) {
             emit dataChanged(index, index);
+
+            /* Se změnou učitele se mění i popisek */
+            emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
+
             return saveRow(index.row());
         }
 
         /* SQL dotaz */
         query.prepare("UPDATE classes SET teacherId = :teacherId WHERE id = :id;");
         query.bindValue(":teacherId", classes[index.row()].teacherId);
-        query.bindValue(":id", classes[index.row()].id);
 
     /* Něco jiného */
     } else return false;
+
+    query.bindValue(":id", classes[index.row()].id);
 
     /* Provedení dotazu */
     if(!query.exec()) {
@@ -162,6 +179,10 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
     }
 
     emit dataChanged(index, index);
+
+    /* Se změnou čehokoliv se mění i popisek */
+    emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
+
     return true;
 }
 

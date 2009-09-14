@@ -126,14 +126,8 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
     int idx = classesModel->indexFromId(id);
 
     /* Vrácení textu */
-    if(role == Qt::DisplayRole) {
-        /* Žádný předmět tuto hodinu není */
-        if(idx == -1) return QVariant();
-
-        /* Text ve formátu: Předmět (učitel) */
-        return classesModel->index(idx, 0).data().toString() + " (" +
-                classesModel->index(idx, 1).data().toString() + ")";
-    }
+    if(role == Qt::DisplayRole)
+        return classesModel->index(idx, 0).data();
 
     /* Vrácení indexu předmětu pro editaci */
     if(role == Qt::EditRole)
