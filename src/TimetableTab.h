@@ -3,6 +3,7 @@
 
 #include <QWidget>
 
+class QTableView;
 class QLabel;
 class QLineEdit;
 class QDateEdit;
@@ -33,6 +34,7 @@ class TimetableTab: public QWidget {
     private:
         TimetableListModel* timetableListModel; /** @brief Model seznamu rozvrhů */
         TimetableModel* timetableModel;     /** @brief Model dat rozvrhu */
+        QTableView* timetableView;  /** @brief Tabulka rozvrhu */
         QComboBox* timetableCombo;  /** @brief Políčko pro výběr rozvrhu */
         QPushButton* removeTimetableButton; /** @brief Smazání rozvrhu */
         QPushButton* switchDirectionButton; /** @brief Změna směru rozvrhu */
@@ -81,6 +83,18 @@ class TimetableTab: public QWidget {
          * @brief Nastavení následujícího rozvrhu
          */
         void setFollowedBy();
+
+        /**
+         * @brief Odstranění vybraných hodin z rozvrhu
+         */
+        void removeLessons();
+
+        /**
+         * @brief Zašednutí / povolení mazacího tlačítka
+         *
+         * Tlačítko pro mazání hodin je aktivní, jen pokud jsou nějaké vybrané
+         */
+        void updateRemoveButton();
 };
 
 }

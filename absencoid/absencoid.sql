@@ -53,14 +53,14 @@ CREATE TABLE timetables (
 -- DATA ROZVRHŮ
 -- gradeId      ID třídy
 -- timetableId  ID rozvrhu
--- dateHour     Den v týdnu a hodina (binárně oddělitelné)
+-- dayHour      Den v týdnu a hodina (binárně oddělitelné)
 --                  0xF0 - den v týdnu (0x10 = úterý)
 --                  0x0F - hodina (0x02 = druhá hodina)
 -- classId      ID předmětu
 CREATE TABLE timetableData (
     gradeId INTEGER NOT NULL,
     timetableId INTEGER NOT NULL,
-    dateHour INTEGER NOT NULL,
+    dayHour INTEGER NOT NULL,
     classId INTEGER NOT NULL
 );
 

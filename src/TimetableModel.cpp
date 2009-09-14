@@ -27,7 +27,7 @@ void TimetableModel::load(int id) {
     timetableData.clear();
 
     QSqlQuery query;
-    query.prepare("SELECT dateHour, classId FROM timetableData WHERE timetableId = :id;");
+    query.prepare("SELECT dayHour, classId FROM timetableData WHERE timetableId = :id;");
     query.bindValue(":id", timetableId);
     if(!query.exec()) {
         qDebug() << tr("Nepodařilo se načíst data rozvrhu!") << query.lastError()
@@ -170,22 +170,39 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
     int idx = classesModel->idFromIndex(value.toInt());
 
     /* Jestli upravujeme stávající záznam, provedeme UPDATE */
-    if(timetableData.contains(dayHour))
-        query.prepare("UPDATE timetableData SET classId = :classId "
-                      "WHERE dateHour = :dayHour "
-                      "AND timetableId = :timetableId;");
+    if(timetableData.contains(dayHour)) {
+        /* Rušíme hodinu */
+        if(idx == 0) {
+            timetableData.remove(dayHour);
+            query.prepare("DELETE FROM timetableData "
+                          "WHERE timetableId = :timetableId "
+                          "AND dayHour = :dayHour;");
 
-    /* Jinak provádíme INSERT */
-    else query.prepare("INSERT INTO timetableData (gradeId, timetableId, dateHour, classId) "
+        /* Aktualizujeme hodinu */
+        } else {
+            timetableData[dayHour] = idx;
+            query.prepare("UPDATE timetableData SET classId = :classId "
+                          "WHERE dayHour = :dayHour "
+                          "AND timetableId = :timetableId;");
+            query.bindValue(":classId", timetableData[dayHour]);
+        }
+
+    /* Přidáváme nový záznam, takže INSERT */
+    } else {
+        /* Nahrazení prázdné hodiny prázdnou, tj. nic neaktualizujeme */
+        if(idx == 0) return true;
+
+        /* Vkládáme novou hodinu */
+        timetableData.insert(dayHour, idx);
+        query.prepare("INSERT INTO timetableData (gradeId, timetableId, dayHour, classId) "
                        "VALUES (1, :timetableId, :dayHour, :classId);");
+        query.bindValue(":classId", timetableData[dayHour]);
 
-    /* Aktualizujeme lokální data */
-    timetableData[dayHour] = idx;
+    }
 
     /* Naplnění dotazu daty */
     query.bindValue(":timetableId", timetableId);
     query.bindValue(":dayHour", dayHour);
-    query.bindValue(":classId", timetableData[dayHour]);
 
     /* Provedení dotazu */
     if(!query.exec()) {

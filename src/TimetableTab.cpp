@@ -28,7 +28,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     selectTimeTableLayout->addWidget(timetableCombo, 1);
 
     /* Tabulka rozvrhu */
-    QTableView* timetableView = new QTableView(this);
+    timetableView = new QTableView(this);
     timetableModel = new TimetableModel(classesModel, this);
     timetableView->setModel(timetableModel);
     timetableView->setItemDelegate(new ComboBoxDelegate(classesModel, this));
@@ -104,6 +104,12 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     connect(validFrom, SIGNAL(editingFinished()), this, SLOT(setValidFrom()));
     connect(followedBy, SIGNAL(currentIndexChanged(int)), this, SLOT(setFollowedBy()));
 
+    /* Mazání vybraných hodin, zašednutí pokud není nic vybráno */
+    removeLessonsButton->setDisabled(true);
+    connect(removeLessonsButton, SIGNAL(clicked()), this, SLOT(removeLessons()));
+    connect(timetableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(updateRemoveButton()));
+
     /** @todo Propojit dataChanged() s inputy */
 
     /* Načtení rozvrhu */
@@ -116,6 +122,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
 void TimetableTab::loadTimetable(int index) {
     /* Pokud je index záporný (tj. neexistuje žádný rozvrh), zašednutí políček */
     if(index == -1) {
+        timetableView->setDisabled(true);
         removeTimetableButton->setDisabled(true);
         switchDirectionButton->setDisabled(true);
         descriptionLabel->setDisabled(true);
@@ -128,6 +135,7 @@ void TimetableTab::loadTimetable(int index) {
 
     /* Jinak odšednutí */
     } else {
+        timetableView->setDisabled(false);
         removeTimetableButton->setDisabled(false);
         switchDirectionButton->setDisabled(false);
         descriptionLabel->setDisabled(false);
@@ -205,6 +213,29 @@ void TimetableTab::setFollowedBy() {
 
     /* Změna tooltipu a aktuální (aby byl vidět celý název) */
     followedBy->setToolTip(timetableListModel->index(followedBy->currentIndex(), 0).data().toString());
+}
+
+/* Odstranění vybraných hodin z rozvrhu */
+void TimetableTab::removeLessons() {
+
+    /* Ověření */
+    if(QMessageBox::warning(this, tr("Odstranit vybrané hodiny"),
+        tr("Opravdu odstranit vybrané hodiny z rozvrhu?"),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
+        != QMessageBox::Yes) return;
+
+    QModelIndex index;
+    foreach(index, timetableView->selectionModel()->selectedIndexes()) {
+        timetableModel->setData(index, -1);
+    }
+}
+
+/* Povolení / zašednutí mazacího tlačítka */
+void TimetableTab::updateRemoveButton() {
+    if(timetableView->selectionModel()->hasSelection())
+        removeLessonsButton->setDisabled(false);
+    else
+        removeLessonsButton->setDisabled(true);
 }
 
 }
