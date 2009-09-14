@@ -105,37 +105,103 @@ QVariant TimetableModel::headerData(int section, Qt::Orientation orientation, in
 QVariant TimetableModel::data(const QModelIndex& index, int role) const {
     if(!index.isValid()) return QVariant();
 
+    /* Číslo dne/hodiny */
+    int dayhour;
+
+    /* Hodiny horizontálně */
+    if(horizontalLessons && index.row() < 5 && index.column() < 10)
+        dayhour = index.row() << 4 | index.column();
+
+    /* Hodiny vertikálně */
+    else if(!horizontalLessons && index.row() < 10 && index.column() < 5)
+        dayhour = index.column() << 4 | index.row();
+
+    /* Nějakej mišmaš */
+    else return QVariant();
+
+    /* ID předmětu pod tímto číslem dne/hodiny */
+    int id = timetableData[dayhour];
+
+    /* Index odpovídající tomuto ID předmětu */
+    int idx = classesModel->indexFromId(id);
+
+    /* Vrácení textu */
     if(role == Qt::DisplayRole) {
+        /* Žádný předmět tuto hodinu není */
+        if(idx == -1) return QVariant();
 
-        /* Číslo dne/hodiny */
-        int dayhour;
-
-        /* Hodiny horizontálně */
-        if(horizontalLessons && index.row() < 5 && index.column() < 10)
-            dayhour = index.row() << 4 | index.column();
-
-        /* Hodiny vertikálně */
-        else if(!horizontalLessons && index.row() < 10 && index.column() < 5)
-            dayhour = index.column() << 4 | index.row();
-
-        /* Nějakej mišmaš */
-        else return QVariant();
-
-        /* ID předmětu pod tímto číslem dne/hodiny */
-        int id = timetableData[dayhour];
-
-        /* Pokud je ID nulové, žádný předmět zde není */
-        if(id == 0) return QVariant();
-
-        /* Index odpovídající tomuto ID předmětu */
-        int index = classesModel->indexFromId(id);
-
-        /* Vrácení textu ve formátu: Předmět (učitel) */
-        return classesModel->index(index, 0).data().toString() + " (" +
-               classesModel->index(index, 1).data().toString() + ")";
+        /* Text ve formátu: Předmět (učitel) */
+        return classesModel->index(idx, 0).data().toString() + " (" +
+                classesModel->index(idx, 1).data().toString() + ")";
     }
 
+    /* Vrácení indexu předmětu pro editaci */
+    if(role == Qt::EditRole)
+        return idx;
+
+    /* Něco jiného */
     return QVariant();
+}
+
+/* Flags */
+Qt::ItemFlags TimetableModel::flags(const QModelIndex& index) const {
+    if(!index.isValid() ||
+        (horizontalLessons && (index.row() > 4 || index.column() > 9)) ||
+        (!horizontalLessons && (index.row() > 9 || index.column() > 4)))
+            return Qt::ItemIsEnabled;
+
+    return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+}
+
+/* Zápisový přístup k datům */
+bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if(!index.isValid() || role != Qt::EditRole) return false;
+
+    int dayHour;
+
+    /* Hodiny jsou na horizontální ose */
+    if(horizontalLessons && index.row() < 5 && index.column() < 10)
+        dayHour = index.row() << 4 | index.column();
+
+    /* Hodiny jsou na vertikální ose */
+    if(!horizontalLessons && index.row() < 10 && index.column() < 5)
+        dayHour = index.column() << 4 | index.row();
+
+    /* Nějakej mišmaš */
+    else return false;
+
+    QSqlQuery query;
+
+    /* ID předmětu odpovídající aktuálnímu indexu */
+    int idx = classesModel->idFromIndex(value.toInt());
+
+    /* Jestli upravujeme stávající záznam, provedeme UPDATE */
+    if(timetableData.contains(dayHour))
+        query.prepare("UPDATE timetableData SET classId = :classId "
+                      "WHERE dateHour = :dayHour "
+                      "AND timetableId = :timetableId;");
+
+    /* Jinak provádíme INSERT */
+    else query.prepare("INSERT INTO timetableData (gradeId, timetableId, dateHour, classId) "
+                       "VALUES (1, :timetableId, :dayHour, :classId);");
+
+    /* Aktualizujeme lokální data */
+    timetableData[dayHour] = idx;
+
+    /* Naplnění dotazu daty */
+    query.bindValue(":timetableId", timetableId);
+    query.bindValue(":dayHour", dayHour);
+    query.bindValue(":classId", timetableData[dayHour]);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se upravit data rozvrhu!") << query.lastError()
+                 << query.lastQuery();
+        return false;
+    }
+
+    emit dataChanged(index, index);
+    return true;
 }
 
 /* Přehození směru */

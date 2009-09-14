@@ -10,6 +10,8 @@
 #include <QLineEdit>
 #include <QMessageBox>
 
+#include "ComboBoxDelegate.h"
+#include "ClassesModel.h"
 #include "TimetableListModel.h"
 #include "TimetableModel.h"
 
@@ -29,6 +31,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     QTableView* timetableView = new QTableView(this);
     timetableModel = new TimetableModel(classesModel, this);
     timetableView->setModel(timetableModel);
+    timetableView->setItemDelegate(new ComboBoxDelegate(classesModel, this));
 
     /* Tlačítka atd. vpravo */
     QPushButton* addTimetableButton = new QPushButton(tr("Nový rozvrh"));
