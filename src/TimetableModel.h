@@ -7,6 +7,12 @@ namespace Absencoid {
 
 class ClassesModel;
 
+/**
+ * @brief Model rozvrhu
+ *
+ * Poskytuje data rozvrhu s dny na horizontální ose a hodinami na vertikální
+ * ose.
+ */
 class TimetableModel: public QAbstractTableModel {
     Q_OBJECT
 
@@ -57,12 +63,6 @@ class TimetableModel: public QAbstractTableModel {
          */
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
-    public slots:
-        /**
-         * @brief Přehození směru rozvrhu
-         */
-        void switchDirection();
-
     private slots:
         /**
          * @brief Zjištění změn v modelu předmětů
@@ -74,7 +74,6 @@ class TimetableModel: public QAbstractTableModel {
 
     private:
         ClassesModel* classesModel; /** @brief Ukazatel na model předmětů */
-        bool horizontalLessons;     /** @brief Zda jsou hodiny zobrazeny v horizontálním směru */
         int timetableId;            /** @brief Číslo právě používaného rozvrhu hodin */
 
         /**

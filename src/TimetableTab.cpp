@@ -36,7 +36,6 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     /* Tlačítka atd. vpravo */
     QPushButton* addTimetableButton = new QPushButton(tr("Nový rozvrh"));
     removeTimetableButton = new QPushButton(tr("Odstranit rozvrh"));
-    switchDirectionButton = new QPushButton(tr("Přehodit směr"));
     removeLessonsButton = new QPushButton(tr("Odstranit vybrané"));
 
     descriptionLabel = new QLabel(tr("Popisek:"));
@@ -47,8 +46,6 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
     buttonsLayout->addWidget(addTimetableButton,    0, Qt::AlignTop);
     buttonsLayout->addWidget(removeTimetableButton, 0, Qt::AlignTop);
-    buttonsLayout->addSpacing(16);
-    buttonsLayout->addWidget(switchDirectionButton, 0, Qt::AlignTop);
     buttonsLayout->addSpacing(16);
     buttonsLayout->addWidget(descriptionLabel,      0, Qt::AlignTop);
     buttonsLayout->addWidget(description,           0, Qt::AlignTop);
@@ -96,9 +93,6 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     connect(addTimetableButton, SIGNAL(clicked(bool)), this, SLOT(addTimetable()));
     connect(removeTimetableButton, SIGNAL(clicked(bool)), this, SLOT(removeTimetable()));
 
-    /* Přetočení rozvrhu */
-    connect(switchDirectionButton, SIGNAL(clicked(bool)), timetableModel, SLOT(switchDirection()));
-
     /* Uložit změny v popisku a datech */
     connect(description, SIGNAL(editingFinished()), this, SLOT(setDescription()));
     connect(validFrom, SIGNAL(editingFinished()), this, SLOT(setValidFrom()));
@@ -124,7 +118,6 @@ void TimetableTab::loadTimetable(int index) {
     if(index == -1) {
         timetableView->setDisabled(true);
         removeTimetableButton->setDisabled(true);
-        switchDirectionButton->setDisabled(true);
         descriptionLabel->setDisabled(true);
         description->setDisabled(true);
         validFromLabel->setDisabled(true);
@@ -137,7 +130,6 @@ void TimetableTab::loadTimetable(int index) {
     } else {
         timetableView->setDisabled(false);
         removeTimetableButton->setDisabled(false);
-        switchDirectionButton->setDisabled(false);
         descriptionLabel->setDisabled(false);
         description->setDisabled(false);
         validFromLabel->setDisabled(false);

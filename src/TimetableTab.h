@@ -37,7 +37,6 @@ class TimetableTab: public QWidget {
         QTableView* timetableView;  /** @brief Tabulka rozvrhu */
         QComboBox* timetableCombo;  /** @brief Políčko pro výběr rozvrhu */
         QPushButton* removeTimetableButton; /** @brief Smazání rozvrhu */
-        QPushButton* switchDirectionButton; /** @brief Změna směru rozvrhu */
         QLabel* descriptionLabel;   /** @brief Label k popisku rozvrhu */
         QLineEdit* description;     /** @brief Popisek rozvrhu */
         QLabel* validFromLabel;     /** @brief Label k počátku platnosti */
