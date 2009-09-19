@@ -8,59 +8,107 @@
 
 namespace Absencoid {
 
+const quint32 TimetableModel::NO_PARENT = 0xFFFF;
+
 /* Konstruktor */
 TimetableModel::TimetableModel(ClassesModel* _classesModel, QObject* parent):
-QAbstractTableModel(parent), classesModel(_classesModel), timetableId(0) {
+QAbstractItemModel(parent), classesModel(_classesModel) {
 
     /* Propojení změn v předmětech se změnami zde */
     connect(classesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(checkClassChanges(QModelIndex,QModelIndex)));
-}
 
-/* Načtení rozvrhu */
-void TimetableModel::load(int id) {
-    /* Uložení id pro použití při ukládání dat */
-    timetableId = id;
+    /* Načtení seznamu rozvrhů (kořenové položky) */
+    QSqlQuery query("SELECT id, description, validFrom, followedBy FROM timetables;");
 
-    /* Smazání dosavadních dat */
-    timetableData.clear();
-
-    QSqlQuery query;
-    query.prepare("SELECT dayHour, classId FROM timetableData WHERE timetableId = :id;");
-    query.bindValue(":id", timetableId);
-    if(!query.exec()) {
-        qDebug() << tr("Nepodařilo se načíst data rozvrhu!") << query.lastError()
-                 << query.lastQuery();
-        return;
-    }
-
-    /* Naplnění dat */
+    /* Ukládání výsledků dotazu */
     while(query.next()) {
-        timetableData.insert(query.value(0).toInt(), query.value(1).toInt());
-    }
+        Timetable t;
+        t.id = query.value(0).toInt();
+        t.description = query.value(1).toString();
+        t.validFrom = query.value(2).toDate();
+        /* Pokud není zadáno, čím je následován, je následován sám sebou */
+        t.followedBy = query.value(3).toInt() == 0 ? t.id : query.value(3).toInt();
 
-    /* Vyslání signálu, že se data kompletně změnila */
-    reset();
+        timetables.append(t);
+    }
 }
 
+/* Vytvoření indexu příslušné položky */
+QModelIndex TimetableModel::index(int row, int column, const QModelIndex& parent) const {
+    /* Pokud nadřazený index nemá žádného potomka v této pozici, vrátíme
+        neplatný index (testuje se _asi_ rowCount(parent) a columnCount(parent) */
+    if(!hasIndex(row, column, parent)) return QModelIndex();
+
+    /* Interní ID */
+    quint32 internalId;
+
+    /* Rodičovská položka neexistuje => index v seznamu rozvrhů */
+    if(!parent.isValid())
+        internalId = NO_PARENT;
+
+    /* Nadřazená položka je v seznamu rozvrhů => index dat rozvrhu */
+    else if(parent.internalId() == NO_PARENT)
+        internalId = parent.row();  /* Interní ID = index nadřazené položky */
+
+    /* Nějaká chyba (např. pokud o získání indexu pro potomka dat rozvrhu,
+        přestože data rozvrhu žádné potomky nemají) */
+    else return QModelIndex();
+
+    /* Vytvoření indexu */
+    return createIndex(row, column, internalId);
+}
+
+/* Zjištění rodičovské položky daného indexu */
+QModelIndex TimetableModel::parent(const QModelIndex& child) const {
+    /* Neplatný index */
+    if(!child.isValid()) return QModelIndex();
+
+    /* Index v seznamu rozvrhů */
+    if(child.internalId() == NO_PARENT)
+        return QModelIndex();       /* Rodičovská položka neexistuje */
+
+    /* Index dat rozvrhu, nadřazená položka je specifikována v internalId */
+    else return index(child.internalId(), 0);
+}
 
 /* Počet sloupců */
 int TimetableModel::columnCount(const QModelIndex& parent) const {
-    return 5;
+    /* Neplatný index, vracíme počet sloupců kořenového seznamu rozvrhů */
+    if(!parent.isValid()) return 4;
+
+    /* Rodič je položka v seznamu rozvrhů => vracíme počet sloupců (dnů) v rozvrhu
+        (pokud je rozvrh načtený) */
+    if(parent.internalId() == NO_PARENT && timetables[parent.row()].isLoaded)
+        return 5;
+
+    /* Rodič je nejspíše položka v datech rozvrhu, ta už nemá žádné potomky,
+        nebo rozvrh ještě není načtený */
+    return 0;
 }
 
 /* Počet řádků */
 int TimetableModel::rowCount(const QModelIndex& parent) const {
-    return 10;
+    /* Neplatný index, vracíme počet řádků kořenového seznamu rozvrhů */
+    if(!parent.isValid()) return timetables.count();
+
+    /* Rodič je položka v seznamu rozvrhů => vracíme počet řádků (hodin) v rozvrhu
+        (pokud je rozvrh načtený) */
+    if(parent.internalId() == NO_PARENT && timetables[parent.row()].isLoaded)
+        return 10;
+
+    /* Rodič je nejspíče položka v datech rozvrhu, ta už nemá žádné potomky,
+        nebo rozvrh ještě není načtený */
+    return 0;
 }
 
-/* Hlavičky */
+/* Hlavičky (jen pro data rozvrhu) */
 QVariant TimetableModel::headerData(int section, Qt::Orientation orientation, int role) const {
     if(role != Qt::DisplayRole) return QVariant();
 
     /* Hodiny */
     if(orientation == Qt::Vertical)
-        return QString::number(section) + tr(".");
+        return QString::number(section) + ".";
 
     /* Názvy dnů */
     else {
@@ -79,26 +127,49 @@ QVariant TimetableModel::headerData(int section, Qt::Orientation orientation, in
 
 /* Data rozvrhu */
 QVariant TimetableModel::data(const QModelIndex& index, int role) const {
-    if(!index.isValid() ||
-        index.column() > 4 ||
-        index.row() > 9) return QVariant();
+    if(!index.isValid()) return QVariant();
 
-    /* Číslo dne/hodiny */
-    int dayhour = index.column() << 4 | index.row();
+    /* Kořenový index - seznam rozvrhů */
+    if(index.internalId() == NO_PARENT) {
 
-    /* ID předmětu pod tímto číslem dne/hodiny */
-    int id = timetableData[dayhour];
+        /* Popisek: Rozvrh (platný od 01.09.2009) */
+        if((index.column() == 0 && role == Qt::DisplayRole) ||
+            (index.column() == 1 && role == Qt::ToolTipRole))
+            return timetables[index.row()].description + tr(" (platný od ")
+            + timetables[index.row()].validFrom.toString("dd.MM.yyyy") + ")";
 
-    /* Index odpovídající tomuto ID předmětu */
-    int idx = classesModel->indexFromId(id);
+        /* Popisek samotný */
+        if(index.column() == 1 && role == Qt::DisplayRole)
+            return timetables[index.row()].description;
 
-    /* Vrácení textu */
-    if(role == Qt::DisplayRole)
-        return classesModel->index(idx, 0).data();
+        /* Platný od */
+        if(index.column() == 2 && role == Qt::DisplayRole)
+            return timetables[index.row()].validFrom;
 
-    /* Vrácení indexu předmětu pro editaci */
-    if(role == Qt::EditRole)
-        return idx;
+        /* Následující rozvrh - nevracíme ID, ale index! */
+        if(index.column() == 3 && role == Qt::DisplayRole)
+            return timetables[index.row()].followedBy;
+
+    /* Data rozvrhu */
+    } else if(index.parent().internalId() == NO_PARENT) {
+
+        /* Číslo dne/hodiny */
+        int dayHour = index.column() << 4 | index.row();
+
+        /* ID předmětu pod tímto číslem dne/hodiny */
+        int id = timetables[index.parent().row()].data[dayHour];
+
+        /* Index odpovídající tomuto ID předmětu */
+        int classIndex = classesModel->indexFromId(id);
+
+        /* Vrácení textu */
+        if(role == Qt::DisplayRole)
+            return classesModel->index(classIndex, 0).data();
+
+        /* Vrácení indexu předmětu pro editaci */
+        if(role == Qt::EditRole)
+            return classIndex;
+    }
 
     /* Něco jiného */
     return QVariant();
@@ -106,68 +177,265 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
 
 /* Flags */
 Qt::ItemFlags TimetableModel::flags(const QModelIndex& index) const {
-    if(!index.isValid() ||
-        index.column() > 4 ||
-        index.row() > 10) return Qt::ItemIsEnabled;
+    if(!index.isValid()) return Qt::ItemIsEnabled;
 
-    return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+    /* Položka v seznamu rozvrhů */
+    if(index.internalId() == NO_PARENT) {
+
+        /* Dlouhý popisek není editovatelný */
+        if(index.column() == 0) return QAbstractItemModel::flags(index);
+
+        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+
+    /* Data rozvrhu */
+    } else if(index.parent().internalId() == NO_PARENT)
+        return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+
+    /* Něco jiného */
+    else return Qt::ItemIsEnabled;
 }
 
 /* Zápisový přístup k datům */
 bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, int role) {
     if(!index.isValid() || role != Qt::EditRole) return false;
 
-    int dayHour = index.column() << 4 | index.row();
+    /* Seznam rozvrhů */
+    if(index.internalId() == NO_PARENT) {
 
-    QSqlQuery query;
+        QSqlQuery query;
 
-    /* ID předmětu odpovídající aktuálnímu indexu */
-    int idx = classesModel->idFromIndex(value.toInt());
+        /* Popisek - povolujeme jen neprázdný */
+        if(index.column() == 1 && !value.toString().isEmpty()) {
+            timetables[index.row()].description = value.toString();
 
-    /* Jestli upravujeme stávající záznam, provedeme UPDATE */
-    if(timetableData.contains(dayHour)) {
-        /* Rušíme hodinu */
-        if(idx == 0) {
-            timetableData.remove(dayHour);
-            query.prepare("DELETE FROM timetableData "
-                          "WHERE timetableId = :timetableId "
-                          "AND dayHour = :dayHour;");
+            query.prepare("UPDATE timetables SET description = :description WHERE id = :id;");
+            query.bindValue(":description", timetables[index.row()].description);
 
-        /* Aktualizujeme hodinu */
-        } else {
-            timetableData[dayHour] = idx;
-            query.prepare("UPDATE timetableData SET classId = :classId "
-                          "WHERE dayHour = :dayHour "
-                          "AND timetableId = :timetableId;");
-            query.bindValue(":classId", timetableData[dayHour]);
+        /* Začátek platnosti */
+        } else if(index.column() == 2) {
+            timetables[index.row()].validFrom = value.toDate();
+
+            query.prepare("UPDATE timetables SET validFrom = :validFrom WHERE id = :id;");
+            query.bindValue(":validFrom", timetables[index.row()].validFrom.toString(Qt::ISODate));
+
+        /* Následující rozvrh */
+        } else if(index.column() == 3) {
+            timetables[index.row()].followedBy = value.toInt();
+
+            query.prepare("UPDATE timetables SET followedBy = :followedBy WHERE id = :id;");
+            query.bindValue(":validTo", timetables[index.row()].followedBy);
+
+        /* Něco jiného / neplatné hodiny */
+        } else return false;
+
+        /* Provedení dotazu */
+        query.bindValue(":id", timetables[index.row()].id);
+        if(!query.exec()) {
+            qDebug() << tr("Nepodařilo se aktualizovat rozvrh!") << query.lastError()
+            << query.lastQuery();
+            return false;
         }
 
-    /* Přidáváme nový záznam, takže INSERT */
-    } else {
-        /* Nahrazení prázdné hodiny prázdnou, tj. nic neaktualizujeme */
-        if(idx == 0) return true;
+        /* Změny v popisku a datumu se projeví i v "souhrnném" sloupci */
+        if(index.column() == 1 || index.column() == 2)
+            emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
 
-        /* Vkládáme novou hodinu */
-        timetableData.insert(dayHour, idx);
-        query.prepare("INSERT INTO timetableData (gradeId, timetableId, dayHour, classId) "
-                       "VALUES (1, :timetableId, :dayHour, :classId);");
-        query.bindValue(":classId", timetableData[dayHour]);
+        emit dataChanged(index, index);
+        return true;
 
+    /* Data rozvrhu */
+    } else if(index.parent().internalId() == NO_PARENT) {
+        QSqlQuery query;
+
+        /* Spočítání dne/hodiny */
+        int dayHour = index.column() << 4 | index.row();
+
+        /* ID předmětu odpovídající aktuálnímu indexu */
+        int classId = classesModel->idFromIndex(value.toInt());
+
+        /* Jestli upravujeme stávající záznam, provedeme UPDATE */
+        if(timetables[index.parent().row()].data.contains(dayHour)) {
+            /* Rušíme hodinu */
+            if(classId == 0) {
+                timetables[index.parent().row()].data.remove(dayHour);
+                query.prepare("DELETE FROM timetableData "
+                            "WHERE timetableId = :timetableId "
+                            "AND dayHour = :dayHour;");
+
+            /* Aktualizujeme hodinu */
+            } else {
+                timetables[index.parent().row()].data[dayHour] = classId;
+                query.prepare("UPDATE timetableData SET classId = :classId "
+                            "WHERE dayHour = :dayHour "
+                            "AND timetableId = :timetableId;");
+                query.bindValue(":classId", timetables[index.parent().row()].data[dayHour]);
+            }
+
+        /* Přidáváme nový záznam, takže INSERT */
+        } else {
+            /* Nahrazení prázdné hodiny prázdnou, tj. nic neaktualizujeme */
+            if(classId == 0) return true;
+
+            /* Vkládáme novou hodinu */
+            timetables[index.parent().row()].data.insert(dayHour, classId);
+            query.prepare("INSERT INTO timetableData (gradeId, timetableId, dayHour, classId) "
+                        "VALUES (1, :timetableId, :dayHour, :classId);");
+            query.bindValue(":classId", timetables[index.parent().row()].data[dayHour]);
+        }
+
+        /* Naplnění dotazu daty */
+        query.bindValue(":timetableId", timetables[index.parent().row()].id);
+        query.bindValue(":dayHour", dayHour);
+
+        /* Provedení dotazu */
+        if(!query.exec()) {
+            qDebug() << tr("Nepodařilo se upravit data rozvrhu!") << query.lastError()
+                    << query.lastQuery();
+            return false;
+        }
+
+        emit dataChanged(index, index);
+        return true;
     }
 
-    /* Naplnění dotazu daty */
-    query.bindValue(":timetableId", timetableId);
-    query.bindValue(":dayHour", dayHour);
+    /* Něco jiného */
+    else return false;
+}
+
+bool TimetableModel::insertRow(int row, const QModelIndex& parent) {
+    /* Pokud je parent platný, nejsme v kořenovém seznamu rozvrhů, tudíž neděláme nic */
+    if(parent.isValid()) return false;
+
+    beginInsertRows(parent, row, row);
+
+    /* Zjištění, jestli už zde není nějaký "Nový rozvrh" */
+    for(int i = 0; i != timetables.count(); ++i) {
+        if(timetables[i].description == tr("Nový rozvrh")) {
+            qDebug() << tr("Nelze přidat další nepojmenovaný rozvrh!");
+            return false;
+        }
+    }
+
+    /* Default hodnoty */
+    Timetable t;
+    t.description = tr("Nový rozvrh");
+    t.validFrom = QDate(2009,9,1);
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("INSERT INTO timetables (gradeId, description, validFrom) VALUES (1, :description, :validFrom);");
+    query.bindValue(":description", t.description);
+    query.bindValue(":validFrom", t.validFrom);
 
     /* Provedení dotazu */
     if(!query.exec()) {
-        qDebug() << tr("Nepodařilo se upravit data rozvrhu!") << query.lastError()
-                 << query.lastQuery();
+        qDebug() << tr("Nepodařilo se přidat nový rozvrh!") << query.lastError()
+        << query.lastQuery();
         return false;
     }
 
-    emit dataChanged(index, index);
+    /* Upravení nového ID */
+    t.id = query.lastInsertId().toInt();
+    t.followedBy = t.id;
+    timetables.insert(row, t);
+
+    endInsertRows();
     return true;
+}
+
+/* Ostranění rozvrhu */
+bool TimetableModel::removeRow(int row, const QModelIndex& parent) {
+    /* Pokud je parent platný, neodpovídá kořenovému seznamu rozvrhů - neděláme nic */
+    if(parent.isValid()) return false;
+
+    beginRemoveRows(parent, row, row);
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("DELETE FROM timetables WHERE id = :id;");
+    query.bindValue(":id", timetables[row].id);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se odstranit rozvrh!") << query.lastError()
+        << query.lastQuery();
+        return false;
+    }
+
+    /* Smazání dat rozvrhu */
+    query.prepare("DELETE FROM timetableData WHERE timetableId = :idB;");
+    query.bindValue(":idB", timetables[row].id);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se odstranit rozvrh!") << query.lastError()
+        << query.lastQuery();
+        return false;
+    }
+
+    /* Pokud se povedlo odstranit z DB, odstranění z dat */
+    timetables.removeAt(row);
+
+    endRemoveRows();
+    return true;
+}
+
+/* Zda lze načíst potomky daného indexu */
+bool TimetableModel::canFetchMore(const QModelIndex& parent) const {
+    /* Pokud jsme v nějakém kořenovém indexu a data ještě nebyla načtena, lze */
+    if(parent.isValid() && parent.internalId() == NO_PARENT && !timetables[parent.row()].isLoaded)
+        return true;
+
+    /* Jinak nelze */
+    return false;
+}
+
+/* Načtení potomků daného indexu */
+void TimetableModel::fetchMore(const QModelIndex& parent) {
+    /* Pokud je index neplatný či nejsme v kořenovém indexu anebo jsou data již
+        načtena, konec */
+    if(!parent.isValid() || parent.internalId() != NO_PARENT || timetables[parent.row()].isLoaded)
+        return;
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("SELECT dayHour, classId FROM timetableData WHERE timetableId = :id;");
+    query.bindValue(":id", timetables[parent.row()].id);
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se načíst data rozvrhu!") << query.lastError()
+                 << query.lastQuery();
+        return;
+    }
+
+    beginInsertRows(parent, 0, 9);
+
+    /* Naplnění dat */
+    while(query.next()) {
+        timetables[parent.row()].data.insert(query.value(0).toInt(), query.value(1).toInt());
+    }
+
+    /* Označení rozvrhu jako načteného */
+    timetables[parent.row()].isLoaded = true;
+
+    endInsertRows();
+}
+
+/* Zjištění ID rozvrhu z indexu */
+int TimetableModel::idFromIndex(int index) const {
+    /* Pokud je chybný index, vrácení nuly (a takové ID žádný rozvrh nemá) */
+    if(index < 0 || index >= timetables.count()) return 0;
+
+    return timetables[index].id;
+}
+
+/* Zjištění indexu rozvrhu z ID rozvrhu */
+int TimetableModel::indexFromId(int id) const {
+    /* Procházení a hledání ID */
+    for(int i = 0; i != timetables.count(); ++i)
+        if(timetables[i].id == id) return i;
+
+    /* Nenalezeno, vrácení neplatného indexu */
+    return -1;
 }
 
 /* Zjištění, zda se změny v modelu předmětů projeví zde */
@@ -177,16 +445,20 @@ void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelI
         /* ID předmětu odpovídající indexu řádku */
         int id = classesModel->idFromIndex(i);
 
-        /* Všechny hodiny s tímto předmětem */
-        QList<int> hours = timetableData.keys(id);
+        /* Projití všech rozvrhů */
+        for(int ii = 0; ii != timetables.size(); ++ii) {
 
-        /* Procházení ovliněných hodin */
-        int hour; foreach(hour, hours) {
-            /* Spočítání souřadnic */
-            QModelIndex idx = index(hour & 0x0F, (hour & 0xF0) >> 4);
+            /* Všechny hodiny s tímto předmětem */
+            QList<int> hours = timetables[ii].data.keys(id);
 
-            /* Vyslání signálu */
-            emit dataChanged(idx, idx);
+            /* Procházení ovliněných hodin */
+            int hour; foreach(hour, hours) {
+                /* Spočítání indexu */
+                QModelIndex dataIndex = index(hour & 0x0F, (hour & 0xF0) >> 4, index(i, 0));
+
+                /* Vyslání signálu */
+                emit dataChanged(dataIndex, dataIndex);
+            }
         }
     }
 }

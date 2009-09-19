@@ -13,7 +13,6 @@ class QPushButton;
 namespace Absencoid {
 
 class TimetableModel;
-class TimetableListModel;
 class ClassesModel;
 
 /**
@@ -31,8 +30,12 @@ class TimetableTab: public QWidget {
          */
         TimetableTab(ClassesModel* classesModel, QWidget* parent = 0);
 
+        /**
+         * @brief Vrácení ukazatele na model rozvrhu
+         */
+        inline TimetableModel* getTimetableModel() const { return timetableModel; }
+
     private:
-        TimetableListModel* timetableListModel; /** @brief Model seznamu rozvrhů */
         TimetableModel* timetableModel;     /** @brief Model dat rozvrhu */
         QTableView* timetableView;  /** @brief Tabulka rozvrhu */
         QComboBox* timetableCombo;  /** @brief Políčko pro výběr rozvrhu */

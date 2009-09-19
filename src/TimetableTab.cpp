@@ -12,15 +12,13 @@
 
 #include "ComboBoxDelegate.h"
 #include "ClassesModel.h"
-#include "TimetableListModel.h"
 #include "TimetableModel.h"
 
 namespace Absencoid {
 
 /* Konstruktor */
 TimetableTab::TimetableTab(ClassesModel* classesModel, QWidget* parent):
-QWidget(parent), timetableListModel(new TimetableListModel(this)),
-timetableCombo(new QComboBox), description(new QLineEdit),
+QWidget(parent), timetableCombo(new QComboBox), description(new QLineEdit),
 validFrom(new QDateEdit), followedBy(new QComboBox) {
 
     QHBoxLayout* selectTimeTableLayout = new QHBoxLayout;
@@ -69,7 +67,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     layout->addLayout(bottomLayout);
 
     /* Nastavení modelu pro výběr rozvrhu */
-    timetableCombo->setModel(timetableListModel);
+    timetableCombo->setModel(timetableModel);
 
     /* Políčko pro začátek platnosti */
     validFrom->setDisplayFormat("dd.MM.yyyy");
@@ -82,7 +80,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
 
     /* Nastavení modelu a max. šířky comba pro následující rozvrh podle nejširšího
         tlačítka */
-    followedBy->setModel(timetableListModel);
+    followedBy->setModel(timetableModel);
     followedBy->setModelColumn(1);
     followedBy->setMaximumWidth(removeLessonsButton->sizeHint().width());
 
@@ -139,28 +137,28 @@ void TimetableTab::loadTimetable(int index) {
         removeLessonsButton->setDisabled(false);
     }
 
-    /* Načtení dat rozvrhu */
-    timetableModel->load(timetableListModel->idFromIndex(index));
+    /* Přepnutí tabulky na daný index */
+    timetableView->setRootIndex(timetableModel->index(index, 0));
 
     /* Nastavení popisku */
-    description->setText(timetableListModel->index(index, 1).data().toString());
+    description->setText(timetableModel->index(index, 1).data().toString());
 
     /* Nastavení začátku a konce platnosti */
-    validFrom->setDate(timetableListModel->index(index, 2).data().toDate());
+    validFrom->setDate(timetableModel->index(index, 2).data().toDate());
 
     /* Nastavení následujícího rozvrhu */
     followedBy->setCurrentIndex(
-        timetableListModel->indexFromId(timetableListModel->index(index, 3).data().toInt())
+        timetableModel->indexFromId(timetableModel->index(index, 3).data().toInt())
     );
 }
 
 /* Přidání a načtení nového rozvrhu */
 void TimetableTab::addTimetable() {
-    int index = timetableListModel->rowCount();
+    int index = timetableModel->rowCount();
 
     /* Pokud se podaří přidat, změníme index v comboboxu na nový, což jej
         současně i načte */
-    if(timetableListModel->insertRow(index))
+    if(timetableModel->insertRow(index))
         timetableCombo->setCurrentIndex(index);
 }
 
@@ -173,38 +171,38 @@ void TimetableTab::removeTimetable() {
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
             return;
 
-    timetableListModel->removeRow(timetableCombo->currentIndex());
+    timetableModel->removeRow(timetableCombo->currentIndex());
 }
 
 /* Nastavení popisku rozvrhu */
 void TimetableTab::setDescription() {
     /* Pokud se nepovede uložit (např. prázdný popisek), vrácení starých dat zpět */
-    if(!timetableListModel->setData(
-        timetableListModel->index(timetableCombo->currentIndex(), 1),
+    if(!timetableModel->setData(
+        timetableModel->index(timetableCombo->currentIndex(), 1),
         description->text()
     ))
-        description->setText(timetableListModel->index(timetableCombo->currentIndex(), 1).data().toString());
+        description->setText(timetableModel->index(timetableCombo->currentIndex(), 1).data().toString());
 }
 
 /* Nastavení začátku platnosti */
 void TimetableTab::setValidFrom() {
     /* Nastavení dat */
-    timetableListModel->setData(
-        timetableListModel->index(timetableCombo->currentIndex(), 2),
+    timetableModel->setData(
+        timetableModel->index(timetableCombo->currentIndex(), 2),
         validFrom->date());
 }
 
 /* Nastavení následujícího rozvrhu */
 void TimetableTab::setFollowedBy() {
     /* Přepočteme index položky na ID rozvrhu */
-    int id = timetableListModel->idFromIndex(followedBy->currentIndex());
+    int id = timetableModel->idFromIndex(followedBy->currentIndex());
 
     /* Nastavení dat */
-    timetableListModel->setData(
-        timetableListModel->index(timetableCombo->currentIndex(), 3), id);
+    timetableModel->setData(
+        timetableModel->index(timetableCombo->currentIndex(), 3), id);
 
     /* Změna tooltipu a aktuální (aby byl vidět celý název) */
-    followedBy->setToolTip(timetableListModel->index(followedBy->currentIndex(), 0).data().toString());
+    followedBy->setToolTip(timetableModel->index(followedBy->currentIndex(), 0).data().toString());
 }
 
 /* Odstranění vybraných hodin z rozvrhu */
