@@ -207,7 +207,6 @@ void TimetableTab::setFollowedBy() {
 
 /* Odstranění vybraných hodin z rozvrhu */
 void TimetableTab::removeLessons() {
-
     /* Ověření */
     if(QMessageBox::warning(this, tr("Odstranit vybrané hodiny"),
         tr("Opravdu odstranit vybrané hodiny z rozvrhu?"),

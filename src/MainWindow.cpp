@@ -117,9 +117,8 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
         new ChangedLessonsTab(timetableTab->getTimetableModel(), classesTab->getClassesModel(), this);
     tabWidget->addTab(changedLessonsTab, tr("Změny"));
 
-    /* --------------------- Další "dummy" taby ----------------------------- */
+    /* Absence */
     tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
-    tabWidget->addTab(new QLabel(tr("Zde bude seznam odpadnutých hodin a volných dnů")), tr("Volna"));
 
     /* Stavový řádek */
     setStatusBar(new QStatusBar(this));
