@@ -234,8 +234,10 @@ bool TeachersModel::saveRow(int row) {
     if(row < 0 || row >= teachers.count()) return false;
 
     /* Pokud není vyplněno jméno učitele, konec. Vracíme true, protože k chybě
-        nedošlo (toto je očekáváné chování). Uloží se při další změně jména. */
-    if(teachers[row].name.isEmpty()) return true;
+        nedošlo (toto je očekáváné chování). Uloží se při další změně jména.
+        Pokud není ID řádku rovno nule, řádek již byl uložen a tato funkce jej
+        nesmí ukládat znova. */
+    if(teachers[row].id != 0 || teachers[row].name.isEmpty()) return true;
 
     /* SQL dotaz */
     QSqlQuery query;

@@ -280,8 +280,11 @@ bool ClassesModel::saveRow(int row) {
     if(row < 0 || row >= classes.count()) return false;
 
     /* Pokud ještě není vše vyplněno, konec. Vrací se true, protože k žádné chybě
-        nedošlo a toto je očekáváné chování (uloží se jindy). */
-    if(classes[row].name.isEmpty() || classes[row].teacherId == 0) return true;
+        nedošlo a toto je očekáváné chování (uloží se jindy). Pokud ID není
+        rovno nule, je řádek již uložený a tato funkce jej tedy nesmí ukládat
+        znova. */
+    if(classes[row].id != 0 || classes[row].name.isEmpty() || classes[row].teacherId == 0)
+        return true;
 
     /* SQL dotaz */
     QSqlQuery query;
