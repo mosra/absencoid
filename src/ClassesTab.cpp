@@ -65,9 +65,7 @@ void ClassesTab::removeClasses() {
         if(!rows.contains(index.row())) {
             rows.append(index.row());
 
-            /* Jméno leží na řádku v prvním sloupci, učitel v druhém */
-            QString name = index.sibling(index.row(), 0).data().toString()
-                + " (" + index.sibling(index.row(), 1).data().toString() + ")";
+            QString name = index.sibling(index.row(), 0).data().toString();
 
             /* Při mazání čerstvě přidaných předmětů */
             if(name == " ()") name = tr("(prázdný)");
