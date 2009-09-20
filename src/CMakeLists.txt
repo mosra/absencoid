@@ -20,7 +20,7 @@ add_executable(absencoid
     TeachersModel.cpp TeachersTab.cpp
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp
-    ChangedLessonsTab.cpp
+    ChangedLessonsModel.cpp ChangedLessonsTab.cpp
     ${AbsencoidMOC}
     )
 target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY})

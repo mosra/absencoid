@@ -6,6 +6,7 @@
 
 #include "TimetableModel.h"
 #include "ClassesModel.h"
+#include "ChangedLessonsModel.h"
 
 namespace Absencoid {
 
@@ -14,6 +15,8 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
 
     /* Tabulka se změnami */
     QTableView* changedLessonsView = new QTableView;
+    changedLessonsView->setModel(new ChangedLessonsModel(classesModel, timetableModel, this));
+    changedLessonsView->resizeColumnToContents(4);
 
     /* Tlačítka vpravo */
     QPushButton* addChangedLessonButton = new QPushButton(tr("Přidat změnu"));
