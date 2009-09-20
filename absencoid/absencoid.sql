@@ -64,16 +64,20 @@ CREATE TABLE timetableData (
     classId INTEGER NOT NULL
 );
 
--- VOLNÉ DNY / ODPADNUTÉ HODINY
+-- ZMĚNĚNÉ HODINY / ODPADNUTÉ HODINY
 -- gradeId      ID třídy
 -- date         Datum
--- hours        Hodiny (binární "checkbox") - příklad:
---                  0x0001 - nultá hodina odpadla
---                  0x00F0 == 0b11110000 - odpadla 4. - 7. hodina
-CREATE TABLE holidays (
+-- hour         Hodina, ve které proběhla změna
+-- fromClassId  ID předmětu, ze kterého se mění. Tato změna se aplikuje jen na
+--                  rozvrhy, které mají v danou dobu tuto hodinu.
+-- toClassId    ID předmětu, na který se mění
+CREATE TABLE changedLessons (
     gradeId INTEGER NOT NULL,
-    date TEXT NOT NULL UNIQUE,
-    hours INTEGER NOT NULL
+    date TEXT NOT NULL,
+    hour INTEGER NOT NULL,
+    fromClassId INTEGER NOT NULL,
+    toClassId INTEGER NOT NULL,
+    UNIQUE(date, hour, fromClassId)
 );
 
 -- ABSENCE
