@@ -66,6 +66,7 @@ CREATE TABLE timetableData (
 
 -- ZMĚNĚNÉ HODINY / ODPADNUTÉ HODINY
 -- gradeId      ID třídy
+-- id           ID změny
 -- date         Datum
 -- hour         Hodina, ve které proběhla změna
 -- fromClassId  ID předmětu, ze kterého se mění. Tato změna se aplikuje jen na
@@ -73,6 +74,7 @@ CREATE TABLE timetableData (
 -- toClassId    ID předmětu, na který se mění
 CREATE TABLE changedLessons (
     gradeId INTEGER NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     hour INTEGER NOT NULL,
     fromClassId INTEGER NOT NULL,
