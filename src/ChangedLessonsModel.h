@@ -52,10 +52,21 @@ class ChangedLessonsModel: public QAbstractTableModel {
          */
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
+        /**
+         * @brief Flags
+         */
+        virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+
+        /**
+         * @brief Zápisový přístup k datům
+         */
+        virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+
     private:
         /** @brief Struktura změněné hodiny */
         struct ChangedLesson {
             QDate date;         /** @brief Datum */
+            int id;             /** @brief ID změny */
             int hour;           /** @brief Číslo hodiny (0-9) */
             int fromClassId;    /** @brief ID předmětu, ze kterého se mění */
             int toClassId;      /** @brief ID předmětu, na který se mění */

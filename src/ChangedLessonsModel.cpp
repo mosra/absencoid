@@ -1,6 +1,8 @@
 #include "ChangedLessonsModel.h"
 
 #include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
 
 #include "ClassesModel.h"
 #include "TimetableModel.h"
@@ -9,15 +11,16 @@ namespace Absencoid {
 
 /* Konstruktor */
 ChangedLessonsModel::ChangedLessonsModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel) {
-    QSqlQuery query("SELECT date, hour, fromClassId, toClassId FROM changedLessons;");
+    QSqlQuery query("SELECT id, date, hour, fromClassId, toClassId FROM changedLessons;");
 
     /* Procházení vüsledků dotazu */
     while(query.next()) {
         ChangedLesson c;
-        c.date = query.value(0).toDate();
-        c.hour = query.value(1).toInt();
-        c.fromClassId = query.value(2).toInt();
-        c.toClassId = query.value(3).toInt();
+        c.id = query.value(0).toInt();
+        c.date = query.value(1).toDate();
+        c.hour = query.value(2).toInt();
+        c.fromClassId = query.value(3).toInt();
+        c.toClassId = query.value(4).toInt();
         changedLessons.append(c);
     }
 }
@@ -43,6 +46,10 @@ QVariant ChangedLessonsModel::headerData(int section, Qt::Orientation orientatio
             case 3: return tr("Na předmět");
             case 4: return tr("Ovlivněno rozvrhů");
         }
+
+    /* Vertikální hlavičky */
+    } else if(orientation == Qt::Vertical && role == Qt::EditRole) {
+        return changedLessons[section].id;
     }
 
     /* Ostatní */
@@ -85,6 +92,69 @@ QVariant ChangedLessonsModel::data(const QModelIndex& index, int role) const {
 
     /* Cokoliv jiného */
     return QVariant();
+}
+
+/* Flags */
+Qt::ItemFlags ChangedLessonsModel::flags(const QModelIndex& index) const {
+    if(!index.isValid()) return Qt::ItemIsEnabled;
+
+    /* Počet ovlivněných rozvrhů není editovatelný */
+    if(index.column() == 4) return QAbstractTableModel::flags(index);
+
+    /* Vše ostatní editovatelné je */
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+}
+
+/* Zápisový přístup k datům */
+bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if(!index.isValid() || role != Qt::EditRole) return false;
+
+    QSqlQuery query;
+
+    /* Datum */
+    if(index.column() == 0) {
+        /* Uložení dat */
+        changedLessons[index.row()].date = value.toDate();
+
+        query.prepare("UPDATE changedLessons SET date = :date WHERE id = :id;");
+        query.bindValue(":date", changedLessons[index.row()].date.toString(Qt::ISODate));
+
+    /* Hodina */
+    } else if(index.column() == 1) {
+        /* Uložení dat */
+        changedLessons[index.row()].hour = value.toInt();
+
+        query.prepare("UPDATE changedLessons SET hour = :hour WHERE id = :id;");
+        query.bindValue(":hour", changedLessons[index.row()].hour);
+
+    /* Předmět, ze kterého se mění */
+    } else if(index.column() == 2) {
+        /* Uložení dat */
+        changedLessons[index.row()].fromClassId = classesModel->idFromIndex(value.toInt());
+
+        query.prepare("UPDATE changedLessons SET fromClassId = :fromClassId WHERE id = :id;");
+        query.bindValue(":fromClassId", changedLessons[index.row()].fromClassId);
+
+    /* Předmět, na který se mění */
+    } else if(index.column() == 3) {
+        /* Uložení dat */
+        changedLessons[index.row()].toClassId = classesModel->idFromIndex(value.toInt());
+
+        query.prepare("UPDATE changedLessons SET toClassId = :toClassId WHERE id = :id;");
+        query.bindValue(":toClassId", changedLessons[index.row()].toClassId);
+
+    /* Něco jiného */
+    } else return false;
+
+    /* Uložení do DB */
+    query.bindValue(":id", changedLessons[index.row()].id);
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se změnit změnu!") << query.lastError()
+                 << query.lastQuery();
+    }
+
+    emit dataChanged(index, index);
+    return true;
 }
 
 }

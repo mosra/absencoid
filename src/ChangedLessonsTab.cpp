@@ -7,6 +7,7 @@
 #include "TimetableModel.h"
 #include "ClassesModel.h"
 #include "ChangedLessonsModel.h"
+#include "ComboBoxDelegate.h"
 
 namespace Absencoid {
 
@@ -16,6 +17,13 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
     /* Tabulka se změnami */
     QTableView* changedLessonsView = new QTableView;
     changedLessonsView->setModel(new ChangedLessonsModel(classesModel, timetableModel, this));
+
+    /* Combobox delegáty pro výběr předmětů */
+    ComboBoxDelegate* comboBoxDelegate = new ComboBoxDelegate(classesModel, changedLessonsView);
+    changedLessonsView->setItemDelegateForColumn(2, comboBoxDelegate);
+    changedLessonsView->setItemDelegateForColumn(3, comboBoxDelegate);
+
+    /* Zvětšení posledního sloupce, protože má dlouhou hlavičku */
     changedLessonsView->resizeColumnToContents(4);
 
     /* Tlačítka vpravo */
