@@ -3,8 +3,12 @@
 
 #include <QWidget>
 
+class QTableView;
+class QPushButton;
+
 namespace Absencoid {
 
+class ChangedLessonsModel;
 class ClassesModel;
 class TimetableModel;
 
@@ -23,6 +27,11 @@ class ChangedLessonsTab: public QWidget {
          */
         ChangedLessonsTab(TimetableModel* timetableModel, ClassesModel* classesModel, QWidget* parent = 0);
 
+    private:
+        ChangedLessonsModel* changedLessonsModel;   /** @brief Model změněných hodin */
+        QTableView* changedLessonsView;             /** @brief Tabulka se změnami */
+        QPushButton* removeChangedLessonsButton;    /** @brief Tlačítko pro odebrání změn */
+
     private slots:
         /**
          * @brief Přidat změněnou hodinu
@@ -32,7 +41,14 @@ class ChangedLessonsTab: public QWidget {
         /**
          * @brief Smazání vybraných změn
          */
-        void removeLessons();
+        void removeChangedLessons();
+
+        /**
+         * @brief Zašednutí / aktivace tlačítka pro mazání
+         *
+         * Pokud není nic vybráno, tlačítko pro mazání je zašedlé.
+         */
+        void updateRemoveButton();
 };
 
 }

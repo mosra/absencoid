@@ -10,15 +10,17 @@
 #include "ComboBoxDelegate.h"
 #include "DateEditDelegate.h"
 #include "SpinBoxDelegate.h"
+#include <QMessageBox>
 
 namespace Absencoid {
 
 /* Konstruktor */
 ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesModel* classesModel, QWidget* parent): QWidget(parent) {
+    changedLessonsModel = new ChangedLessonsModel(classesModel, timetableModel, this);
 
     /* Tabulka se změnami */
-    QTableView* changedLessonsView = new QTableView;
-    changedLessonsView->setModel(new ChangedLessonsModel(classesModel, timetableModel, this));
+    changedLessonsView = new QTableView;
+    changedLessonsView->setModel(changedLessonsModel);
 
     /* Delegát pro datum */
     DateEditDelegate* dateEditDelegate = new DateEditDelegate(changedLessonsView);
@@ -38,29 +40,63 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
 
     /* Tlačítka vpravo */
     QPushButton* addChangedLessonButton = new QPushButton(tr("Přidat změnu"));
-    QPushButton* removeLessonsButton = new QPushButton(tr("Odebrat vybrané"));
+    removeChangedLessonsButton = new QPushButton(tr("Odebrat vybrané"));
 
     /* Layout pro tlačítka vpravo */
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
     buttonsLayout->addWidget(addChangedLessonButton, 0, Qt::AlignTop);
-    buttonsLayout->addWidget(removeLessonsButton, 1, Qt::AlignTop);
+    buttonsLayout->addWidget(removeChangedLessonsButton, 1, Qt::AlignTop);
 
     /* Layout celkový */
     QHBoxLayout* layout = new QHBoxLayout(this);
     layout->addWidget(changedLessonsView, 1);
     layout->addLayout(buttonsLayout, 0);
 
+    /* Propojení tlačítek s jejich funkcemi */
+    connect(addChangedLessonButton, SIGNAL(clicked(bool)), this, SLOT(addChangedLesson()));
+    connect(removeChangedLessonsButton, SIGNAL(clicked(bool)), this, SLOT(removeChangedLessons()));
+
+    /* Při zrušení výběru se deaktivuje tlačítko pro smazání změn */
+    connect(changedLessonsView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(updateRemoveButton()));
+
     setLayout(layout);
 }
 
 /* Přidání změny */
 void ChangedLessonsTab::addChangedLesson() {
-
+    changedLessonsModel->insertRow(changedLessonsModel->rowCount());
 }
 
 /* Odstranění vybraných změn */
-void ChangedLessonsTab::removeLessons() {
+void ChangedLessonsTab::removeChangedLessons() {
+    /* Projití výběru, aby zde byly unikátní řádky */
+    QList<int> rows;
+    foreach(QModelIndex index, changedLessonsView->selectionModel()->selectedIndexes()) {
+        if(!rows.contains(index.row())) rows.append(index.row());
+    }
 
+    /* Ověření */
+    if(QMessageBox::warning(this, tr("Smazat změněné předměty"),
+        tr("Opravdu smazat vybrané změny") + " <strong>(" + QString::number(rows.count()) + ")</strong>?",
+        QMessageBox::Yes | QMessageBox::No) != QMessageBox::Yes) return;
+
+    /* Seřazení čísel řádků od největšího k nejmenšímu (vysvětleno v
+        TeachersTab::removeTeachers() ) */
+    qSort(rows.begin(), rows.end(), qGreater<int>());
+
+    /* Smazání jednotlivých unikátních řádků */
+    foreach(int row, rows) {
+        changedLessonsModel->removeRow(row);
+    }
+}
+
+/* Zašednutí / aktivace tlačítka pro mazání */
+void ChangedLessonsTab::updateRemoveButton() {
+    if(changedLessonsView->selectionModel()->hasSelection())
+        removeChangedLessonsButton->setDisabled(false);
+    else
+        removeChangedLessonsButton->setDisabled(true);
 }
 
 }

@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QFont>
 
 #include "ClassesModel.h"
 #include "TimetableModel.h"
@@ -48,8 +49,18 @@ QVariant ChangedLessonsModel::headerData(int section, Qt::Orientation orientatio
         }
 
     /* Vertikální hlavičky */
-    } else if(orientation == Qt::Vertical && role == Qt::EditRole) {
-        return changedLessons[section].id;
+    } else if(orientation == Qt::Vertical) {
+
+        /* U nových záznamů ukazujeme hvězdičku */
+        if(role == Qt::DisplayRole)
+            return changedLessons[section].id == 0 ? QVariant("*") : QVariant(changedLessons[section].id);
+
+        /* Hvězdička je zobrazena tučně */
+        if(role == Qt::FontRole && changedLessons[section].id == 0) {
+            QFont font;
+            font.setBold(true);
+            return font;
+        }
     }
 
     /* Ostatní */
@@ -116,32 +127,76 @@ bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& valu
 
     /* Datum */
     if(index.column() == 0) {
+        /* Ověření jedinečnosti */
+        if(!checkUnique(value.toDate(), changedLessons[index.row()].hour, changedLessons[index.row()].fromClassId))
+            return false;
+
         /* Uložení dat */
         changedLessons[index.row()].date = value.toDate();
+
+        /* Nový záznam, místo UPDATE děláme INSERT, emitujeme signál
+            a pokusíme se řádek uložit do DB */
+        if(changedLessons[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
 
         query.prepare("UPDATE changedLessons SET date = :date WHERE id = :id;");
         query.bindValue(":date", changedLessons[index.row()].date.toString(Qt::ISODate));
 
     /* Hodina */
     } else if(index.column() == 1) {
+        /* Ověření jedinečnosti */
+        if(!checkUnique(changedLessons[index.row()].date, value.toInt(), changedLessons[index.row()].fromClassId))
+            return false;
+
         /* Uložení dat */
         changedLessons[index.row()].hour = value.toInt();
+
+        /* Nový záznam, místo UPDATE děláme INSERT, emitujeme signál
+            a pokusíme se řádek uložit do DB */
+        if(changedLessons[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
 
         query.prepare("UPDATE changedLessons SET hour = :hour WHERE id = :id;");
         query.bindValue(":hour", changedLessons[index.row()].hour);
 
     /* Předmět, ze kterého se mění */
     } else if(index.column() == 2) {
+        /* Ověření jedinečnosti */
+        if(!checkUnique(changedLessons[index.row()].date, changedLessons[index.row()].hour, classesModel->idFromIndex(value.toInt())))
+            return false;
+
         /* Uložení dat */
         changedLessons[index.row()].fromClassId = classesModel->idFromIndex(value.toInt());
+
+        /* Nový záznam, místo UPDATE děláme INSERT, emitujeme signál
+            a pokusíme se řádek uložit do DB */
+        if(changedLessons[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
 
         query.prepare("UPDATE changedLessons SET fromClassId = :fromClassId WHERE id = :id;");
         query.bindValue(":fromClassId", changedLessons[index.row()].fromClassId);
 
     /* Předmět, na který se mění */
     } else if(index.column() == 3) {
+        /* Ověření jedinečnosti */
+        if(!checkUnique(changedLessons[index.row()].date, changedLessons[index.row()].hour, changedLessons[index.row()].fromClassId))
+            return false;
+
         /* Uložení dat */
         changedLessons[index.row()].toClassId = classesModel->idFromIndex(value.toInt());
+
+        /* Nový záznam, místo UPDATE děláme INSERT, emitujeme signál
+            a pokusíme se řádek uložit do DB */
+        if(changedLessons[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
 
         query.prepare("UPDATE changedLessons SET toClassId = :toClassId WHERE id = :id;");
         query.bindValue(":toClassId", changedLessons[index.row()].toClassId);
@@ -157,6 +212,105 @@ bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& valu
     }
 
     emit dataChanged(index, index);
+    return true;
+}
+
+/* Přidání nového řádku (do lokálních dat) */
+bool ChangedLessonsModel::insertRow(int row, const QModelIndex& parent) {
+    beginInsertRows(parent, row, row);
+
+    ChangedLesson c;
+    c.date = QDate::currentDate();
+    c.id = 0;
+    c.hour = 1;
+    c.fromClassId = 0;
+    c.toClassId = 0;
+
+    changedLessons.insert(row, c);
+
+    endInsertRows();
+
+    return true;
+}
+
+/* Odebrání řádků */
+bool ChangedLessonsModel::removeRows(int row, int count, const QModelIndex& parent) {
+    QSqlQuery query;
+    query.prepare("DELETE FROM changedLessons WHERE id = :id;");
+
+    beginRemoveRows(parent, row, row+count-1);
+
+    /* Mazání z DB */
+    for(int i = row; i != row+count; ++i) {
+        query.bindValue(":id", changedLessons[i].id);
+
+        /* Mazání z DB */
+        if(!query.exec()) {
+            qDebug() << tr("Nepodařilo se smazat změnu!") << query.lastError()
+                     << query.lastQuery();
+            break;
+        }
+
+        /* Mazání z lokálních dat */
+        changedLessons.removeAt(i);
+    }
+
+    endRemoveRows();
+
+    return true;
+}
+
+/* Zjištění unikátnosti záznamu */
+bool ChangedLessonsModel::checkUnique(QDate date, int hour, int fromClassId) {
+    /* Špatná hodina */
+    if(hour < 0 || hour > 9) return false;
+
+    /* Procházení a hledání záznamu */
+    for(int i = 0; i != changedLessons.count(); ++i) {
+        /* Datum z hlediska výkonnosti testujeme až na konci */
+        if(changedLessons[i].id != 0 &&
+           changedLessons[i].hour == hour &&
+           changedLessons[i].fromClassId == fromClassId &&
+           changedLessons[i].date == date)
+            return false;
+    }
+
+    return true;
+}
+
+/* Uložení nového záznamu do DB */
+bool ChangedLessonsModel::saveRow(int row) {
+    /* Špatný index */
+    if(row < 0 || row >= changedLessons.count()) return false;
+
+    /* Záznam byl již uložen. Vracíme true, protože nedošlo k žádné chybě. */
+    if(changedLessons[row].id != 0) return true;
+
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("INSERT INTO changedLessons (gradeId, date, hour, fromClassId, toClassId) "
+                  "VALUES (1, :date, :hour, :fromClassId, :toClassId);");
+    query.bindValue(":date", changedLessons[row].date.toString(Qt::ISODate));
+    query.bindValue(":hour", changedLessons[row].hour);
+    query.bindValue(":fromClassId", changedLessons[row].fromClassId);
+    query.bindValue(":toClassId", changedLessons[row].toClassId);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se přidat změnu!") << query.lastError()
+                 << query.lastQuery();
+        return false;
+    }
+
+    /* Aktualizace ID */
+    changedLessons[row].id = query.lastInsertId().toInt();
+
+    /* Signál o změně hlavičky */
+    emit headerDataChanged(Qt::Vertical, row, row);
+
+    /* Signál o změně rozbrazení (aby se hlavička přizpůsobila dlouhým ID) */
+    emit layoutChanged();
+
     return true;
 }
 

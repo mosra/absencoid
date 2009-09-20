@@ -59,8 +59,23 @@ class ChangedLessonsModel: public QAbstractTableModel {
 
         /**
          * @brief Zápisový přístup k datům
+         * @todo Ověření, zda se někde nekryjí datum, hodina a fromClass
+         * @todo Ověření, zda není z stejné jako do
          */
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+
+        /**
+         * @brief Přidání řádku
+         *
+         * Řádek se přidá do lokálních dat, do DB je zapsaný až při vyplnění
+         * povinných polí (datum, hodina a jeden z předmětů)
+         */
+        virtual bool insertRow(int row, const QModelIndex& parent = QModelIndex());
+
+        /**
+         * @brief Odstranění řádků
+         */
+        virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
     private:
         /** @brief Struktura změněné hodiny */
@@ -75,6 +90,29 @@ class ChangedLessonsModel: public QAbstractTableModel {
         ClassesModel* classesModel;             /** @brief Model předmětů */
         TimetableModel* timetableModel;         /** @brief Model rozvrhů */
         QList<ChangedLesson> changedLessons;    /** @brief List se změnami */
+
+        /**
+         * @brief Ověření unikátnosti záznamů
+         *
+         * Ověří, zda je předaný záznam unikátní (ještě takový neexistuje v
+         * databázi). Tj. ověřuje jen jestli takový záznam existuje mezi
+         * uloženými záznamy (s nenulovým ID).
+         * @param   date        Datum
+         * @param   hour        Číslo hodiny
+         * @param   fromClassId Předmět, ze kterého se mění
+         * @return  Vrací false, pokud již takovýto záznam existuje či pokud je
+         *          nějaký parametr neplatný (např. číslo hodiny mimo rozsah).
+         */
+        bool checkUnique(QDate date, int hour, int fromClassId);
+
+        /**
+         * @brief Uložení řádku do DB
+         *
+         * Nově přidané řádky se do DB ukládají až při vyplnění unikátních dat.
+         * Ověření unikátnosti záznamu je na volajícím, tato funkce to nedělá.
+         * @param   row         Číslo řádku, který se má uložit
+         */
+        bool saveRow(int row);
 };
 
 }
