@@ -1,5 +1,5 @@
-#ifndef TEACHERSMODEL_H
-#define TEACHERSMODEL_H
+#ifndef ABSENCOID_TEACHERSMODEL_H
+#define ABSENCOID_TEACHERSMODEL_H
 
 #include <QAbstractTableModel>
 

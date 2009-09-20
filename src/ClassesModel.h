@@ -1,5 +1,5 @@
-#ifndef CLASSESMODEL_H
-#define CLASSESMODEL_H
+#ifndef ABSENCOID_CLASSESMODEL_H
+#define ABSENCOID_CLASSESMODEL_H
 
 #include <QAbstractTableModel>
 

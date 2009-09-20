@@ -1,5 +1,5 @@
-#ifndef CLASSESTAB_H
-#define CLASSESTAB_H
+#ifndef ABSENCOID_CLASSESTAB_H
+#define ABSENCOID_CLASSESTAB_H
 
 #include <QWidget>
 

@@ -1,5 +1,5 @@
-#ifndef TIMETABLETAB_H
-#define TIMETABLETAB_H
+#ifndef ABSENCOID_TIMETABLETAB_H
+#define ABSENCOID_TIMETABLETAB_H
 
 #include <QWidget>
 

@@ -1,5 +1,5 @@
-#ifndef TIMETABLEMODEL_H
-#define TIMETABLEMODEL_H
+#ifndef ABSENCOID_TIMETABLEMODEL_H
+#define ABSENCOID_TIMETABLEMODEL_H
 
 #include <QAbstractItemModel>
 #include <QDate>

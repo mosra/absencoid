@@ -1,5 +1,5 @@
-#ifndef TEACHERSTAB_H
-#define TEACHERSTAB_H
+#ifndef ABSENCOID_TEACHERSTAB_H
+#define ABSENCOID_TEACHERSTAB_H
 
 #include <QWidget>
 
