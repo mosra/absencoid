@@ -61,8 +61,11 @@ QVariant ChangedLessonsModel::data(const QModelIndex& index, int role) const {
     if(!index.isValid()) return QVariant();
 
     /* Datum */
-    if(index.column() == 0 && (role == Qt::DisplayRole || role == Qt::EditRole)) {
-        return changedLessons[index.row()].date;
+    if(index.column() == 0) {
+        if(role == Qt::DisplayRole)
+            return changedLessons[index.row()].date.toString("dd.MM.yyyy");
+        if(role == Qt::EditRole)
+            return changedLessons[index.row()].date;
 
     /* Hodina */
     } else if(index.column() == 1 && (role == Qt::DisplayRole || role == Qt::EditRole)) {
