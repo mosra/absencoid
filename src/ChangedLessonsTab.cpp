@@ -9,6 +9,7 @@
 #include "ChangedLessonsModel.h"
 #include "ComboBoxDelegate.h"
 #include "DateEditDelegate.h"
+#include "SpinBoxDelegate.h"
 
 namespace Absencoid {
 
@@ -22,6 +23,10 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
     /* Delegát pro datum */
     DateEditDelegate* dateEditDelegate = new DateEditDelegate(changedLessonsView);
     changedLessonsView->setItemDelegateForColumn(0, dateEditDelegate);
+
+    /* Delegát pro číslo hodiny */
+    SpinBoxDelegate* spinBoxDelegate = new SpinBoxDelegate(0, 9, changedLessonsView);
+    changedLessonsView->setItemDelegateForColumn(1, spinBoxDelegate);
 
     /* Combobox delegáty pro výběr předmětů */
     ComboBoxDelegate* comboBoxDelegate = new ComboBoxDelegate(classesModel, changedLessonsView);
