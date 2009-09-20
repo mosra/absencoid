@@ -253,6 +253,9 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
         /* ID předmětu odpovídající aktuálnímu indexu */
         int classId = classesModel->idFromIndex(value.toInt());
 
+        /* V rozvrhu může být cokoli, jen ne "Cokoli" */
+        if(classId == ClassesModel::WHATEVER) return false;
+
         /* Jestli upravujeme stávající záznam, provedeme UPDATE */
         if(timetables[index.parent().row()].data.contains(dayHour)) {
             /* Rušíme hodinu */

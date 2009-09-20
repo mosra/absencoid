@@ -6,10 +6,36 @@
 namespace Absencoid {
 class TeachersModel;
 
+/**
+ * @brief Model předmětů
+ *
+ * Model poskytující přístup k předmětům ve formě tabulky. Jsou zde tyto
+ * sloupce:
+ * <ul>
+ *  <li>Souhrn - ve formátu "název předmětu (učitel)"</li>
+ *  <li>Název předmětu</li>
+ *  <li>Učitel (vzaný z TeachersModel)</li>
+ * </ul>
+ *
+ * První dva řádky modelu jsou speciální. První řádek zastupuje volnou hodinu
+ * (jeho <tt>classId</tt> je rovno nule, tedy jako v ještě nevybraném
+ * comboboxu), druhý řádek zastupuje jakoukoli hodinu (použitelné ve změněných
+ * hodinách, pokud změna platí plošně pro všechny hodiny / rozvrhy). Jeho
+ * <tt>classId</tt> je rovno konstantě Absencoid::ClassesModel::WHATEVER.
+ */
 class ClassesModel: public QAbstractTableModel {
     Q_OBJECT
 
     public:
+
+        /**
+        * @brief Konstanta značící jakoukoli hodinu
+        *
+        * Jakákoli hodina je použitelná v změněných hodinách, pokud změna platí
+        * plošně pro všechny hodiny / rozvrhy.
+        */
+        static const int WHATEVER;
+
         /**
          * @brief Konstruktor
          *
@@ -96,7 +122,8 @@ class ClassesModel: public QAbstractTableModel {
          * Uloží nový předmět (označený hvězdičkou) do databáze a aktualizuje
          * hlavičku na ID přidaného řádku. Voláno z
          * Absencoid::ClassesModel::insertRow, když jsou všechna data zapsána.
-         * @param   row     Řádek, který se má uložit
+         * @param   row     Číslo řádku, který se má uložit (číslo v classes, ne
+         *                  v tabulce)
          * @return  Zda se povedlo uložit
          */
         bool saveRow(int index);

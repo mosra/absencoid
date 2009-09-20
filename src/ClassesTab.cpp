@@ -22,6 +22,10 @@ classesView(new QTableView(this)) {
     /* Pro třetí sloupec delegáta pro editaci pomocí comboboxu */
     classesView->setItemDelegateForColumn(2, new ComboBoxDelegate(teachersModel, classesView));
 
+    /* První dva speciální řádky také skryjeme */
+    classesView->setRowHidden(0, true);
+    classesView->setRowHidden(1, true);
+
     /* Tlačítka pro přidání / odebrání třídy */
     QPushButton* addClass = new QPushButton(tr("Přidat předmět"));
     removeClassesButton = new QPushButton(tr("Odstranit vybrané"));
