@@ -1,6 +1,5 @@
 #include "ComboBoxDelegate.h"
 
-#include <QLineEdit>
 #include <QComboBox>
 
 #include "TeachersModel.h"
@@ -8,8 +7,8 @@
 namespace Absencoid {
 
 /* Konstruktor */
-ComboBoxDelegate::ComboBoxDelegate(QAbstractItemModel* _model, QObject* parent): QItemDelegate(parent),
-    model(_model) {}
+ComboBoxDelegate::ComboBoxDelegate(QAbstractItemModel* _model, QObject* parent):
+QItemDelegate(parent), model(_model) {}
 
 /* Vytvoření editoru */
 QWidget* ComboBoxDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const {
