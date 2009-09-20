@@ -165,6 +165,13 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
         else
             teachers[index.row()].flags &= ~index.column();
 
+        /* Když se jedná o nový záznam, nemůžeme dělat UPDATE ale INSERT.
+            Emitujeme signál o změně dat a pokusíme se záznam uložit. */
+        if(teachers[index.row()].id == 0) {
+            emit dataChanged(index, index);
+            return saveRow(index.row());
+        }
+
         /* SQL dotaz */
         query.prepare("UPDATE teachers SET flags = :flags WHERE id = :id;");
         query.bindValue(":flags", teachers[index.row()].flags);
