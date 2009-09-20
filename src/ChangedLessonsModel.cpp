@@ -184,10 +184,6 @@ bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& valu
 
     /* Předmět, na který se mění */
     } else if(index.column() == 3) {
-        /* Ověření jedinečnosti */
-        if(!checkUnique(changedLessons[index.row()].date, changedLessons[index.row()].hour, changedLessons[index.row()].fromClassId))
-            return false;
-
         /* Uložení dat */
         changedLessons[index.row()].toClassId = classesModel->idFromIndex(value.toInt());
 
