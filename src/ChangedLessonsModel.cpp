@@ -74,7 +74,7 @@ QVariant ChangedLessonsModel::data(const QModelIndex& index, int role) const {
     /* Datum */
     if(index.column() == 0) {
         if(role == Qt::DisplayRole)
-            return changedLessons[index.row()].date.toString("dd.MM.yyyy");
+            return changedLessons[index.row()].date.toString("ddd dd.MM.yyyy");
         if(role == Qt::EditRole)
             return changedLessons[index.row()].date;
 

@@ -17,7 +17,7 @@ QWidget* DateEditDelegate::createEditor(QWidget* parent, const QStyleOptionViewI
     calendar->setFirstDayOfWeek(Qt::Monday);
 
     /* Nastavení editoru, kalendářový popup */
-    dateEdit->setDisplayFormat("dd.MM.yyyy");
+    dateEdit->setDisplayFormat("ddd dd.MM.yyyy");
     dateEdit->setCalendarPopup(true);
     dateEdit->setCalendarWidget(calendar);
 

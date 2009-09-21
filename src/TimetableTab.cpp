@@ -70,7 +70,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     timetableCombo->setModel(timetableModel);
 
     /* Políčko pro začátek platnosti */
-    validFrom->setDisplayFormat("dd.MM.yyyy");
+    validFrom->setDisplayFormat("ddd dd.MM.yyyy");
 
     /* Po kliknutí na šipku vyleze kalendář */
     QCalendarWidget* calendarWidget = new QCalendarWidget(validFrom);
@@ -167,7 +167,7 @@ void TimetableTab::removeTimetable() {
     /* Ověření rozhodnutí */
     if(QMessageBox::warning(this, tr("Odstranit rozvrh"),
         tr("<strong>Opravdu ostranit tento rozvrh?</strong><br/>") + description->text() +
-        tr("<br/>(Platný od ") + validFrom->date().toString("dd.MM.yyyy") + tr(")"),
+        tr("<br/>(Platný od ") + validFrom->date().toString("ddd dd.MM.yyyy") + tr(")"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No) != QMessageBox::Yes)
             return;
 

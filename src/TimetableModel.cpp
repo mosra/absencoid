@@ -136,7 +136,7 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
         if((index.column() == 0 && role == Qt::DisplayRole) ||
             (index.column() == 1 && role == Qt::ToolTipRole))
             return timetables[index.row()].description + tr(" (platný od ")
-            + timetables[index.row()].validFrom.toString("dd.MM.yyyy") + ")";
+            + timetables[index.row()].validFrom.toString("ddd dd.MM.yyyy") + ")";
 
         /* Popisek samotný */
         if(index.column() == 1 && role == Qt::DisplayRole)
