@@ -319,7 +319,8 @@ bool TimetableModel::insertRow(int row, const QModelIndex& parent) {
     /* Default hodnoty */
     Timetable t;
     t.description = tr("Nový rozvrh");
-    t.validFrom = QDate(2009,9,1);
+    t.validFrom = QDate::currentDate();
+    t.isLoaded = true;
 
     /* SQL dotaz */
     QSqlQuery query;
