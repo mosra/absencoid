@@ -206,14 +206,16 @@ void TimetableTab::setFollowedBy() {
 
 /* Odstranění vybraných hodin z rozvrhu */
 void TimetableTab::removeLessons() {
+    QModelIndexList selected = timetableView->selectionModel()->selectedIndexes();
+
     /* Ověření */
     if(QMessageBox::warning(this, tr("Odstranit vybrané hodiny"),
-        tr("Opravdu odstranit vybrané hodiny z rozvrhu?"),
+        tr("Opravdu odstranit vybrané hodiny <strong>(") +
+        QString::number(selected.count()) + tr(")</strong> z rozvrhu?"),
         QMessageBox::Yes | QMessageBox::No, QMessageBox::No)
         != QMessageBox::Yes) return;
 
-    QModelIndex index;
-    foreach(index, timetableView->selectionModel()->selectedIndexes()) {
+    foreach(QModelIndex index, selected) {
         timetableModel->setData(index, -1);
     }
 }
