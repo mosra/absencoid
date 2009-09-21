@@ -9,6 +9,10 @@
 #include <QStyle>
 #include <QStatusBar>
 #include <QSqlDatabase>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QFile>
+#include <QDebug>
 
 #include "configure.h"
 #include "TeachersModel.h"
@@ -27,6 +31,19 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("absencoid.db");
     db.open();
+
+    /* Pokud databáze nemá žádné tabulky, jejich inicializace z přidaného SQL souboru */
+    if(db.tables().empty()) {
+        qDebug() << tr("Inicializace nové prázdné databáze.");
+
+        QSqlQuery query;
+        QFile file(":/absencoid.sql");
+        file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+        if(!query.exec(QString::fromUtf8(file.readAll().data())))
+            qDebug() << tr("Nepodařilo se inicializovat novou prázdnou databázi!")
+                     << query.lastError() << query.lastQuery();
+    }
 
     /* ##################### Taby ########################################### */
 

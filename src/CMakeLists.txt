@@ -15,6 +15,7 @@ qt4_wrap_cpp(AbsencoidMOC
     TimetableTab.h
     ChangedLessonsTab.h
     )
+qt4_add_resources(AbsencoidRCC data.qrc)
 add_executable(absencoid
     main.cpp MainWindow.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
@@ -22,6 +23,6 @@ add_executable(absencoid
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp
     ChangedLessonsModel.cpp ChangedLessonsTab.cpp
-    ${AbsencoidMOC}
+    ${AbsencoidMOC} ${AbsencoidRCC}
     )
 target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY})
