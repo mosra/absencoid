@@ -80,6 +80,10 @@ QVariant ChangedLessonsModel::data(const QModelIndex& index, int role) const {
 
     /* Hodina */
     } else if(index.column() == 1 && (role == Qt::DisplayRole || role == Qt::EditRole)) {
+        /* Číslo hodiny -1 značí všechny hodiny */
+        if(changedLessons[index.row()].hour == -1 && role == Qt::DisplayRole)
+            return tr("Všechny");
+
         return changedLessons[index.row()].hour;
 
     /* Předměty */
@@ -259,7 +263,7 @@ bool ChangedLessonsModel::removeRows(int row, int count, const QModelIndex& pare
 /* Zjištění unikátnosti záznamu */
 bool ChangedLessonsModel::checkUnique(QDate date, int hour, int fromClassId) {
     /* Špatná hodina */
-    if(hour < 0 || hour > 9) return false;
+    if(hour < -1 || hour > 9) return false;
 
     /* Procházení a hledání záznamu */
     for(int i = 0; i != changedLessons.count(); ++i) {
