@@ -12,7 +12,7 @@ namespace Absencoid {
 
 /* Konstruktor */
 ChangedLessonsModel::ChangedLessonsModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel) {
-    QSqlQuery query("SELECT id, date, hour, fromClassId, toClassId FROM changedLessons;");
+    QSqlQuery query("SELECT id, date, hour, fromClassId, toClassId FROM changedLessons ORDER BY date;");
 
     /* Procházení vüsledků dotazu */
     while(query.next()) {
@@ -124,8 +124,8 @@ QVariant ChangedLessonsModel::data(const QModelIndex& index, int role) const {
 Qt::ItemFlags ChangedLessonsModel::flags(const QModelIndex& index) const {
     if(!index.isValid()) return Qt::ItemIsEnabled;
 
-    /* Počet ovlivněných rozvrhů není editovatelný */
-    if(index.column() == 4) return QAbstractTableModel::flags(index);
+    /* Počet ovlivněných rozvrhů je "disabled" */
+    if(index.column() == 4) return 0;
 
     /* Vše ostatní editovatelné je */
     return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
