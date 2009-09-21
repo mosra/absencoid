@@ -134,7 +134,6 @@ void TimetableTab::loadTimetable(int index) {
         validFrom->setDisabled(false);
         followedByLabel->setDisabled(false);
         followedBy->setDisabled(false);
-        removeLessonsButton->setDisabled(false);
     }
 
     /* Přepnutí tabulky na daný index */
