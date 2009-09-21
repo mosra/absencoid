@@ -444,6 +444,36 @@ inline int TimetableModel::dayHour(int day, int hour) const {
     return day << 4 | hour;
 }
 
+/* Kolik rozvrhů má v tento den/hodinu daný předmět */
+int TimetableModel::timetablesWithThisClass(int dayHour, int classId) const {
+    /* Celkový počet odpovídajících rozvrhů */
+    int count = 0;
+
+    /* Procházení všech rozvrhů. V každém rozvrhu můžeme count inkrementovat
+        jen jednou! */
+    for(int i = 0; i != timetables.count(); ++i) {
+
+        /* Pokud jsou označeny "všechny" hodiny, hledáme postupně v každé hodině */
+        if(dayHour & 0x0F) for(int hour = 0; hour != 10; ++hour) {
+            int _dayHour = (dayHour & 0xF0) | hour;
+            /* Testujeme, zda je taková den/hodina přítomná a jestli může být
+                předmět jakýkoli, pokud ne, jestli je tam ten správný */
+            if(timetables[i].data.contains(_dayHour) &&
+            (classId == ClassesModel::WHATEVER || timetables[i].data[_dayHour] == classId)) {
+                count++; break;
+            }
+        }
+
+        /* Pokud je označena jen jediná hodina */
+        else if(timetables[i].data.contains(dayHour) &&
+        (classId == ClassesModel::WHATEVER || timetables[i].data[dayHour] == classId))
+            count++;
+    }
+
+    return count;
+}
+
+
 /* Zjištění, zda se změny v modelu předmětů projeví zde */
 void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
     /* Projití jednotlivých řádků a zjištění, zda takové předměty máme v rozvrhu */

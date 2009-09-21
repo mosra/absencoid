@@ -171,6 +171,15 @@ class TimetableModel: public QAbstractItemModel {
          */
         inline int dayHour(int day, int hour) const;
 
+        /**
+        * @brief Zjištění, kolik rozvrhů má tento předmět v daný den/hodinu
+        *
+        * @param   dayHour     Den/hodina
+        * @param   classId     Id předmětu
+        * @return  Počet rozvrhů, který odpovídá dotazu.
+        */
+        int timetablesWithThisClass(int dayHour, int classId) const;
+
     private slots:
         /**
          * @brief Zjištění změn v modelu předmětů

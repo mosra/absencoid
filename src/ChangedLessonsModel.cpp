@@ -106,6 +106,14 @@ QVariant ChangedLessonsModel::data(const QModelIndex& index, int role) const {
 
         /* Pro editaci index */
         if(role == Qt::EditRole) return index;
+
+    /* Počet ovlivněných rozvrhů */
+    } else if(index.column() == 4 && role == Qt::DisplayRole) {
+        /* Pondělí v Qt == 1, pondělí v Absencoid == 0 */
+        return timetableModel->timetablesWithThisClass(
+            timetableModel->dayHour(changedLessons[index.row()].date.dayOfWeek()-1,
+                                    changedLessons[index.row()].hour),
+            changedLessons[index.row()].fromClassId);
     }
 
     /* Cokoliv jiného */
@@ -141,6 +149,9 @@ bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& valu
         /* Nový záznam, místo UPDATE děláme INSERT, emitujeme signál
             a pokusíme se řádek uložit do DB */
         if(changedLessons[index.row()].id == 0) {
+            /* Kromě data se mění také počet ovlivněných rozvrhů */
+            emit dataChanged(index.sibling(index.row(), 4), index.sibling(index.row(), 4));
+
             emit dataChanged(index, index);
             return saveRow(index.row());
         }
@@ -160,6 +171,9 @@ bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& valu
         /* Nový záznam, místo UPDATE děláme INSERT, emitujeme signál
             a pokusíme se řádek uložit do DB */
         if(changedLessons[index.row()].id == 0) {
+            /* Kromě data se mění také počet ovlivněných rozvrhů */
+            emit dataChanged(index.sibling(index.row(), 4), index.sibling(index.row(), 4));
+
             emit dataChanged(index, index);
             return saveRow(index.row());
         }
@@ -179,6 +193,9 @@ bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& valu
         /* Nový záznam, místo UPDATE děláme INSERT, emitujeme signál
             a pokusíme se řádek uložit do DB */
         if(changedLessons[index.row()].id == 0) {
+            /* Kromě data se mění také počet ovlivněných rozvrhů */
+            emit dataChanged(index.sibling(index.row(), 4), index.sibling(index.row(), 4));
+
             emit dataChanged(index, index);
             return saveRow(index.row());
         }
@@ -210,6 +227,10 @@ bool ChangedLessonsModel::setData(const QModelIndex& index, const QVariant& valu
         qDebug() << tr("Nepodařilo se změnit změnu!") << query.lastError()
                  << query.lastQuery();
     }
+
+    /* U prvních třech sloupců se kromě data se mění také počet ovlivněných rozvrhů */
+    if(index.column() < 3)
+        emit dataChanged(index.sibling(index.row(), 4), index.sibling(index.row(), 4));
 
     emit dataChanged(index, index);
     return true;
