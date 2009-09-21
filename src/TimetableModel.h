@@ -162,6 +162,15 @@ class TimetableModel: public QAbstractItemModel {
          */
         int indexFromId(int id) const;
 
+        /**
+         * @brief Spočítání dne/hodiny
+         *
+         * @param   day         Číslo dne (0-4, 0 = pondělí)
+         * @param   hour        Hodina (0-9, 0 = nultá hodina, -1 = všechny hodiny)
+         * @return  Den/hodina
+         */
+        inline int dayHour(int day, int hour) const;
+
     private slots:
         /**
          * @brief Zjištění změn v modelu předmětů

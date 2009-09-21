@@ -153,11 +153,8 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
     /* Data rozvrhu */
     } else if(index.parent().internalId() == NO_PARENT) {
 
-        /* Číslo dne/hodiny */
-        int dayHour = index.column() << 4 | index.row();
-
         /* ID předmětu pod tímto číslem dne/hodiny */
-        int id = timetables[index.parent().row()].data[dayHour];
+        int id = timetables[index.parent().row()].data[dayHour(index.column(), index.row())];
 
         /* Index odpovídající tomuto ID předmětu */
         int classIndex = classesModel->indexFromId(id);
@@ -248,7 +245,7 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
         QSqlQuery query;
 
         /* Spočítání dne/hodiny */
-        int dayHour = index.column() << 4 | index.row();
+        int _dayHour = dayHour(index.column(), index.row());
 
         /* ID předmětu odpovídající aktuálnímu indexu */
         int classId = classesModel->idFromIndex(value.toInt());
@@ -257,21 +254,21 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
         if(classId == ClassesModel::WHATEVER) return false;
 
         /* Jestli upravujeme stávající záznam, provedeme UPDATE */
-        if(timetables[index.parent().row()].data.contains(dayHour)) {
+        if(timetables[index.parent().row()].data.contains(_dayHour)) {
             /* Rušíme hodinu */
             if(classId == 0) {
-                timetables[index.parent().row()].data.remove(dayHour);
+                timetables[index.parent().row()].data.remove(_dayHour);
                 query.prepare("DELETE FROM timetableData "
                             "WHERE timetableId = :timetableId "
                             "AND dayHour = :dayHour;");
 
             /* Aktualizujeme hodinu */
             } else {
-                timetables[index.parent().row()].data[dayHour] = classId;
+                timetables[index.parent().row()].data[_dayHour] = classId;
                 query.prepare("UPDATE timetableData SET classId = :classId "
                             "WHERE dayHour = :dayHour "
                             "AND timetableId = :timetableId;");
-                query.bindValue(":classId", timetables[index.parent().row()].data[dayHour]);
+                query.bindValue(":classId", timetables[index.parent().row()].data[_dayHour]);
             }
 
         /* Přidáváme nový záznam, takže INSERT */
@@ -280,15 +277,15 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
             if(classId == 0) return true;
 
             /* Vkládáme novou hodinu */
-            timetables[index.parent().row()].data.insert(dayHour, classId);
+            timetables[index.parent().row()].data.insert(_dayHour, classId);
             query.prepare("INSERT INTO timetableData (gradeId, timetableId, dayHour, classId) "
                         "VALUES (1, :timetableId, :dayHour, :classId);");
-            query.bindValue(":classId", timetables[index.parent().row()].data[dayHour]);
+            query.bindValue(":classId", timetables[index.parent().row()].data[_dayHour]);
         }
 
         /* Naplnění dotazu daty */
         query.bindValue(":timetableId", timetables[index.parent().row()].id);
-        query.bindValue(":dayHour", dayHour);
+        query.bindValue(":dayHour", _dayHour);
 
         /* Provedení dotazu */
         if(!query.exec()) {
@@ -439,6 +436,12 @@ int TimetableModel::indexFromId(int id) const {
 
     /* Nenalezeno, vrácení neplatného indexu */
     return -1;
+}
+
+/* Spočítání dne/hodiny */
+inline int TimetableModel::dayHour(int day, int hour) const {
+    if(hour == -1) hour = 0x0F;
+    return day << 4 | hour;
 }
 
 /* Zjištění, zda se změny v modelu předmětů projeví zde */
