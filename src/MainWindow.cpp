@@ -115,6 +115,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Přidání tabu "Souhrn" */
     summary->setLayout(summaryLayout);
+    summary->setDisabled(true);
     tabWidget->addTab(summary, tr("Souhrn"));
 
     /* Učitelé */
