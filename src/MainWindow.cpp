@@ -40,9 +40,18 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
         QFile file(":/absencoid.sql");
         file.open(QIODevice::ReadOnly | QIODevice::Text);
 
-        if(!query.exec(QString::fromUtf8(file.readAll().data())))
-            qDebug() << tr("Nepodařilo se inicializovat novou prázdnou databázi!")
-                     << query.lastError() << query.lastQuery();
+        /* Načtení vstupního SQL a rozdělění podle ; na jednotlivé dotazy (QtSql
+            neumí provést multidotaz) */
+        QStringList queries = QString::fromUtf8(file.readAll().data()).split(";\n", QString::SkipEmptyParts);
+
+        /* Provádění jednotlivých dotazů */
+        for(int i = 0; i != queries.count(); ++i) {
+            if(!query.exec(queries[i])) {
+                qDebug() << tr("Nepodařilo se inicializovat novou prázdnou databázi!")
+                         << query.lastError() << query.lastQuery();
+                break;
+            }
+        }
     }
 
     /* ##################### Taby ########################################### */
