@@ -56,7 +56,7 @@ QVariant ClassesModel::headerData(int section, Qt::Orientation orientation, int 
     }
 
     /* Vertikální hlavičky */
-    else if(orientation == Qt::Vertical && section < classes.count()+1) {
+    else if(orientation == Qt::Vertical && section <= classes.count()+1) {
 
         /* Speciální hlavičky */
         if(section == 0 || section == 1) {
