@@ -1,0 +1,105 @@
+<!-- Kořenový element absencoid, může být buď dump nebo update -->
+<!ELEMENT absencoid (dump | update)>
+<!ATTLIST absencoid xmlns CDATA #FIXED "http://mosra.bloguje.cz/absencoid/">
+    <!-- Atributy: xmlns - sepcifikace namespace -->
+
+<!-- Struktura pro dump -->
+<!ELEMENT dump (configuration, teachers, classes, timetables, changes, absences)>
+<!ATTLIST dump version CDATA #REQUIRED>
+    <!-- Atributy: version - verze dumpu (proti konfliktu s novějšími verzemi programu -->
+
+<!-- Struktura pro aktualizaci -->
+<!ELEMENT update (note, configuration, teachers, classes, timetables, changes)>
+<!ATTLIST update version CDATA #REQUIRED>
+    <!-- Atributy: version - verze aktualizace (proti konfliktu s novějšími verzemi programu -->
+<!ELEMENT note (#PCDATA)>               <!-- Krátký popisek k aktualizaci -->
+
+<!-- Konfigurace (tj. vše, co nepasuje jinam) -->
+<!ELEMENT configuration (beginDate, endDate, webUpdateUrl, updateOnStart, dumpOnExit)>
+<!ELEMENT beginDate (#PCDATA)>          <!-- Začátek pololetí (datum ve tvaru YYYY-MM-DD) -->
+<!ELEMENT endDate (#PCDATA)>            <!-- Konec pololetí (datum ve tvaru YYYY-MM-DD) -->
+<!ELEMENT webUpdateUrl (#PCDATA)>       <!-- URL pro provádění aktualizací z internetu -->
+<!ELEMENT updateOnStart EMPTY>          <!-- Zda zjišťovat aktualizace po startu -->
+<!ATTLIST updateOnStart value (true|false) #REQUIRED>
+    <!-- Atributy: value - Boolean hodnota -->
+<!ELEMENT dumpOnExit EMPTY>             <!-- Zda zálohovat data při ukončení programu -->
+<!ATTLIST dumpOnExit value (true|false) #REQUIRED>
+    <!-- Atributy: value - Boolean hodnota -->
+
+<!-- Učitelé -->
+<!ELEMENT teachers (teacher+)>
+<!ELEMENT teacher (#PCDATA)>            <!-- Obsah: jméno učitele -->
+<!ATTLIST teacher
+    id ID #REQUIRED
+    counts (true|false) #REQUIRED
+    accepts (true|false) #REQUIRED
+> <!-- Atributy:
+    id          - unikátní ID učitele, např. p32
+    counts      - zda počítá absence
+    accepts     - zda uznává školní akce
+-->
+
+<!-- Předměty -->
+<!ELEMENT classes (class+)>
+<!ELEMENT class (#PCDATA)>              <!-- Obsah: jméno předmětu -->
+<!ATTLIST class
+    id ID #REQUIRED
+    teacherId IDREF #REQUIRED
+> <!-- Atributy:
+    id          - unikátní ID předmětu s předponou 'c', např. c14
+    teacherId   - reference na učitele, např. p32
+-->
+
+<!-- Rozvrhy -->
+<!ELEMENT timetables (timetable+)>
+<!ATTLIST timetables activeId IDREF #REQUIRED>
+    <!-- ID aktivního rozvrhu, např t1. Pokud se jedná o aktualizaci, je tento
+        parametr (ač povinný), ignorová, protože by měnil uživatelská data. -->
+<!ELEMENT timetable (name, validFrom, data)>
+<!ATTLIST timetable id ID #REQUIRED>
+    <!-- Atributy: id - ID rozvrhu s předponou 't', např. t1 -->
+<!ELEMENT name (#PCDATA)>               <!-- Jméno rozvrhu -->
+<!ELEMENT validFrom (#PCDATA)>          <!-- Odkdy je rozvrh platný -->
+<!-- TODO: Zrušit data? - konfliktní + nejednoznačný název -->
+<!ELEMENT data (lesson+)>                <!-- Jednotlivé položky rozvrhu -->
+
+<!ELEMENT lesson (day, hour)>           <!-- Vyučovací hodina -->
+<!ATTLIST lesson
+    classId IDREF #REQUIRED
+    fixed (true|false) "false"
+> <!-- Atributy:
+    classId     - Reference na předmět, např. c14
+    fixed       - Zda je předmět zamknutý, tj. může jej editovat jen správce.
+                    Pokud je v aktualizaci nějaký předmět s fixed="false", je to
+                    chyba, protože může změnit uživatelská data.
+-->
+<!ELEMENT day (#PCDATA)>                <!-- Den v týdnu (0 = pondělí) -->
+<!ELEMENT hour (#PCDATA)>               <!-- Hodina (0 = nultá hodina) -->
+
+<!-- Změny v rozvrhu -->
+<!ELEMENT changes (change+)>
+<!ELEMENT change (date, (hour | allHours), (fromClass | allClasses), toClass)>
+    <!-- Změna může být buď z jedné hodiny nebo ze všech, z jednoho určitého
+        předmětu (ovlivní jen určité rozvrhy) či ze všech -->
+<!ATTLIST change id ID #REQUIRED>
+    <!-- Atributy: id - ID změny s předponou 'x', např. x153 -->
+<!ELEMENT date (#PCDATA)>               <!-- Datum změny (formát YYYY-MM-DD) -->
+<!-- ELEMENT hour -->                   <!-- Hodina (viz <lesson>) -->
+<!ELEMENT allHours EMPTY>               <!-- Všechny hodiny v tomto dni -->
+<!ELEMENT fromClass EMPTY>              <!-- Předmět, ze kterého se mění -->
+<!ATTLIST fromClass id IDREF #IMPLIED>
+    <!-- Atributy: id - ID předmětu, např. c14. Pokud není uveden, myslí se prázdná hodina -->
+<!ELEMENT allClasses EMPTY>             <!-- Všechny předměty -->
+<!ELEMENT toClass EMPTY>                <!-- Předmět, na který se mění -->
+<!ATTLIST toClass id IDREF #IMPLIED>
+    <!-- Atributy: id - ID předmětu, např. c1. Pokud není uveden, myslí se prázdná hodina -->
+
+<!-- Absence -->
+<!ELEMENT absences (absence+)>
+<!ELEMENT absence (date, (hour+ | allHours))>
+    <!-- Absence může být buď jednotlivé hodiny nebo všechny hodiny v daném dni -->
+<!ATTLIST absence id ID #REQUIRED>
+    <!-- Atributy: id - ID absence s předponou 'a', např. a56 -->
+<!-- ELEMENT date -->                   <!-- Datum (viz <change>) -->
+<!-- ELEMENT hour -->                   <!-- Hodina (viz <change>) -->
+<!-- ELEMENT allHours -->               <!-- Všechny hodiny (viz <allHours>) -->

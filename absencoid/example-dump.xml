@@ -1,0 +1,94 @@
+<?xml version="1.0" ?>
+
+<!DOCTYPE absencoid SYSTEM "absencoid.dtd">
+
+<absencoid xmlns="http://mosra.bloguje.cz/absencoid/">
+    <dump version="1">
+        <configuration>
+            <beginDate>2009-09-07</beginDate>
+            <endDate>2010-01-29</endDate>
+            <webUpdateUrl>http://disk.jabbim.cz/mosra@jabbim.cz/absencoid-update.xml</webUpdateUrl>
+            <updateOnStart value="false" />
+            <dumpOnExit value="true" />
+        </configuration>
+
+        <teachers>
+            <teacher id="p1" counts="false" accepts="true">Slušná</teacher>
+            <teacher id="p2" counts="true" accepts="false">Zlá</teacher>
+            <teacher id="p3" counts="true" accepts="true">Poctivý</teacher>
+            <!-- ... -->
+        </teachers>
+
+        <classes>
+            <class id="c1" teacherId="p1">Aj</class>
+            <class id="c2" teacherId="p1">Nj</class>
+            <class id="c3" teacherId="p1">F</class>
+            <!-- ... -->
+        </classes>
+
+        <timetables activeId="t1">
+            <timetable id="t1">
+                <name>Hlavní rozvrh</name>
+                <validFrom>2009-09-07</validFrom>
+                <data>
+                    <lesson classId="c1" fixed="true">
+                        <day>0</day>
+                        <hour>1</hour>
+                    </lesson>
+                    <lesson classId="c2" fixed="true">
+                        <day>0</day>
+                        <hour>2</hour>
+                    </lesson>
+                    <!-- Uživatelsky editovaná (tj. nepovinná) 0. hodina v úterý -->
+                    <lesson classId="c3">
+                        <day>1</day>
+                        <hour>0</hour>
+                    </lesson>
+                    <!-- ... -->
+                </data>
+            </timetable>
+            <!-- ... -->
+        </timetables>
+
+        <changes>
+            <change id="x1">
+                <!-- Tento den odpadají všechny hodiny -->
+                <date>2009-09-07</date>
+                <allHours />
+                <allClasses />
+                <toClass />
+            </change>
+            <change id="x2">
+                <!-- V pondělí přibyla nultá hodina -->
+                <date>2009-09-14</date>
+                <hour>0</hour>
+                <fromClass />
+                <toClass id="c2" />
+            </change>
+            <change id="x3">
+                <!-- V úterý máme další blbou hodinu místo flákací -->
+                <date>2009-09-14</date>
+                <hour>2</hour>
+                <fromClass id="c1" />
+                <toClass id="c2" />
+            </change>
+            <!-- ... -->
+        </changes>
+
+        <absences>
+            <absence id="a1">
+                <!-- Kdo by chodil do školy první den, že -->
+                <date>2009-09-07</date>
+                <allHours />
+            </absence>
+            <absence id="a2">
+                <!-- Psali písemku z němčiny a chemie -->
+                <date>2009-09-14</date>
+                <hour>2</hour>
+                <hour>4</hour>
+            </absence>
+            <!-- ... -->
+        </absences>
+
+    </dump>
+</absencoid>
