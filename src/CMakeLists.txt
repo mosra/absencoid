@@ -19,6 +19,7 @@ qt4_add_resources(AbsencoidRCC data.qrc)
 add_executable(absencoid
     main.cpp MainWindow.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
+    SummaryTab.cpp
     TeachersModel.cpp TeachersTab.cpp
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp
