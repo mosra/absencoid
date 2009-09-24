@@ -15,7 +15,14 @@ qt4_wrap_cpp(AbsencoidMOC
     TimetableTab.h
     ChangedLessonsTab.h
     )
-qt4_add_resources(AbsencoidRCC data.qrc)
+
+# Ve FindQt4.cmake je schovaná volba, že v qt4_add_resources můžu za OPTIONS
+# narvat parametry pro rcc. Default parametry (threshold) pro rcc jsou
+# asi nedokumentované.
+
+# Resources (textová data, proto komprese)
+qt4_add_resources(AbsencoidRCC data.qrc OPTIONS -compress 9 -threshold 0)
+
 add_executable(absencoid
     main.cpp MainWindow.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
