@@ -21,6 +21,26 @@ CREATE TABLE teachers (
     flags INTEGER NOT NULL DEFAULT 1
 );
 
+-- NASTAVENÍ
+-- gradeId              ID třídy, ke které nastavení patří
+-- version              Verze databáze (kvůli konfliktům s novějšími verzemi programu)
+-- beginDate            Začátek období (pololetí)
+-- endDate              Konec období (pololetí)
+-- activeTimetableId    ID aktivního rozvrhu (prvního)
+-- webUpdateUrl         Adresa pro stahování aktualizací z internetu
+-- flags                Ostatní (většinou bool hodnoty):
+--                          0x01 - Kontrolovat aktualizace při startu
+--                          0x02 - Dělat automatickou zálohu při ukončení programu
+CREATE TABLE configuration (
+    gradeId INTEGER NOT NULL,
+    version INTEGER NOT NULL,
+    beginDate TEXT NOT NULL,
+    endDate TEXT NOT NULL,
+    activeTimetableId INTEGER NOT NULL,
+    webUpdateUrl TEXT NOT NULL,
+    flags INTEGER NOT NULL
+);
+
 -- PŘEDMĚTY
 -- gradeId      ID třídy
 -- id           ID předmětu
@@ -54,8 +74,9 @@ CREATE TABLE timetables (
 -- gradeId      ID třídy
 -- timetableId  ID rozvrhu
 -- dayHour      Den v týdnu a hodina (binárně oddělitelné)
---                  0xF0 - den v týdnu (0x10 = úterý)
---                  0x0F - hodina (0x02 = druhá hodina)
+--                  Ox80 (1 bit)  - Značí pevnou hodinu (editovatelná jen adminem)
+--                  0x70 (3 bity) - den v týdnu (0x10 = úterý)
+--                  0x0F (4 bity) - hodina (0x02 = druhá hodina)
 -- classId      ID předmětu
 CREATE TABLE timetableData (
     gradeId INTEGER NOT NULL,
