@@ -178,7 +178,7 @@ class TimetableModel: public QAbstractItemModel {
         * @param   classId     Id předmětu
         * @return  Počet rozvrhů, který odpovídá dotazu.
         */
-        int timetablesWithThisClass(int dayHour, int classId) const;
+        int timetablesWithThisClass(int dayHour, int classId);
 
     private slots:
         /**

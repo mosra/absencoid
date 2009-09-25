@@ -444,13 +444,16 @@ inline int TimetableModel::dayHour(int day, int hour) const {
 }
 
 /* Kolik rozvrhů má v tento den/hodinu daný předmět */
-int TimetableModel::timetablesWithThisClass(int dayHour, int classId) const {
+int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
     /* Celkový počet odpovídajících rozvrhů */
     int count = 0;
 
     /* Procházení všech rozvrhů. V každém rozvrhu můžeme count inkrementovat
         jen jednou! */
     for(int i = 0; i != timetables.count(); ++i) {
+
+        /* Pokud rozvrh ještě není načtený, načteme jej */
+        if(!timetables[i].isLoaded) fetchMore(index(i, 0));
 
         /* Pokud jsou označeny "všechny" hodiny, hledáme postupně v každé hodině */
         if(dayHour & 0x0F) for(int hour = 0; hour != 10; ++hour) {
