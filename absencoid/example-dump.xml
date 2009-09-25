@@ -4,6 +4,8 @@
 
 <absencoid xmlns="http://mosra.bloguje.cz/absencoid/">
     <dump version="1">
+        <date>2009-09-25</date>
+
         <configuration>
             <beginDate>2009-09-07</beginDate>
             <endDate>2010-01-29</endDate>
@@ -27,7 +29,7 @@
         </classes>
 
         <timetables activeId="t1">
-            <timetable id="t1">
+            <timetable id="t1" next="t1">
                 <name>Hlavní rozvrh</name>
                 <validFrom>2009-09-07</validFrom>
                 <data>

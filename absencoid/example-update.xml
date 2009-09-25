@@ -4,6 +4,8 @@
 
 <absencoid xmlns="http://mosra.bloguje.cz/absencoid/">
     <update version="1">
+        <date>2009-07-25</date>
+
         <note>
             Vítejte! Právě stahujete první aktualizaci Absencoidu. Přidávám vám
             sem jeden rozvrh, pár předmětů a nějaké ty změny. Hákujte jak o život!
@@ -34,7 +36,7 @@
         </classes>
 
         <timetables activeId="t1">
-            <timetable id="t1">
+            <timetable id="t1" next="t1">
                 <name>Hlavní rozvrh</name>
                 <validFrom>2009-09-07</validFrom>
                 <data>

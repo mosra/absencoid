@@ -4,14 +4,16 @@
     <!-- Atributy: xmlns - sepcifikace namespace -->
 
 <!-- Struktura pro dump -->
-<!ELEMENT dump (configuration, teachers, classes, timetables, changes, absences)>
+<!ELEMENT dump (date, configuration, teachers, classes, timetables, changes, absences)>
 <!ATTLIST dump version CDATA #REQUIRED>
     <!-- Atributy: version - verze dumpu (proti konfliktu s novějšími verzemi programu -->
+<!ELEMENT date (#PCDATA)>               <!-- Datum aktualizace (ve tvaru YYYY-MM-DD) -->
 
 <!-- Struktura pro aktualizaci -->
-<!ELEMENT update (note, configuration, teachers, classes, timetables, changes)>
+<!ELEMENT update (date, note, configuration, teachers, classes, timetables, changes)>
 <!ATTLIST update version CDATA #REQUIRED>
     <!-- Atributy: version - verze aktualizace (proti konfliktu s novějšími verzemi programu -->
+<!-- ELEMENT date  -->                  <!-- Datum aktualizace (viz <dump>) -->
 <!ELEMENT note (#PCDATA)>               <!-- Krátký popisek k aktualizaci -->
 
 <!-- Konfigurace (tj. vše, co nepasuje jinam) -->
@@ -56,12 +58,17 @@
     <!-- ID aktivního rozvrhu, např t1. Pokud se jedná o aktualizaci, je tento
         parametr (ač povinný), ignorová, protože by měnil uživatelská data. -->
 <!ELEMENT timetable (name, validFrom, data)>
-<!ATTLIST timetable id ID #REQUIRED>
-    <!-- Atributy: id - ID rozvrhu s předponou 't', např. t1 -->
+<!ATTLIST timetable
+    id ID #REQUIRED
+    next IDREF #REQUIRED
+> <!-- Atributy:
+    id - ID rozvrhu s předponou 't', např. t1
+    next - ID dalšího rozvrhu, např. t1
+-->
 <!ELEMENT name (#PCDATA)>               <!-- Jméno rozvrhu -->
 <!ELEMENT validFrom (#PCDATA)>          <!-- Odkdy je rozvrh platný -->
 <!-- TODO: Zrušit data? - konfliktní + nejednoznačný název -->
-<!ELEMENT data (lesson+)>                <!-- Jednotlivé položky rozvrhu -->
+<!ELEMENT data (lesson+)>               <!-- Jednotlivé položky rozvrhu -->
 
 <!ELEMENT lesson (day, hour)>           <!-- Vyučovací hodina -->
 <!ATTLIST lesson
@@ -83,7 +90,7 @@
         předmětu (ovlivní jen určité rozvrhy) či ze všech -->
 <!ATTLIST change id ID #REQUIRED>
     <!-- Atributy: id - ID změny s předponou 'x', např. x153 -->
-<!ELEMENT date (#PCDATA)>               <!-- Datum změny (formát YYYY-MM-DD) -->
+<!-- ELEMENT date -->                   <!-- Datum změny (viz <dump>) -->
 <!-- ELEMENT hour -->                   <!-- Hodina (viz <lesson>) -->
 <!ELEMENT allHours EMPTY>               <!-- Všechny hodiny v tomto dni -->
 <!ELEMENT fromClass EMPTY>              <!-- Předmět, ze kterého se mění -->
@@ -100,6 +107,6 @@
     <!-- Absence může být buď jednotlivé hodiny nebo všechny hodiny v daném dni -->
 <!ATTLIST absence id ID #REQUIRED>
     <!-- Atributy: id - ID absence s předponou 'a', např. a56 -->
-<!-- ELEMENT date -->                   <!-- Datum (viz <change>) -->
-<!-- ELEMENT hour -->                   <!-- Hodina (viz <change>) -->
-<!-- ELEMENT allHours -->               <!-- Všechny hodiny (viz <allHours>) -->
+<!-- ELEMENT date -->                   <!-- Datum absence (viz <dump>) -->
+<!-- ELEMENT hour -->                   <!-- Hodina (viz <lesson>) -->
+<!-- ELEMENT allHours -->               <!-- Všechny hodiny (viz <change>) -->
