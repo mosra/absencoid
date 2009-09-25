@@ -77,13 +77,11 @@ int TimetableModel::columnCount(const QModelIndex& parent) const {
     /* Neplatný index, vracíme počet sloupců kořenového seznamu rozvrhů */
     if(!parent.isValid()) return 4;
 
-    /* Rodič je položka v seznamu rozvrhů => vracíme počet sloupců (dnů) v rozvrhu
-        (pokud je rozvrh načtený) */
-    if(parent.internalId() == NO_PARENT && timetables[parent.row()].isLoaded)
+    /* Rodič je položka v seznamu rozvrhů => vracíme počet sloupců (dnů) v rozvrhu */
+    if(parent.internalId() == NO_PARENT)
         return 5;
 
-    /* Rodič je nejspíše položka v datech rozvrhu, ta už nemá žádné potomky,
-        nebo rozvrh ještě není načtený */
+    /* Rodič je nejspíše položka v datech rozvrhu, ta už nemá žádné potomky */
     return 0;
 }
 
