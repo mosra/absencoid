@@ -47,19 +47,19 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
 
     /* Layout tlačítek vpravo */
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
-    buttonsLayout->addWidget(addTimetableButton,    0, Qt::AlignTop);
-    buttonsLayout->addWidget(removeTimetableButton, 0, Qt::AlignTop);
+    buttonsLayout->addWidget(addTimetableButton);
+    buttonsLayout->addWidget(removeTimetableButton);
     buttonsLayout->addSpacing(16);
-    buttonsLayout->addWidget(descriptionLabel,      0, Qt::AlignTop);
-    buttonsLayout->addWidget(description,           0, Qt::AlignTop);
+    buttonsLayout->addWidget(descriptionLabel);
+    buttonsLayout->addWidget(description);
     buttonsLayout->addSpacing(8);
-    buttonsLayout->addWidget(validFromLabel,        0, Qt::AlignTop);
-    buttonsLayout->addWidget(validFrom,             0, Qt::AlignTop);
+    buttonsLayout->addWidget(validFromLabel);
+    buttonsLayout->addWidget(validFrom);
     buttonsLayout->addSpacing(8);
-    buttonsLayout->addWidget(followedByLabel,       0, Qt::AlignTop);
-    buttonsLayout->addWidget(followedBy,            0, Qt::AlignTop);
+    buttonsLayout->addWidget(followedByLabel);
+    buttonsLayout->addWidget(followedBy);
     buttonsLayout->addSpacing(16);
-    buttonsLayout->addWidget(fixLessonsButton,      0, Qt::AlignTop);
+    buttonsLayout->addWidget(fixLessonsButton);
     buttonsLayout->addSpacing(16);
     buttonsLayout->addWidget(removeLessonsButton,   1, Qt::AlignTop);
 
