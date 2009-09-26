@@ -22,7 +22,7 @@ QAbstractItemModel(parent), classesModel(_classesModel) {
             this, SLOT(checkClassChanges(QModelIndex,QModelIndex)));
 
     /* Načtení seznamu rozvrhů (kořenové položky) */
-    QSqlQuery query("SELECT id, description, validFrom, followedBy FROM timetables;");
+    QSqlQuery query("SELECT id, description, validFrom, followedBy FROM timetables ORDER BY description;");
 
     /* Ukládání výsledků dotazu */
     while(query.next()) {
