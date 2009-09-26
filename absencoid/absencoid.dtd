@@ -17,10 +17,11 @@
 <!ELEMENT note (#PCDATA)>               <!-- Krátký popisek k aktualizaci -->
 
 <!-- Konfigurace (tj. vše, co nepasuje jinam) -->
-<!ELEMENT configuration (beginDate, endDate, webUpdateUrl, updateOnStart, dumpOnExit)>
+<!ELEMENT configuration (beginDate, endDate, webUpdateUrl, (lastUpdate, updateOnStart, dumpOnExit)?)>
 <!ELEMENT beginDate (#PCDATA)>          <!-- Začátek pololetí (datum ve tvaru YYYY-MM-DD) -->
 <!ELEMENT endDate (#PCDATA)>            <!-- Konec pololetí (datum ve tvaru YYYY-MM-DD) -->
 <!ELEMENT webUpdateUrl (#PCDATA)>       <!-- URL pro provádění aktualizací z internetu -->
+<!ELEMENT lastUpdate (#PCDATA)>         <!-- Datum poslední aktualizace -->
 <!ELEMENT updateOnStart EMPTY>          <!-- Zda zjišťovat aktualizace po startu -->
 <!ATTLIST updateOnStart value (true|false) #REQUIRED>
     <!-- Atributy: value - Boolean hodnota -->
@@ -54,7 +55,7 @@
 
 <!-- Rozvrhy -->
 <!ELEMENT timetables (timetable*)>
-<!ATTLIST timetables activeId IDREF #REQUIRED>
+<!ATTLIST timetables activeId IDREF #IMPLIED>
     <!-- ID aktivního rozvrhu, např t1. Pokud se jedná o aktualizaci, je tento
         parametr (ač povinný), ignorová, protože by měnil uživatelská data. -->
 <!ELEMENT timetable (name, validFrom, data)>

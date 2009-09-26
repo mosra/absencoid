@@ -71,7 +71,7 @@ QString Dump::create(int flags, const QString& note) {
 
     /* Dotaz do databáze na konfiguraci */
     QSqlQuery configurationQuery
-        ("SELECT beginDate, endDate, webUpdateUrl, activeTimetableId, flags "
+        ("SELECT beginDate, endDate, webUpdateUrl, lastUpdate, activeTimetableId, flags "
          "FROM configuration LIMIT 1;");
 
     /* Chyba zpracování dotazu (musí zde být řádek!) */
@@ -96,17 +96,25 @@ QString Dump::create(int flags, const QString& note) {
     configuration.appendChild(webUpdateUrl);
     webUpdateUrl.appendChild(doc.createTextNode(configurationQuery.value(2).toString()));
 
-    /*   <updateOnStart> */
-    QDomElement updateOnStart = doc.createElement("updateOnStart");
-    configuration.appendChild(updateOnStart);
-    updateOnStart.setAttribute("value",
-        configurationQuery.value(4).toInt() & 0x01 ? "true" : "false");
+    /* Uživatelská data patřící jen do zálohy */
+    if(flags & DUMP) {
+        /* <lastUpdate> */
+        QDomElement lastUpdate = doc.createElement("lastUpdate");
+        configuration.appendChild(lastUpdate);
+        lastUpdate.appendChild(doc.createTextNode(configurationQuery.value(3).toString()));
 
-    /*   <dumpOnExit> */
-    QDomElement dumpOnExit = doc.createElement("dumpOnExit");
-    configuration.appendChild(dumpOnExit);
-    dumpOnExit.setAttribute("value",
-        configurationQuery.value(4).toInt() & 0x02 ? "true" : "false");
+        /* <updateOnStart> */
+        QDomElement updateOnStart = doc.createElement("updateOnStart");
+        configuration.appendChild(updateOnStart);
+        updateOnStart.setAttribute("value",
+            configurationQuery.value(5).toInt() & 0x01 ? "true" : "false");
+
+        /* <dumpOnExit> */
+        QDomElement dumpOnExit = doc.createElement("dumpOnExit");
+        configuration.appendChild(dumpOnExit);
+        dumpOnExit.setAttribute("value",
+            configurationQuery.value(5).toInt() & 0x02 ? "true" : "false");
+    }
 
     /* <teachers> */
     QDomElement teachers = doc.createElement("teachers");
@@ -162,7 +170,9 @@ QString Dump::create(int flags, const QString& note) {
     /* <timetables> */
     QDomElement timetables = doc.createElement("timetables");
     root.appendChild(timetables);
-    timetables.setAttribute("activeId", "t" + configurationQuery.value(3).toString());
+
+    /* ID aktuaálního rozvrhu jen u zálohy, aktualizace jej měnit nesmí */
+    if(flags & DUMP) timetables.setAttribute("activeId", "t" + configurationQuery.value(4).toString());
 
     /* Dotaz do databáze na rozvrhy */
     QSqlQuery timetablesQuery;
