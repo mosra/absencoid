@@ -111,6 +111,7 @@ CREATE TABLE changedLessons (
 --                  0x00F0 == 0b11110000 - absence 4. - 7. hodinu
 CREATE TABLE absences (
     gradeId INTEGER NOT NULL,
+    id INTEGER NOT NULL,
     date TEXT NOT NULL UNIQUE,
     hours INTEGER NOT NULL
 );
