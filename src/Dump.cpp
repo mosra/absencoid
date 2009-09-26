@@ -8,6 +8,7 @@
 
 #include "configure.h"
 #include "ClassesModel.h"
+#include "TimetableModel.h"
 
 namespace Absencoid {
 
@@ -207,11 +208,14 @@ QString Dump::create(int flags, const QString& note) {
 
         /* Dotaz do databáze na data rozvrhu */
         QSqlQuery timetableDataQuery;
+
+        /* Výběr jen zamknutých hodin pro aktualizaci */
+        QString onlyUpdate; if(flags & UPDATE)
+            onlyUpdate = " AND classId >= " + QString::number(TimetableModel::FIXED);
+
         if(!timetableDataQuery.exec("SELECT dayHour, classId FROM timetableData "
-                                    "WHERE timetableId = " + timetablesQuery.value(0).toString() +
-                                    /* Pro update exportovat jen zamknuté předměty (s flagem 0x80) */
-                                    + (flags & UPDATE ? " AND dayHour >= 128 " : " ") +
-                                    "ORDER BY dayHour;")) {
+                "WHERE timetableId = " + timetablesQuery.value(0).toString() +
+                onlyUpdate + " ORDER BY dayHour;")) {
             qDebug() << tr("Nepodařilo se získat data rozvrhu!")
                      << timetableDataQuery.lastError() << timetableDataQuery.lastQuery();
             return QString();
@@ -221,9 +225,10 @@ QString Dump::create(int flags, const QString& note) {
         while(timetableDataQuery.next()) {
             QDomElement lesson = doc.createElement("lesson");
             data.appendChild(lesson);
-            lesson.setAttribute("classId", "c" + timetableDataQuery.value(1).toString());
+            lesson.setAttribute("classId",
+                "c" + QString::number(timetableDataQuery.value(1).toInt() & ~TimetableModel::FIXED));
             lesson.setAttribute("fixed",
-                timetableDataQuery.value(0).toInt() & 0x80 ? "true" : "false");
+                timetableDataQuery.value(1).toInt() & TimetableModel::FIXED ? "true" : "false");
 
             /* <day> */
             QDomElement day = doc.createElement("day");

@@ -37,6 +37,10 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     removeTimetableButton = new QPushButton(tr("Odstranit rozvrh"));
     removeLessonsButton = new QPushButton(tr("Odstranit vybrané"));
 
+    /* Zamáčknutelné tlačítko pro zamykání hodin */
+    fixLessonsButton = new QPushButton(tr("Zamknout hodiny"));
+    fixLessonsButton->setCheckable(true);
+
     descriptionLabel = new QLabel(tr("Popisek:"));
     validFromLabel = new QLabel(tr("Platnost od:"));
     followedByLabel = new QLabel(tr("Následován s:"));
@@ -54,6 +58,8 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     buttonsLayout->addSpacing(8);
     buttonsLayout->addWidget(followedByLabel,       0, Qt::AlignTop);
     buttonsLayout->addWidget(followedBy,            0, Qt::AlignTop);
+    buttonsLayout->addSpacing(16);
+    buttonsLayout->addWidget(fixLessonsButton,      0, Qt::AlignTop);
     buttonsLayout->addSpacing(16);
     buttonsLayout->addWidget(removeLessonsButton,   1, Qt::AlignTop);
 
@@ -101,7 +107,13 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     removeLessonsButton->setDisabled(true);
     connect(removeLessonsButton, SIGNAL(clicked()), this, SLOT(removeLessons()));
     connect(timetableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(updateRemoveButton()));
+            this, SLOT(updateRemoveFixedButtons()));
+
+    /* Zamknutí / odemknutí vybraných hodin, zašednutí pokud není nic vybráno */
+    fixLessonsButton->setDisabled(true);
+    connect(fixLessonsButton, SIGNAL(clicked(bool)), this, SLOT(toggleFixedLessons(bool)));
+    connect(timetableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+            this, SLOT(updateRemoveFixedButtons()));
 
     /** @todo Propojit dataChanged() s inputy */
 
@@ -135,6 +147,7 @@ void TimetableTab::loadTimetable(int index) {
         followedByLabel->setDisabled(true);
         followedBy->setDisabled(true);
         removeLessonsButton->setDisabled(true);
+        fixLessonsButton->setDisabled(true);
 
     /* Jinak odšednutí */
     } else {
@@ -147,6 +160,7 @@ void TimetableTab::loadTimetable(int index) {
         validFrom->setDisabled(false);
         followedByLabel->setDisabled(false);
         followedBy->setDisabled(false);
+        fixLessonsButton->setChecked(false);
         #endif
     }
 
@@ -234,12 +248,44 @@ void TimetableTab::removeLessons() {
     }
 }
 
-/* Povolení / zašednutí mazacího tlačítka */
-void TimetableTab::updateRemoveButton() {
-    if(timetableView->selectionModel()->hasSelection())
+/* Zamknutí / odemknutí vybraných hodin */
+void TimetableTab::toggleFixedLessons(bool setFixed) {
+    QModelIndexList selected = timetableView->selectionModel()->selectedIndexes();
+
+    foreach(QModelIndex index, selected) {
+        timetableModel->setData(index, setFixed ? 1 : 0, Qt::UserRole);
+    }
+}
+
+/* Povolení / zašednutí mazacího a fixovacího tlačítka */
+void TimetableTab::updateRemoveFixedButtons() {
+    /* Něco je vybráno */
+    if(timetableView->selectionModel()->hasSelection()) {
         removeLessonsButton->setDisabled(false);
-    else
+
+        #ifdef ADMIN_VERSION
+        fixLessonsButton->setDisabled(false);
+
+        /* Předpokládáme, že jsou všechny vybrané hodiny zamknuté */
+        fixLessonsButton->setChecked(true);
+
+        /* Pokud ovšem nějaká není, odmáčknutí tlačítka */
+        foreach(QModelIndex index, timetableView->selectionModel()->selectedIndexes()) {
+            if(index.data(Qt::UserRole).toInt() == 0) {
+                fixLessonsButton->setChecked(false);
+                break;
+            }
+        }
+        #endif
+
+    /* Není nic vybráno */
+    } else {
         removeLessonsButton->setDisabled(true);
+        #ifdef ADMIN_VERSION
+        fixLessonsButton->setDisabled(true);
+        fixLessonsButton->setChecked(false);
+        #endif
+    }
 }
 
 }

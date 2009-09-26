@@ -41,6 +41,8 @@ class TimetableModel: public QAbstractItemModel {
     Q_OBJECT
 
     public:
+        static const int FIXED;    /** @brief Označení zamknuté položky */
+
         /**
          * @brief Konstruktor
          *
@@ -97,6 +99,9 @@ class TimetableModel: public QAbstractItemModel {
 
         /**
          * @brief Čtecí přístup k datům
+         *
+         * U dat rozvrhu lze použít Qt::UserRole pro zjištění, zda je položka
+         * zamknutá (když je vrácená hodnota nenulová).
          */
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
@@ -107,6 +112,10 @@ class TimetableModel: public QAbstractItemModel {
 
         /**
          * @brief Zápisový přístup k datům
+         *
+         * Kromě Qt::EditRole lze na položky rozvrhu použít Qt::UserRole, při
+         * předání nulové hodnoty se položka označí jako odemknutá, při ostatních
+         * se označí jako zamknutá (a bude editovatelná jen správcem).
          */
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 

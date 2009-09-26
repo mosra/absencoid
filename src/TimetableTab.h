@@ -47,6 +47,7 @@ class TimetableTab: public QWidget {
         QLabel* followedByLabel;    /** @brief Label k následujícímu rozvrhu */
         QComboBox* followedBy;      /** @brief Výběr rozvrhu, který bude tento následovat */
         QPushButton* removeLessonsButton;   /** @brief Odstranění vybraných hodin */
+        QPushButton* fixLessonsButton;  /** @brief Zamknutí vybraných hodin */
 
     private slots:
 
@@ -92,11 +93,18 @@ class TimetableTab: public QWidget {
         void removeLessons();
 
         /**
-         * @brief Zašednutí / povolení mazacího tlačítka
-         *
-         * Tlačítko pro mazání hodin je aktivní, jen pokud jsou nějaké vybrané
+         * @brief Zamknutí / odemknutí vybraných hodin
          */
-        void updateRemoveButton();
+        void toggleFixedLessons(bool setFixed);
+
+        /**
+         * @brief Zašednutí / povolení mazacího a zamykacího tlačítka
+         *
+         * Tlačítka jsou aktivní, jen pokud jsou nějaké vybrané hodiny. Pokud
+         * jsou vybrané samé zamknuté hodiny, je zamykací tlačítko nastaveno
+         * na zamáčknutý stav.
+         */
+        void updateRemoveFixedButtons();
 };
 
 }

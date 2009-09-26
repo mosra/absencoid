@@ -3,6 +3,7 @@
 #include <QSqlQuery>
 #include <QSqlError>
 #include <QDebug>
+#include <QBrush>
 
 #include "configure.h"
 #include "ClassesModel.h"
@@ -10,6 +11,7 @@
 namespace Absencoid {
 
 const quint32 TimetableModel::NO_PARENT = 0xFFFF;
+const int TimetableModel::FIXED = 0x70000000;
 
 /* Konstruktor */
 TimetableModel::TimetableModel(ClassesModel* _classesModel, QObject* parent):
@@ -155,6 +157,18 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
         /* ID předmětu pod tímto číslem dne/hodiny */
         int id = timetables[index.parent().row()].data[dayHour(index.column(), index.row())];
 
+        /* Zda je položka zamknutá */
+        if(role == Qt::UserRole) return id == 0 ? FIXED : id & FIXED;
+
+        /* Zamknutá položka, editovatelná jen správcem */
+        if(id & FIXED) {
+            #ifdef ADMIN_VERSION
+            if(role == Qt::BackgroundRole) return QBrush("#cccccc");
+            #endif
+
+            id &= ~FIXED;
+        }
+
         /* Index odpovídající tomuto ID předmětu */
         int classIndex = classesModel->indexFromId(id);
 
@@ -184,19 +198,25 @@ Qt::ItemFlags TimetableModel::flags(const QModelIndex& index) const {
         return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 
     /* Data rozvrhu */
-    } else if(index.parent().internalId() == NO_PARENT)
+    } else if(index.parent().internalId() == NO_PARENT) {
+        #ifndef ADMIN_VERSION
+        /* Zamknuté položky jsou editovatelné jen správcem */
+        if(timetables[index.parent().row()].data[dayHour(index.column(), index.row())] & FIXED)
+            return 0;
+        #endif
+
         return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
 
     /* Něco jiného */
-    else return Qt::ItemIsEnabled;
+    } else return Qt::ItemIsEnabled;
 }
 
 /* Zápisový přístup k datům */
 bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, int role) {
-    if(!index.isValid() || role != Qt::EditRole) return false;
+    if(!index.isValid()) return false;
 
     /* Seznam rozvrhů */
-    if(index.internalId() == NO_PARENT) {
+    if(index.internalId() == NO_PARENT && role == Qt::EditRole) {
 
         QSqlQuery query;
 
@@ -240,14 +260,38 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
         return true;
 
     /* Data rozvrhu */
-    } else if(index.parent().internalId() == NO_PARENT) {
+    } else if(index.parent().internalId() == NO_PARENT &&
+             (role == Qt::EditRole || role == Qt::UserRole)) {
         QSqlQuery query;
 
         /* Spočítání dne/hodiny */
         int _dayHour = dayHour(index.column(), index.row());
 
-        /* ID předmětu odpovídající aktuálnímu indexu */
-        int classId = classesModel->idFromIndex(value.toInt());
+        int classId;
+
+        /* Upravujeme na jinou hodinu */
+        if(role == Qt::EditRole) {
+            /* ID předmětu odpovídající aktuálnímu indexu */
+            classId = classesModel->idFromIndex(value.toInt());
+
+            /* Pokud byla předchozí položka zamknutá, tato bude taky */
+            if(timetables[index.parent().row()].data.contains(_dayHour) &&
+              (timetables[index.parent().row()].data[_dayHour] & FIXED))
+                classId |= FIXED;
+
+        /* Zamykáme / odemykáme */
+        } else if(role == Qt::UserRole) {
+            /* Neexistující hodina, nemáme co odemykat / zamykat */
+            if(!timetables[index.parent().row()].data.contains(_dayHour)) return true;
+
+            classId = timetables[index.parent().row()].data[_dayHour];
+
+            /* Odemykáme */
+            if(value.toInt() == 0) classId &= ~FIXED;
+
+            /* Zamykáme */
+            else                   classId |= FIXED;
+        }
 
         /* V rozvrhu může být cokoli, jen ne "Cokoli" */
         if(classId == ClassesModel::WHATEVER) return false;
@@ -456,14 +500,14 @@ int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
             /* Testujeme, zda je taková den/hodina přítomná a jestli může být
                 předmět jakýkoli, pokud ne, jestli je tam ten správný */
             if(timetables[i].data.contains(_dayHour) &&
-            (classId == ClassesModel::WHATEVER || timetables[i].data[_dayHour] == classId)) {
+            (classId == ClassesModel::WHATEVER || (timetables[i].data[_dayHour] & ~FIXED) == classId)) {
                 count++; break;
             }
         }
 
         /* Pokud je označena jen jediná hodina */
         else if(timetables[i].data.contains(dayHour) &&
-        (classId == ClassesModel::WHATEVER || timetables[i].data[dayHour] == classId))
+        (classId == ClassesModel::WHATEVER || (timetables[i].data[dayHour] & ~FIXED) == classId))
             count++;
     }
 
@@ -472,6 +516,7 @@ int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
 
 
 /* Zjištění, zda se změny v modelu předmětů projeví zde */
+/** @todo Kvůli classId | FIXED nyní už nechodí */
 void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
     /* Projití jednotlivých řádků a zjištění, zda takové předměty máme v rozvrhu */
     for(int i = topLeft.row(); i <= bottomRight.row(); ++i) {
