@@ -6,21 +6,6 @@ CREATE TABLE grades (
     name TEXT NOT NULL UNIQUE
 );
 
--- UČITELÉ
--- gradeId      ID třídy (stejný učitel může mít v různých třídách různé
---                  vlastnosti)
--- id           ID učitele
--- name         Jméno (unikátní)
--- flags        Vlastnosti (binárně spojovatelné)
---                  1 - zapisuje absence
---                  2 - uznává školní akce
-CREATE TABLE teachers (
-    gradeId INTEGER NOT NULL,
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL UNIQUE,
-    flags INTEGER NOT NULL DEFAULT 1
-);
-
 -- NASTAVENÍ
 -- gradeId              ID třídy, ke které nastavení patří
 -- version              Verze databáze (kvůli konfliktům s novějšími verzemi programu)
@@ -39,6 +24,21 @@ CREATE TABLE configuration (
     activeTimetableId INTEGER NOT NULL,
     webUpdateUrl TEXT NOT NULL,
     flags INTEGER NOT NULL
+);
+
+-- UČITELÉ
+-- gradeId      ID třídy (stejný učitel může mít v různých třídách různé
+--                  vlastnosti)
+-- id           ID učitele
+-- name         Jméno (unikátní)
+-- flags        Vlastnosti (binárně spojovatelné)
+--                  1 - zapisuje absence
+--                  2 - uznává školní akce
+CREATE TABLE teachers (
+    gradeId INTEGER NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    flags INTEGER NOT NULL DEFAULT 1
 );
 
 -- PŘEDMĚTY
