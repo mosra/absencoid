@@ -73,7 +73,7 @@
 <!ELEMENT lesson (day, hour)>           <!-- Vyučovací hodina -->
 <!ATTLIST lesson
     classId IDREF #REQUIRED
-    fixed (true|false) "false"
+    fixed (true|false) #REQUIRED
 > <!-- Atributy:
     classId     - Reference na předmět, např. c14
     fixed       - Zda je předmět zamknutý, tj. může jej editovat jen správce.
