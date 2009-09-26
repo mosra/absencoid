@@ -12,6 +12,12 @@
 #include <QGridLayout>
 #include <QBoxLayout>
 #include <QTableView>
+#include <QFile>
+#include <QFileDialog>
+#include <QMessageBox>
+
+#include "Dump.h"
+#include "CreateUpdateDialog.h"
 
 namespace Absencoid {
 
@@ -39,6 +45,12 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     updateButtonMenu->addAction("Z internetu");
     updateButtonMenu->addAction("Ze souboru");
     updateButton->setMenu(updateButtonMenu);
+
+    /* Tlačítko pro vytvoření aktualizace, zálohy */
+    QPushButton* createUpdateButton = new QPushButton(tr("Vytvořit aktualizaci"));
+    QPushButton* createDumpButton = new QPushButton(tr("Zálohovat"));
+    connect(createUpdateButton, SIGNAL(clicked(bool)), this, SLOT(createUpdate()));
+    connect(createDumpButton, SIGNAL(clicked(bool)), this, SLOT(createDump()));
 
     /* LEVÝ VRCHNÍ GROUPBOX (STATISTIKA) */
     QGroupBox* statisticsGroup = new QGroupBox(tr("Statistika"));
@@ -87,7 +99,7 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     /* Layout pro tlačítka */
     QHBoxLayout* updateButtonLayout = new QHBoxLayout;
     updateButtonLayout->addWidget(updateButton);
-    updateButtonLayout->addWidget(new QPushButton(tr("Vytvořit aktualizaci")));
+    updateButtonLayout->addWidget(createUpdateButton);
 
     /* Celkový layout */
     /** @todo Check funkce pro webovou adresu */
@@ -107,7 +119,7 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
 
     /* Layout pro tlačítka */
     QHBoxLayout* dumpButtonsLayout = new QHBoxLayout;
-    dumpButtonsLayout->addWidget(new QPushButton(tr("Zálohovat")));
+    dumpButtonsLayout->addWidget(createDumpButton);
     dumpButtonsLayout->addWidget(new QPushButton(tr("Obnovit ze zálohy")));
 
     /* Celkový layout */
@@ -131,6 +143,110 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     layout->setColumnStretch(1, 1);
 
     setLayout(layout);
+}
+
+/* Vytvoření zálohy */
+void SummaryTab::createDump() {
+    QString filename = QFileDialog::getSaveFileName(this,
+        tr("Uložit zálohu"), QString(), tr("XML soubory (*.xml)"));
+
+    /* Uživatel nevybral žádný soubor */
+    if(filename.isEmpty()) return;
+
+    QString data = dump.createDump();
+
+    /* Data jsou prázdná - něco se nezdařilo */
+    if(data.isEmpty()) {
+        QMessageBox::critical(this, tr("Chyba"), tr("Nepodařilo se vytvořit zálohu!"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+        return;
+    }
+
+    /* Zapsání souboru (i když je prázdný) */
+    QFile file(filename);
+    if(!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::critical(this, tr("Chyba"), tr("Nepodařilo se otevřít soubor!"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+        return;
+    }
+
+    /* Chyba při zápisu */
+    int filesize = file.write(data.toUtf8());
+    if(filesize == -1) {
+        QMessageBox::critical(this, tr("Chyba"), tr("Nepodařilo se zapsat zálohu do souboru!"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+        file.close();
+        return;
+    }
+
+    file.close();
+
+    /* Zobrazení statistiky */
+    QMessageBox::information(this, tr("Záloha dokončena"),
+        tr("Velikost zálohy: <strong>%1 kB</strong><br /><br />"
+        "Zálohovaných učitelů: <strong>%2</strong><br />"
+        "Zálohovaných předmětů: <strong>%3</strong><br />"
+        "Zálohovaných rozvrhů: <strong>%4</strong><br />"
+        "Zálohovaných vyučovacích hodin: <strong>%5</strong><br />"
+        "Zálohovaných změn: <strong>%6</strong><br />"
+        "Zálohovaných absencí: <strong>%7</strong>")
+        .arg(filesize/1024).arg(dump.deltaTeachers()).arg(dump.deltaClasses())
+        .arg(dump.deltaTimetables()).arg(dump.deltaTimetableData())
+        .arg(dump.deltaChanges()).arg(dump.deltaAbsences()),
+        QMessageBox::Ok, QMessageBox::Ok);
+}
+
+/* Vytvoření zálohy */
+void SummaryTab::createUpdate() {
+    QString filename, note;
+    CreateUpdateDialog dialog(filename, note, this);
+    if(dialog.exec() != QDialog::Accepted) return;
+
+    /* Vytvoření aktualizace */
+    QString data = dump.createUpdate(note);
+
+    /* Data jsou prázdná - něco se nezdařilo */
+    if(data.isEmpty()) {
+        QMessageBox::warning(this, tr("Chyba"), tr("Nepodařilo se vytvořit zálohu!"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+        return;
+    }
+
+    /* Zapsání souboru (i když je prázdný) */
+    QFile file(filename);
+    if(!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::warning(this, tr("Chyba"), tr("Nepodařilo se otevřít soubor!"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+        return;
+    }
+
+    /* Chyba při zápisu */
+    int filesize = file.write(data.toUtf8());
+    if(filesize == -1) {
+        QMessageBox::warning(this, tr("Chyba"), tr("Nepodařilo se zapsat aktualizaci do souboru!"),
+                             QMessageBox::Ok, QMessageBox::Ok);
+        file.close();
+        return;
+    }
+
+    file.close();
+
+    /* Pokud je popisek prázdný, změna textu pro statistiku */
+    if(note.isEmpty()) note = tr("(prázdný)");
+
+    /* Zobrazení statistiky */
+    QMessageBox::information(this, tr("Aktualizace vytvořena"),
+        tr("Popisek aktualizace:<br /><br /><em>%1</em><br /><br />"
+        "Velikost souboru: <strong>%2 kB</strong><br /><br />"
+        "Uložených učitelů: <strong>%3</strong><br />"
+        "Uložených předmětů: <strong>%4</strong><br />"
+        "Uložených rozvrhů: <strong>%5</strong><br />"
+        "Uložených vyučovacích hodin: <strong>%6</strong><br />"
+        "Uložených změn: <strong>%7</strong><br />")
+        .arg(note).arg(filesize/1024).arg(dump.deltaTeachers())
+        .arg(dump.deltaClasses()).arg(dump.deltaTimetables())
+        .arg(dump.deltaTimetableData()).arg(dump.deltaChanges()),
+        QMessageBox::Ok, QMessageBox::Ok);
 }
 
 }
