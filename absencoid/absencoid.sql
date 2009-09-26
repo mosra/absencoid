@@ -28,6 +28,10 @@ CREATE TABLE configuration (
     flags INTEGER NOT NULL
 );
 
+-- Inicializace konfigurační tabulky
+INSERT INTO configuration (gradeId, version, beginDate, endDate, activeTimetableId, webUpdateUrl, lastUpdate, flags)
+VALUES (1, 1, "2009-09-07", "2010-01-29", 1, null, null, 1);
+
 -- UČITELÉ
 -- gradeId      ID třídy (stejný učitel může mít v různých třídách různé
 --                  vlastnosti)
