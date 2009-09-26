@@ -41,7 +41,7 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
 
     /* Tlačítka vpravo */
     QPushButton* addChangedLessonButton = new QPushButton(tr("Přidat změnu"));
-    removeChangedLessonsButton = new QPushButton(tr("Odebrat vybrané"));
+    removeChangedLessonsButton = new QPushButton(tr("Odstranit vybrané"));
     removeChangedLessonsButton->setDisabled(true);
 
     /* Layout pro tlačítka vpravo */
