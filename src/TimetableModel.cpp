@@ -32,6 +32,7 @@ QAbstractItemModel(parent), classesModel(_classesModel) {
         t.validFrom = query.value(2).toDate();
         /* Pokud není zadáno, čím je následován, je následován sám sebou */
         t.followedBy = query.value(3).toInt() == 0 ? t.id : query.value(3).toInt();
+        t.isLoaded = false;
 
         timetables.append(t);
     }
