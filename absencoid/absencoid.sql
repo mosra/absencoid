@@ -13,6 +13,7 @@ CREATE TABLE grades (
 -- endDate              Konec období (pololetí)
 -- activeTimetableId    ID aktivního rozvrhu (prvního)
 -- webUpdateUrl         Adresa pro stahování aktualizací z internetu
+-- lastUpdate           Datum poslední aktualizace
 -- flags                Ostatní (většinou bool hodnoty):
 --                          0x01 - Kontrolovat aktualizace při startu
 --                          0x02 - Dělat automatickou zálohu při ukončení programu
@@ -22,7 +23,8 @@ CREATE TABLE configuration (
     beginDate TEXT NOT NULL,
     endDate TEXT NOT NULL,
     activeTimetableId INTEGER NOT NULL,
-    webUpdateUrl TEXT NOT NULL,
+    webUpdateUrl TEXT,
+    lastUpdate TEXT,
     flags INTEGER NOT NULL
 );
 
