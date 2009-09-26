@@ -38,7 +38,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     removeLessonsButton = new QPushButton(tr("Odstranit vybrané"));
 
     /* Zamáčknutelné tlačítko pro zamykání hodin */
-    fixLessonsButton = new QPushButton(tr("Zamknout hodiny"));
+    fixLessonsButton = new QPushButton(tr("Zamknout vybrané"));
     fixLessonsButton->setCheckable(true);
 
     descriptionLabel = new QLabel(tr("Popisek:"));
