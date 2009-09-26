@@ -41,6 +41,7 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
     /* Tlačítka vpravo */
     QPushButton* addChangedLessonButton = new QPushButton(tr("Přidat změnu"));
     removeChangedLessonsButton = new QPushButton(tr("Odebrat vybrané"));
+    removeChangedLessonsButton->setDisabled(true);
 
     /* Layout pro tlačítka vpravo */
     QVBoxLayout* buttonsLayout = new QVBoxLayout;
@@ -59,6 +60,10 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
     /* Při zrušení výběru se deaktivuje tlačítko pro smazání změn */
     connect(changedLessonsView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
             this, SLOT(updateRemoveButton()));
+
+    #ifndef ADMIN_VERSION
+    addChangedLessonButton->setDisabled(true);
+    #endif
 
     setLayout(layout);
 }
@@ -93,10 +98,12 @@ void ChangedLessonsTab::removeChangedLessons() {
 
 /* Zašednutí / aktivace tlačítka pro mazání */
 void ChangedLessonsTab::updateRemoveButton() {
+    #ifdef ADMIN_VERSION
     if(changedLessonsView->selectionModel()->hasSelection())
         removeChangedLessonsButton->setDisabled(false);
     else
         removeChangedLessonsButton->setDisabled(true);
+    #endif
 }
 
 }

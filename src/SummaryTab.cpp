@@ -142,6 +142,12 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     layout->setColumnStretch(0, 1);
     layout->setColumnStretch(1, 1);
 
+    #ifndef ADMIN_VERSION
+    begin->setDisabled(true);
+    end->setDisabled(true);
+    createUpdateButton->setDisabled(true);
+    #endif
+
     setLayout(layout);
 }
 

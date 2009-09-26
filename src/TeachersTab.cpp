@@ -40,6 +40,10 @@ teachersModel(new TeachersModel(this)), teachersView(new QTableView(this)) {
     teachersLayout->addWidget(teachersView);
     teachersLayout->addLayout(teachersButtonLayout);
 
+    #ifndef ADMIN_VERSION
+    addTeacher->setDisabled(true);
+    #endif
+
     setLayout(teachersLayout);
 }
 
@@ -94,10 +98,12 @@ void TeachersTab::removeTeachers() {
 
 /* Zašednutí / povolení mazacího tlačítka */
 void TeachersTab::updateRemoveButton() {
+    #ifdef ADMIN_VERSION
     if(!teachersView->selectionModel()->hasSelection())
         removeTeachersButton->setDisabled(true);
     else
         removeTeachersButton->setDisabled(false);
+    #endif
 }
 
 }

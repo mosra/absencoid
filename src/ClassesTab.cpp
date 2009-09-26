@@ -47,6 +47,10 @@ classesView(new QTableView(this)) {
     classesLayout->addWidget(classesView);
     classesLayout->addLayout(classesButtonLayout);
 
+    #ifndef ADMIN_VERSION
+    addClass->setDisabled(true);
+    #endif
+
     setLayout(classesLayout);
 }
 
@@ -97,10 +101,12 @@ void ClassesTab::removeClasses() {
 
 /* Zakázaní / povolení tlačítka pro mazání předmětů */
 void ClassesTab::updateRemoveButton() {
+    #ifdef ADMIN_VERSION
     if(!classesView->selectionModel()->hasSelection())
         removeClassesButton->setDisabled(true);
     else
         removeClassesButton->setDisabled(false);
+    #endif
 }
 
 }

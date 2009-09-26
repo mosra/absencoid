@@ -107,6 +107,17 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     /* Načtení rozvrhu */
     loadTimetable(timetableCombo->currentIndex());
 
+    #ifndef ADMIN_VERSION
+    addTimetableButton->setDisabled(true);
+    removeTimetableButton->setDisabled(true);
+    descriptionLabel->setDisabled(true);
+    description->setDisabled(true);
+    validFromLabel->setDisabled(true);
+    validFrom->setDisabled(true);
+    followedByLabel->setDisabled(true);
+    followedBy->setDisabled(true);
+    #endif
+
     setLayout(layout);
 }
 
@@ -127,6 +138,7 @@ void TimetableTab::loadTimetable(int index) {
     /* Jinak odšednutí */
     } else {
         timetableView->setDisabled(false);
+        #ifdef ADMIN_VERSION
         removeTimetableButton->setDisabled(false);
         descriptionLabel->setDisabled(false);
         description->setDisabled(false);
@@ -134,6 +146,7 @@ void TimetableTab::loadTimetable(int index) {
         validFrom->setDisabled(false);
         followedByLabel->setDisabled(false);
         followedBy->setDisabled(false);
+        #endif
     }
 
     /* Přepnutí tabulky na daný index */

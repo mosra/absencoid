@@ -113,6 +113,10 @@ QVariant TeachersModel::data(const QModelIndex& index, int role) const {
 
 /* Flags */
 Qt::ItemFlags TeachersModel::flags(const QModelIndex& index) const {
+    #ifndef ADMIN_VERSION
+    return QAbstractItemModel::flags(index);
+    #endif
+
     if(!index.isValid() ||
         index.row() > teachers.size() ||
         index.column() > 2) return Qt::ItemIsEnabled;

@@ -26,7 +26,11 @@ namespace Absencoid {
 
 /* Konstruktor */
 MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
-    setWindowTitle(tr("Absencoid"));
+    #ifdef ADMIN_VERSION
+    setWindowTitle(tr("Absencoid [správce]"));
+    #else
+    setWindowTitle(tr("Absencoid [uživatel]"));
+    #endif
 
     /* Databáze */
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");

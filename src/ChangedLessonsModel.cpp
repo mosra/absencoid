@@ -122,6 +122,10 @@ QVariant ChangedLessonsModel::data(const QModelIndex& index, int role) const {
 
 /* Flags */
 Qt::ItemFlags ChangedLessonsModel::flags(const QModelIndex& index) const {
+    #ifndef ADMIN_VERSION
+    return QAbstractItemModel::flags(index);
+    #endif
+
     if(!index.isValid()) return Qt::ItemIsEnabled;
 
     /* Počet ovlivněných rozvrhů je "disabled" */

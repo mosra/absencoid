@@ -128,6 +128,10 @@ QVariant ClassesModel::data(const QModelIndex& index, int role) const {
 
 /* Flags */
 Qt::ItemFlags ClassesModel::flags(const QModelIndex& index) const {
+    #ifndef ADMIN_VERSION
+    return QAbstractItemModel::flags(index);
+    #endif
+
     if(!index.isValid()) return Qt::ItemIsEnabled;
 
     /* První sloupec (popisek) a první dva (speciální) řádky jsou needistovatelné */

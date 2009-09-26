@@ -3,4 +3,6 @@
 
 #define SVN_VERSION "SVN ${SVN_VERSION}"
 
+#cmakedefine ADMIN_VERSION
+
 #endif
