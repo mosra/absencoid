@@ -61,7 +61,7 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     buttonsLayout->addSpacing(16);
     buttonsLayout->addWidget(fixLessonsButton);
     buttonsLayout->addSpacing(16);
-    buttonsLayout->addWidget(removeLessonsButton,   1, Qt::AlignTop);
+    buttonsLayout->addWidget(removeLessonsButton, 1, Qt::AlignTop);
 
     /* Layout tabulky a tlačítek */
     QHBoxLayout* bottomLayout = new QHBoxLayout;
@@ -261,21 +261,35 @@ void TimetableTab::toggleFixedLessons(bool setFixed) {
 void TimetableTab::updateRemoveFixedButtons() {
     /* Něco je vybráno */
     if(timetableView->selectionModel()->hasSelection()) {
-        removeLessonsButton->setDisabled(false);
 
+        /* Předpokládáme, že jsou všechny vybrané hodiny zamknuté a prázdné */
         #ifdef ADMIN_VERSION
-        fixLessonsButton->setDisabled(false);
-
-        /* Předpokládáme, že jsou všechny vybrané hodiny zamknuté */
         fixLessonsButton->setChecked(true);
+        fixLessonsButton->setDisabled(true);
+        #endif
+        removeLessonsButton->setDisabled(true);
 
-        /* Pokud ovšem nějaká není, odmáčknutí tlačítka */
         foreach(QModelIndex index, timetableView->selectionModel()->selectedIndexes()) {
+            #ifdef ADMIN_VERSION
+            /* Pokud nějaká hodina není zamknutá, odmáčknutí tlačítka */
             if(index.data(Qt::UserRole).toInt() == 0) {
                 fixLessonsButton->setChecked(false);
-                break;
+            }
+            #endif
+
+            /* Pokud nějaká hodina není prázdná, odšednutí tlačítek */
+            if(index.data(Qt::EditRole).toInt() != -1) {
+                removeLessonsButton->setDisabled(false);
+                #ifdef ADMIN_VERSION
+                fixLessonsButton->setDisabled(false);
+                #endif
             }
         }
+
+        /* Je blbost mít zašedlé a zamáčklé tlačítko u vybrané prázdné hodiny */
+        #ifdef ADMIN_VERSION
+        if(!fixLessonsButton->isEnabled() && fixLessonsButton->isChecked())
+            fixLessonsButton->setChecked(false);
         #endif
 
     /* Není nic vybráno */
