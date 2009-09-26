@@ -207,7 +207,7 @@ void SummaryTab::createUpdate() {
 
     /* Data jsou prázdná - něco se nezdařilo */
     if(data.isEmpty()) {
-        QMessageBox::warning(this, tr("Chyba"), tr("Nepodařilo se vytvořit zálohu!"),
+        QMessageBox::critical(this, tr("Chyba"), tr("Nepodařilo se vytvořit zálohu!"),
                              QMessageBox::Ok, QMessageBox::Ok);
         return;
     }
@@ -215,7 +215,7 @@ void SummaryTab::createUpdate() {
     /* Zapsání souboru (i když je prázdný) */
     QFile file(filename);
     if(!file.open(QIODevice::WriteOnly)) {
-        QMessageBox::warning(this, tr("Chyba"), tr("Nepodařilo se otevřít soubor!"),
+        QMessageBox::critical(this, tr("Chyba"), tr("Nepodařilo se otevřít soubor!"),
                              QMessageBox::Ok, QMessageBox::Ok);
         return;
     }
@@ -223,7 +223,7 @@ void SummaryTab::createUpdate() {
     /* Chyba při zápisu */
     int filesize = file.write(data.toUtf8());
     if(filesize == -1) {
-        QMessageBox::warning(this, tr("Chyba"), tr("Nepodařilo se zapsat aktualizaci do souboru!"),
+        QMessageBox::critical(this, tr("Chyba"), tr("Nepodařilo se zapsat aktualizaci do souboru!"),
                              QMessageBox::Ok, QMessageBox::Ok);
         file.close();
         return;
