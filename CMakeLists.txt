@@ -20,7 +20,7 @@ message(STATUS "Verze: SVN ${SVN_VERSION}")
 # možnost, že se to někomu povede překonat. Editace se přímo nezakazuje, prostě
 # nemá smysl, protože při další aktualizaci se změny ztratí.
 
-#set(ADMIN_VERSION)
+set(ADMIN_VERSION 1)
 
 # Zdrojáky programu
 add_subdirectory(src)

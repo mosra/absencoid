@@ -1,16 +1,17 @@
 #include "ChangedLessonsTab.h"
 
 #include <QTableView>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QBoxLayout>
 
+#include "configure.h"
 #include "TimetableModel.h"
 #include "ClassesModel.h"
 #include "ChangedLessonsModel.h"
 #include "ComboBoxDelegate.h"
 #include "DateEditDelegate.h"
 #include "SpinBoxDelegate.h"
-#include <QMessageBox>
 
 namespace Absencoid {
 

@@ -16,6 +16,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include "configure.h"
 #include "Dump.h"
 #include "CreateUpdateDialog.h"
 

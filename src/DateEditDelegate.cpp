@@ -3,6 +3,8 @@
 #include <QDateEdit>
 #include <QCalendarWidget>
 
+#include "configure.h"
+
 namespace Absencoid {
 
 /* Konstruktor */

@@ -2,6 +2,7 @@
 
 #include <QComboBox>
 
+#include "configure.h"
 #include "TeachersModel.h"
 
 namespace Absencoid {

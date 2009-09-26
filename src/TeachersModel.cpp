@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <QFont>
 
+#include "configure.h"
+
 namespace Absencoid {
 
 /* Konstruktor */

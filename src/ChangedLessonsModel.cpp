@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QFont>
 
+#include "configure.h"
 #include "ClassesModel.h"
 #include "TimetableModel.h"
 

@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 #include <QMessageBox>
 
+#include "configure.h"
 #include "TeachersModel.h"
 
 namespace Absencoid {

@@ -10,6 +10,7 @@
 #include <QLineEdit>
 #include <QMessageBox>
 
+#include "configure.h"
 #include "ComboBoxDelegate.h"
 #include "ClassesModel.h"
 #include "TimetableModel.h"

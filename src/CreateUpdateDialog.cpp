@@ -9,6 +9,8 @@
 #include <QBoxLayout>
 #include <QFileDialog>
 
+#include "configure.h"
+
 namespace Absencoid {
 
 /* Konstruktor */

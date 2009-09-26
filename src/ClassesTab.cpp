@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 #include <QMessageBox>
 
+#include "configure.h"
 #include "ComboBoxDelegate.h"
 #include "TeachersModel.h"
 #include "ClassesModel.h"

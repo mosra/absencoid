@@ -2,6 +2,8 @@
 
 #include <QSpinBox>
 
+#include "configure.h"
+
 namespace Absencoid {
 
 /* Konstruktor */

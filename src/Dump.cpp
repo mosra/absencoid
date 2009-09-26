@@ -6,6 +6,7 @@
 #include <QDate>
 #include <QDebug>
 
+#include "configure.h"
 #include "ClassesModel.h"
 
 namespace Absencoid {
