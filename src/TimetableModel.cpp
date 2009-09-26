@@ -437,12 +437,6 @@ int TimetableModel::indexFromId(int id) const {
     return -1;
 }
 
-/* Spočítání dne/hodiny */
-inline int TimetableModel::dayHour(int day, int hour) const {
-    if(hour == -1) hour = 0x0F;
-    return day << 4 | hour;
-}
-
 /* Kolik rozvrhů má v tento den/hodinu daný předmět */
 int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
     /* Celkový počet odpovídajících rozvrhů */

@@ -169,7 +169,9 @@ class TimetableModel: public QAbstractItemModel {
          * @param   hour        Hodina (0-9, 0 = nultá hodina, -1 = všechny hodiny)
          * @return  Den/hodina
          */
-        inline int dayHour(int day, int hour) const;
+        inline int dayHour(int day, int hour) const  {
+            if(hour == -1) hour = 0x0F; return day << 4 | hour;
+        }
 
         /**
         * @brief Zjištění, kolik rozvrhů má tento předmět v daný den/hodinu
