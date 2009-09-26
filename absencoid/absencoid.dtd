@@ -29,7 +29,7 @@
     <!-- Atributy: value - Boolean hodnota -->
 
 <!-- Učitelé -->
-<!ELEMENT teachers (teacher+)>
+<!ELEMENT teachers (teacher*)>
 <!ELEMENT teacher (#PCDATA)>            <!-- Obsah: jméno učitele -->
 <!ATTLIST teacher
     id ID #REQUIRED
@@ -42,7 +42,7 @@
 -->
 
 <!-- Předměty -->
-<!ELEMENT classes (class+)>
+<!ELEMENT classes (class*)>
 <!ELEMENT class (#PCDATA)>              <!-- Obsah: jméno předmětu -->
 <!ATTLIST class
     id ID #REQUIRED
@@ -53,7 +53,7 @@
 -->
 
 <!-- Rozvrhy -->
-<!ELEMENT timetables (timetable+)>
+<!ELEMENT timetables (timetable*)>
 <!ATTLIST timetables activeId IDREF #REQUIRED>
     <!-- ID aktivního rozvrhu, např t1. Pokud se jedná o aktualizaci, je tento
         parametr (ač povinný), ignorová, protože by měnil uživatelská data. -->
@@ -68,7 +68,7 @@
 <!ELEMENT name (#PCDATA)>               <!-- Jméno rozvrhu -->
 <!ELEMENT validFrom (#PCDATA)>          <!-- Odkdy je rozvrh platný -->
 <!-- TODO: Zrušit data? - konfliktní + nejednoznačný název -->
-<!ELEMENT data (lesson+)>               <!-- Jednotlivé položky rozvrhu -->
+<!ELEMENT data (lesson*)>               <!-- Jednotlivé položky rozvrhu -->
 
 <!ELEMENT lesson (day, hour)>           <!-- Vyučovací hodina -->
 <!ATTLIST lesson
@@ -84,7 +84,7 @@
 <!ELEMENT hour (#PCDATA)>               <!-- Hodina (0 = nultá hodina) -->
 
 <!-- Změny v rozvrhu -->
-<!ELEMENT changes (change+)>
+<!ELEMENT changes (change*)>
 <!ELEMENT change (date, (hour | allHours), (fromClass | allClasses), toClass)>
     <!-- Změna může být buď z jedné hodiny nebo ze všech, z jednoho určitého
         předmětu (ovlivní jen určité rozvrhy) či ze všech -->
@@ -102,7 +102,7 @@
     <!-- Atributy: id - ID předmětu, např. c1. Pokud není uveden, myslí se prázdná hodina -->
 
 <!-- Absence -->
-<!ELEMENT absences (absence+)>
+<!ELEMENT absences (absence*)>
 <!ELEMENT absence (date, (hour+ | allHours))>
     <!-- Absence může být buď jednotlivé hodiny nebo všechny hodiny v daném dni -->
 <!ATTLIST absence id ID #REQUIRED>
