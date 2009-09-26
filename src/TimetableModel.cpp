@@ -451,7 +451,7 @@ int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
 
         /* Pokud jsou označeny "všechny" hodiny, hledáme postupně v každé hodině */
         if(dayHour & 0x0F) for(int hour = 0; hour != 10; ++hour) {
-            int _dayHour = (dayHour & 0x70) | hour;
+            int _dayHour = (dayHour & 0xF0) | hour;
             /* Testujeme, zda je taková den/hodina přítomná a jestli může být
                 předmět jakýkoli, pokud ne, jestli je tam ten správný */
             if(timetables[i].data.contains(_dayHour) &&
@@ -486,7 +486,7 @@ void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelI
             /* Procházení ovliněných hodin */
             int hour; foreach(hour, hours) {
                 /* Spočítání indexu */
-                QModelIndex dataIndex = index(hour & 0x0F, (hour & 0x70) >> 4, index(i, 0));
+                QModelIndex dataIndex = index(hour & 0x0F, (hour & 0xF0) >> 4, index(i, 0));
 
                 /* Vyslání signálu */
                 emit dataChanged(dataIndex, dataIndex);

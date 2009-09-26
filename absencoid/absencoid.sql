@@ -80,10 +80,10 @@ CREATE TABLE timetables (
 -- gradeId      ID třídy
 -- timetableId  ID rozvrhu
 -- dayHour      Den v týdnu a hodina (binárně oddělitelné)
---                  Ox80 (1 bit)  - Značí pevnou hodinu (editovatelná jen adminem)
---                  0x70 (3 bity) - den v týdnu (0x10 = úterý)
+--                  0xF0 (4 bity) - den v týdnu (0x10 = úterý)
 --                  0x0F (4 bity) - hodina (0x02 = druhá hodina)
--- classId      ID předmětu
+-- classId      ID předmětu. Pokud obsahuje 0x8000 0000, znamená to, že je hodina
+--                  zamknutá pro editaci jen správcem.
 CREATE TABLE timetableData (
     gradeId INTEGER NOT NULL,
     timetableId INTEGER NOT NULL,
