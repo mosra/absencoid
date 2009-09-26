@@ -17,8 +17,6 @@
             <beginDate>2009-09-07</beginDate>
             <endDate>2010-01-29</endDate>
             <webUpdateUrl>http://disk.jabbim.cz/mosra@jabbim.cz/absencoid-update.xml</webUpdateUrl>
-            <updateOnStart value="false" />
-            <dumpOnExit value="true" />
         </configuration>
 
         <teachers>
@@ -35,7 +33,7 @@
             <!-- ... -->
         </classes>
 
-        <timetables activeId="t1">
+        <timetables>
             <timetable id="t1" next="t1">
                 <name>Hlavní rozvrh</name>
                 <validFrom>2009-09-07</validFrom>
