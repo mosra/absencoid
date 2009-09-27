@@ -164,6 +164,9 @@ void TimetableTab::loadTimetable(int index) {
         #endif
     }
 
+    /* Přepnutí comboboxu na daný index */
+    timetableCombo->setCurrentIndex(index);
+
     /* Přepnutí tabulky na daný index */
     timetableView->setRootIndex(timetableModel->index(index, 0));
 

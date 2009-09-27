@@ -49,8 +49,7 @@ class TimetableTab: public QWidget {
         QPushButton* removeLessonsButton;   /** @brief Odstranění vybraných hodin */
         QPushButton* fixLessonsButton;  /** @brief Zamknutí vybraných hodin */
 
-    private slots:
-
+    public slots:
         /**
          * @brief Načtení rozvrhu
          *
@@ -58,6 +57,7 @@ class TimetableTab: public QWidget {
          */
         void loadTimetable(int index);
 
+    private slots:
         /**
          * @brief Přidání rozvrhu
          *

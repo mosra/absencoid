@@ -84,7 +84,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
 
     /* Souhrn - na začátek, ale potřebuje data z ostatních, proto je na konci */
-    SummaryTab* summaryTab = new SummaryTab(timetableTab->getTimetableModel());
+    SummaryTab* summaryTab = new SummaryTab(timetableTab);
     tabWidget->insertTab(0, summaryTab, tr("Souhrn"));
 
     tabWidget->setCurrentIndex(0);

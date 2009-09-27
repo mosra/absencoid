@@ -191,6 +191,12 @@ class TimetableModel: public QAbstractItemModel {
         */
         int timetablesWithThisClass(int dayHour, int classId);
 
+    public slots:
+        /**
+         * @brief Slot pro nastavení aktualáního rozvrhu
+         */
+        void setActualTimetable(int index);
+
     private slots:
         /**
          * @brief Zjištění změn v modelu předmětů
@@ -209,10 +215,16 @@ class TimetableModel: public QAbstractItemModel {
          */
         static const quint32 NO_PARENT;
 
+        /** @brief Flags pro rozvrh */
+        enum Flags {
+            LOADED = 0x01,
+            ACTIVE = 0x02
+        };
+
         /** @brief Struktura rozvrhu */
         struct Timetable {
             int id;                 /** @brief ID rozvrhu */
-            bool isLoaded;          /** @brief Zda je rozvrh načten */
+            int flags;              /** @brief Flags */
             int followedBy;         /** @brief ID následujícího rozvrhu */
             QString description;    /** @brief Popisek */
             QDate validFrom;        /** @brief Datum začátku platnosti */
@@ -230,8 +242,7 @@ class TimetableModel: public QAbstractItemModel {
         };
 
         QList<Timetable> timetables;    /** @brief Pole s rozvrhy */
-
-        ClassesModel* classesModel; /** @brief Ukazatel na model předmětů */
+        ClassesModel* classesModel;     /** @brief Ukazatel na model předmětů */
 };
 
 }

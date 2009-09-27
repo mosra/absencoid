@@ -9,7 +9,7 @@ class QLineEdit;
 
 namespace Absencoid {
 
-class TimetableModel;
+class TimetableTab;
 class ConfigurationModel;
 
 class SummaryTab: public QWidget {
@@ -19,7 +19,7 @@ class SummaryTab: public QWidget {
         /**
          * @brief Konstruktor
          */
-        SummaryTab(TimetableModel* timetableModel, QWidget* parent = 0);
+        SummaryTab(TimetableTab* timetableTab, QWidget* parent = 0);
 
     private slots:
         /**

@@ -20,14 +20,15 @@
 #include "Dump.h"
 #include "CreateUpdateDialog.h"
 #include "ConfigurationModel.h"
+#include "TimetableTab.h"
 #include "TimetableModel.h"
 
 namespace Absencoid {
 
 /* Konstruktor */
-SummaryTab::SummaryTab(TimetableModel* timetableModel, QWidget* parent): QWidget(parent) {
+SummaryTab::SummaryTab(TimetableTab* timetableTab, QWidget* parent): QWidget(parent) {
     /* Inicializace konfiguračního modelu */
-    configurationModel = new ConfigurationModel(timetableModel, this);
+    configurationModel = new ConfigurationModel(timetableTab->getTimetableModel(), this);
 
     /* Políčka pro editaci data */
     QDateEdit* begin = new QDateEdit(configurationModel->index(0, 0).data(Qt::EditRole).toDate());
@@ -47,9 +48,13 @@ SummaryTab::SummaryTab(TimetableModel* timetableModel, QWidget* parent): QWidget
 
     /* Combobox pro výběr aktuálního rozvrhu */
     QComboBox* actualTimetable = new QComboBox;
-    actualTimetable->setModel(timetableModel);
+    actualTimetable->setModel(timetableTab->getTimetableModel());
     actualTimetable->setModelColumn(1);
     actualTimetable->setCurrentIndex(configurationModel->index(0, 2).data(Qt::EditRole).toInt());
+
+    /* Nastavení aktuálního indexu do modelu rozvrhů, načtení aktuálního rozvrhu */
+    timetableTab->getTimetableModel()->setActualTimetable(actualTimetable->currentIndex());
+    timetableTab->loadTimetable(actualTimetable->currentIndex());
 
     /* Checkboxy */
     QCheckBox* updateOnStart = new QCheckBox(configurationModel->headerData(5, Qt::Horizontal).toString());
