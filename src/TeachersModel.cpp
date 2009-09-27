@@ -84,11 +84,6 @@ QVariant TeachersModel::data(const QModelIndex& index, int role) const {
         if(role == Qt::DisplayRole)
             return teachers[index.row()].flags & 0x01 ? tr("Zapisuje") : tr("Nezapisuje");
 
-        /* Dekorace */
-        else if(role == Qt::DecorationRole)
-            return QApplication::style()->standardIcon(teachers[index.row()].flags & 0x01 ?
-                QStyle::SP_DialogNoButton : QStyle::SP_DialogYesButton);
-
         /* Checkovatelnost položky */
         else if(role == Qt::CheckStateRole)
             return teachers[index.row()].flags & 0x01 ? Qt::Checked : Qt::Unchecked;
@@ -98,11 +93,6 @@ QVariant TeachersModel::data(const QModelIndex& index, int role) const {
         /* Text */
         if(role == Qt::DisplayRole)
             return teachers[index.row()].flags & 0x02 ? tr("Uznává") : tr("Neuznává");
-
-        /* Dekorace */
-        else if(role == Qt::DecorationRole)
-            return QApplication::style()->standardIcon(teachers[index.row()].flags & 0x02 ?
-            QStyle::SP_DialogYesButton : QStyle::SP_DialogNoButton);
 
         /* Checkovatelnost položky */
         else if(role == Qt::CheckStateRole)
