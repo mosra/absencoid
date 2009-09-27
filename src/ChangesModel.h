@@ -1,5 +1,5 @@
-#ifndef ABSENCOID_CHANGEDLESSONSMODEL_H
-#define ABSENCOID_CHANGEDLESSONSMODEL_H
+#ifndef ABSENCOID_CHANGESMODEL_H
+#define ABSENCOID_CHANGESMODEL_H
 
 #include <QAbstractTableModel>
 #include <QDate>
@@ -25,12 +25,12 @@ class TimetableModel;
  *      Jedině započítávat jen ty "na které se mění", které jsou v uživatelově
  *      rozvrhu. Ale přesto můžou nastat některé vyjímky.
  */
-class ChangedLessonsModel: public QAbstractTableModel {
+class ChangesModel: public QAbstractTableModel {
     public:
         /**
          * @brief Konstruktor
          */
-        ChangedLessonsModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, QObject* parent = 0);
+        ChangesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, QObject* parent = 0);
 
         /**
          * @brief Počet sloupců
@@ -79,7 +79,7 @@ class ChangedLessonsModel: public QAbstractTableModel {
 
     private:
         /** @brief Struktura změněné hodiny */
-        struct ChangedLesson {
+        struct Change {
             QDate date;         /** @brief Datum */
             int id;             /** @brief ID změny */
             int hour;           /** @brief Číslo hodiny (0-9) */
@@ -87,9 +87,9 @@ class ChangedLessonsModel: public QAbstractTableModel {
             int toClassId;      /** @brief ID předmětu, na který se mění */
         };
 
-        ClassesModel* classesModel;             /** @brief Model předmětů */
-        TimetableModel* timetableModel;         /** @brief Model rozvrhů */
-        QList<ChangedLesson> changedLessons;    /** @brief List se změnami */
+        ClassesModel* classesModel;     /** @brief Model předmětů */
+        TimetableModel* timetableModel; /** @brief Model rozvrhů */
+        QList<Change> changes;          /** @brief List se změnami */
 
         /**
          * @brief Ověření unikátnosti záznamů

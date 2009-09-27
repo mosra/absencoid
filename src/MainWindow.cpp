@@ -20,7 +20,7 @@
 #include "TeachersTab.h"
 #include "ClassesTab.h"
 #include "TimetableTab.h"
-#include "ChangedLessonsTab.h"
+#include "ChangesTab.h"
 
 namespace Absencoid {
 
@@ -62,7 +62,6 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     /* Taby */
     tabWidget->setTabPosition(QTabWidget::West);
     tabWidget->setUsesScrollButtons(false);
-    setCentralWidget(tabWidget);
 
     /* Souhrn */
     SummaryTab* summaryTab = new SummaryTab(this);
@@ -81,12 +80,14 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     tabWidget->addTab(timetableTab, tr("Rozvrhy hodin"));
 
     /* Změny */
-    ChangedLessonsTab* changedLessonsTab =
-        new ChangedLessonsTab(timetableTab->getTimetableModel(), classesTab->getClassesModel(), this);
-    tabWidget->addTab(changedLessonsTab, tr("Změny"));
+    ChangesTab* changesTab =
+        new ChangesTab(timetableTab->getTimetableModel(), classesTab->getClassesModel(), this);
+    tabWidget->addTab(changesTab, tr("Změny"));
 
     /* Absence */
     tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
+
+    setCentralWidget(tabWidget);
 
     /* Stavový řádek */
     setStatusBar(new QStatusBar(this));

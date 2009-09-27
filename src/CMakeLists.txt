@@ -15,7 +15,7 @@ qt4_wrap_cpp(AbsencoidMOC
     ClassesTab.h
     TimetableModel.h
     TimetableTab.h
-    ChangedLessonsTab.h
+    ChangesTab.h
     )
 
 # Ve FindQt4.cmake je schovaná volba, že v qt4_add_resources můžu za OPTIONS
@@ -32,7 +32,7 @@ add_executable(absencoid
     TeachersModel.cpp TeachersTab.cpp
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp
-    ChangedLessonsModel.cpp ChangedLessonsTab.cpp
+    ChangesModel.cpp ChangesTab.cpp
     ${AbsencoidMOC} ${AbsencoidRCC}
     )
 target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTXML_LIBRARY})

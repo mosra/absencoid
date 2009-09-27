@@ -1,5 +1,5 @@
-#ifndef ABSENCOID_CHANGEDLESSONSTAB_H
-#define ABSENCOID_CHANGEDLESSONSTAB_H
+#ifndef ABSENCOID_CHANGESTAB_H
+#define ABSENCOID_CHANGESTAB_H
 
 #include <QWidget>
 
@@ -8,7 +8,7 @@ class QPushButton;
 
 namespace Absencoid {
 
-class ChangedLessonsModel;
+class ChangesModel;
 class ClassesModel;
 class TimetableModel;
 
@@ -18,30 +18,30 @@ class TimetableModel;
  *      - což povede k vícenásobnému otevření rozvrhu a nekonzistenci dat
  *      - hierarchické uspořádání rozvrhů? Otevřeny všechny? => Zrušit TimetableListModel?
  */
-class ChangedLessonsTab: public QWidget {
+class ChangesTab: public QWidget {
     Q_OBJECT
 
     public:
         /**
          * @brief Konstruktor
          */
-        ChangedLessonsTab(TimetableModel* timetableModel, ClassesModel* classesModel, QWidget* parent = 0);
+        ChangesTab(TimetableModel* timetableModel, ClassesModel* classesModel, QWidget* parent = 0);
 
     private:
-        ChangedLessonsModel* changedLessonsModel;   /** @brief Model změněných hodin */
-        QTableView* changedLessonsView;             /** @brief Tabulka se změnami */
-        QPushButton* removeChangedLessonsButton;    /** @brief Tlačítko pro odebrání změn */
+        ChangesModel* changesModel;         /** @brief Model změněných hodin */
+        QTableView* changesView;            /** @brief Tabulka se změnami */
+        QPushButton* removeChangesButton;   /** @brief Tlačítko pro odebrání změn */
 
     private slots:
         /**
          * @brief Přidat změněnou hodinu
          */
-        void addChangedLesson();
+        void addChange();
 
         /**
          * @brief Smazání vybraných změn
          */
-        void removeChangedLessons();
+        void removeChanges();
 
         /**
          * @brief Zašednutí / aktivace tlačítka pro mazání
