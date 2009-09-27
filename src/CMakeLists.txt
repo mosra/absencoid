@@ -33,6 +33,7 @@ add_executable(absencoid
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp
     ChangesModel.cpp ChangesTab.cpp
+    AbsencesTab.cpp
     ${AbsencoidMOC} ${AbsencoidRCC}
     )
 target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTXML_LIBRARY})

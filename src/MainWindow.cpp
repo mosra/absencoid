@@ -21,6 +21,7 @@
 #include "ClassesTab.h"
 #include "TimetableTab.h"
 #include "ChangesTab.h"
+#include "AbsencesTab.h"
 
 namespace Absencoid {
 
@@ -81,7 +82,8 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     tabWidget->addTab(changesTab, tr("Změny"));
 
     /* Absence */
-    tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
+    AbsencesTab* absencesTab = new AbsencesTab;
+    tabWidget->addTab(absencesTab, tr("Absence"));
 
     /* Souhrn - na začátek, ale potřebuje data z ostatních, proto je na konci */
     SummaryTab* summaryTab = new SummaryTab(timetableTab);
