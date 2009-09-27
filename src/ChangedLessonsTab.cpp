@@ -36,9 +36,6 @@ ChangedLessonsTab::ChangedLessonsTab(TimetableModel* timetableModel, ClassesMode
     changedLessonsView->setItemDelegateForColumn(2, comboBoxDelegate);
     changedLessonsView->setItemDelegateForColumn(3, comboBoxDelegate);
 
-    /* Zvětšení posledního sloupce, protože má dlouhou hlavičku */
-    changedLessonsView->resizeColumnToContents(4);
-
     /* Tlačítka vpravo */
     QPushButton* addChangedLessonButton = new QPushButton(tr("Přidat změnu"));
     removeChangedLessonsButton = new QPushButton(tr("Odstranit vybrané"));

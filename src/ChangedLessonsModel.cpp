@@ -46,7 +46,7 @@ QVariant ChangedLessonsModel::headerData(int section, Qt::Orientation orientatio
             case 1: return tr("Hodina");
             case 2: return tr("Z předmětu");
             case 3: return tr("Na předmět");
-            case 4: return tr("Ovlivněno rozvrhů");
+            case 4: return tr("Ovliv. rozvrhů");
         }
 
     /* Vertikální hlavičky */
