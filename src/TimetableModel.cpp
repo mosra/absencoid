@@ -137,12 +137,24 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
         if((index.column() == 0 && role == Qt::DisplayRole) ||
            (index.column() == 1 && role == Qt::ToolTipRole)) {
 
-            /* Aktivní rozvrh - před popisek dáme hvězdičku */
-            QString prefix;
-            if(timetables[index.row()].flags & ACTIVE) prefix = "* ";
+            QString prefix, validTo;
 
-            return prefix + timetables[index.row()].description + tr(" (platný od ")
-            + timetables[index.row()].validFrom.toString("ddd dd.MM.yyyy") + ")";
+            /* Aktivní rozvrh - před popisek dáme hvězdičku */
+            if(timetables[index.row()].flags & ACTIVE)
+                prefix = "* ";
+
+            /* Pokud není rozvrh následován sebou samým, má nějaký konec platnosti */
+            if(timetables[index.row()].followedBy != idFromIndex(index.row())) {
+                int _index = indexFromId(timetables[index.row()].followedBy);
+
+                /* Jen pokud následující rozvrh existuje */
+                if(_index != -1) validTo = tr(" do %1")
+                    .arg(timetables[_index].validFrom.addDays(-1).toString("ddd dd.MM.yyyy"));
+            }
+
+            return tr("%1%2 (platný od %3%4)").arg(prefix)
+                .arg(timetables[index.row()].description)
+                .arg(timetables[index.row()].validFrom.toString("ddd dd.MM.yyyy")).arg(validTo);
 
         /* Popisek samotný */
         } if(index.column() == 1 && role == Qt::DisplayRole)
@@ -236,6 +248,13 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
         } else if(index.column() == 2) {
             timetables[index.row()].validFrom = value.toDate();
 
+            /* Nalezení předchozích rozvrhů a emitování signálu o změně jejich
+                popisku (změnil se jejich konec platnosti) */
+            for(int i = 0; i != timetables.count(); ++i) {
+                if(timetables[i].followedBy == timetables[index.row()].id)
+                    emit dataChanged(index.sibling(i, 0), index.sibling(i, 0));
+            }
+
             query.prepare("UPDATE timetables SET validFrom = :validFrom WHERE id = :id;");
             query.bindValue(":validFrom", timetables[index.row()].validFrom.toString(Qt::ISODate));
 
@@ -257,9 +276,8 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
             return false;
         }
 
-        /* Změny v popisku a datumu se projeví i v "souhrnném" sloupci */
-        if(index.column() == 1 || index.column() == 2)
-            emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
+        /* Všechny změny v popisku, datumu i následujícím rozvrhu se projeví v "souhrnném" sloupci */
+        emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
 
         emit dataChanged(index, index);
         return true;
