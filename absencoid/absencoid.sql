@@ -99,7 +99,7 @@ CREATE TABLE timetableData (
 -- fromClassId  ID předmětu, ze kterého se mění. Tato změna se aplikuje jen na
 --                  rozvrhy, které mají v danou dobu tuto hodinu.
 -- toClassId    ID předmětu, na který se mění
-CREATE TABLE changedLessons (
+CREATE TABLE changes (
     gradeId INTEGER NOT NULL,
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,

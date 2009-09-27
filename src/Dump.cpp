@@ -255,10 +255,9 @@ QString Dump::create(int flags, const QString& note) {
     root.appendChild(changes);
 
     /* Dotaz do databáze na změny */
-    /** @todo Změnit tab. changedLessons na changes */
     QSqlQuery changesQuery;
     if(!changesQuery.exec("SELECT id, date, hour, fromClassId, toClassId "
-                          "FROM changedLessons ORDER BY date;")) {
+                          "FROM changes ORDER BY date;")) {
         qDebug() << tr("Nepodařilo se získat seznam změn!")
                  << changesQuery.lastError() << changesQuery.lastQuery();
         return QString();

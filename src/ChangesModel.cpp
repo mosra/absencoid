@@ -13,7 +13,7 @@ namespace Absencoid {
 
 /* Konstruktor */
 ChangesModel::ChangesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel) {
-    QSqlQuery query("SELECT id, date, hour, fromClassId, toClassId FROM changedLessons ORDER BY date;");
+    QSqlQuery query("SELECT id, date, hour, fromClassId, toClassId FROM changes ORDER BY date;");
 
     /* Procházení vüsledků dotazu */
     while(query.next()) {
@@ -161,7 +161,7 @@ bool ChangesModel::setData(const QModelIndex& index, const QVariant& value, int 
             return saveRow(index.row());
         }
 
-        query.prepare("UPDATE changedLessons SET date = :date WHERE id = :id;");
+        query.prepare("UPDATE changes SET date = :date WHERE id = :id;");
         query.bindValue(":date", changes[index.row()].date.toString(Qt::ISODate));
 
     /* Hodina */
@@ -183,7 +183,7 @@ bool ChangesModel::setData(const QModelIndex& index, const QVariant& value, int 
             return saveRow(index.row());
         }
 
-        query.prepare("UPDATE changedLessons SET hour = :hour WHERE id = :id;");
+        query.prepare("UPDATE changes SET hour = :hour WHERE id = :id;");
         query.bindValue(":hour", changes[index.row()].hour);
 
     /* Předmět, ze kterého se mění */
@@ -205,7 +205,7 @@ bool ChangesModel::setData(const QModelIndex& index, const QVariant& value, int 
             return saveRow(index.row());
         }
 
-        query.prepare("UPDATE changedLessons SET fromClassId = :fromClassId WHERE id = :id;");
+        query.prepare("UPDATE changes SET fromClassId = :fromClassId WHERE id = :id;");
         query.bindValue(":fromClassId", changes[index.row()].fromClassId);
 
     /* Předmět, na který se mění */
@@ -220,7 +220,7 @@ bool ChangesModel::setData(const QModelIndex& index, const QVariant& value, int 
             return saveRow(index.row());
         }
 
-        query.prepare("UPDATE changedLessons SET toClassId = :toClassId WHERE id = :id;");
+        query.prepare("UPDATE changes SET toClassId = :toClassId WHERE id = :id;");
         query.bindValue(":toClassId", changes[index.row()].toClassId);
 
     /* Něco jiného */
@@ -262,7 +262,7 @@ bool ChangesModel::insertRow(int row, const QModelIndex& parent) {
 /* Odebrání řádků */
 bool ChangesModel::removeRows(int row, int count, const QModelIndex& parent) {
     QSqlQuery query;
-    query.prepare("DELETE FROM changedLessons WHERE id = :id;");
+    query.prepare("DELETE FROM changes WHERE id = :id;");
 
     beginRemoveRows(parent, row, row+count-1);
 
@@ -314,7 +314,7 @@ bool ChangesModel::saveRow(int row) {
 
     /* SQL dotaz */
     QSqlQuery query;
-    query.prepare("INSERT INTO changedLessons (gradeId, date, hour, fromClassId, toClassId) "
+    query.prepare("INSERT INTO changes (gradeId, date, hour, fromClassId, toClassId) "
                   "VALUES (1, :date, :hour, :fromClassId, :toClassId);");
     query.bindValue(":date", changes[row].date.toString(Qt::ISODate));
     query.bindValue(":hour", changes[row].hour);
