@@ -19,14 +19,19 @@
 #include "configure.h"
 #include "Dump.h"
 #include "CreateUpdateDialog.h"
+#include "ConfigurationModel.h"
+#include "TimetableModel.h"
 
 namespace Absencoid {
 
 /* Konstruktor */
-SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
+SummaryTab::SummaryTab(TimetableModel* timetableModel, QWidget* parent): QWidget(parent) {
+    /* Inicializace konfiguračního modelu */
+    configurationModel = new ConfigurationModel(timetableModel, this);
+
     /* Políčka pro editaci data */
-    QDateEdit* begin = new QDateEdit(QDate(2009,9,7));
-    QDateEdit* end   = new QDateEdit(QDate(2010,1,29));
+    QDateEdit* begin = new QDateEdit(configurationModel->index(0, 0).data(Qt::EditRole).toDate());
+    QDateEdit* end   = new QDateEdit(configurationModel->index(0, 1).data(Qt::EditRole).toDate());
     begin->setDisplayFormat("ddd dd.MM.yyyy");
     end  ->setDisplayFormat("ddd dd.MM.yyyy");
 
@@ -40,12 +45,33 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     begin->setCalendarWidget(beginPopup);
     end  ->setCalendarWidget(endPopup);
 
+    /* Combobox pro výběr aktuálního rozvrhu */
+    QComboBox* actualTimetable = new QComboBox;
+    actualTimetable->setModel(timetableModel);
+    actualTimetable->setModelColumn(1);
+    actualTimetable->setCurrentIndex(configurationModel->index(0, 2).data(Qt::EditRole).toInt());
+
+    /* Checkboxy */
+    QCheckBox* updateOnStart = new QCheckBox(configurationModel->headerData(5, Qt::Horizontal).toString());
+    updateOnStart->setChecked(configurationModel->index(0, 5).data(Qt::EditRole).toBool());
+    QCheckBox* dumpOnExit = new QCheckBox(configurationModel->headerData(6, Qt::Horizontal).toString());
+    dumpOnExit->setChecked(configurationModel->index(0, 6).data(Qt::EditRole).toBool());
+
     /* Tlačítko pro aktualizaci */
     QPushButton* updateButton = new QPushButton(tr("Aktualizovat"));
     QMenu* updateButtonMenu = new QMenu(updateButton);
-    updateButtonMenu->addAction("Z internetu");
+    updateFromWeb = updateButtonMenu->addAction("Z internetu");
     updateButtonMenu->addAction("Ze souboru");
     updateButton->setMenu(updateButtonMenu);
+
+    /* Políčko s URL */
+    webUpdateUrl = new QLineEdit;
+    webUpdateUrl->setValidator(new QRegExpValidator(
+        QRegExp("(http|https)://([^\\./]+\\.){1,2}([a-zA-Z]{2,4}\\.)?[a-zA-Z]{2,4}/.*"), webUpdateUrl));
+
+    /* Ověřování zadané URL */
+    connect(webUpdateUrl, SIGNAL(textChanged(QString)), this, SLOT(validateUrlEdit()));
+    webUpdateUrl->setText(configurationModel->index(0, 3).data().toString());
 
     /* Tlačítko pro vytvoření aktualizace, zálohy */
     QPushButton* createUpdateButton = new QPushButton(tr("Vytvořit aktualizaci"));
@@ -79,23 +105,18 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     /* PRAVÝ VRCHNÍ GROUPBOX (NASTAVENÍ) */
     QGroupBox* settingsGroup = new QGroupBox(tr("Nastavení"));
     QGridLayout* settingsLayout = new QGridLayout;
-    settingsLayout->addWidget(new QLabel(tr("Začátek pololetí:")), 0, 0);
+    settingsLayout->addWidget(new QLabel(configurationModel->headerData(0, Qt::Horizontal).toString()+":"), 0, 0);
     settingsLayout->addWidget(begin, 0, 1);
-    settingsLayout->addWidget(new QLabel(tr("Konec pololetí:")), 1, 0);
+    settingsLayout->addWidget(new QLabel(configurationModel->headerData(1, Qt::Horizontal).toString()+":"), 1, 0);
     settingsLayout->addWidget(end, 1, 1);
-    settingsLayout->addWidget(new QLabel(tr("Použitý rozvrh:")), 2, 0);
-    settingsLayout->addWidget(new QComboBox, 2, 1);
+    settingsLayout->addWidget(new QLabel(configurationModel->headerData(2, Qt::Horizontal).toString()+":"), 2, 0);
+    settingsLayout->addWidget(actualTimetable, 2, 1);
     settingsLayout->addWidget(new QWidget, 3, 0);
     settingsLayout->setRowStretch(3, 1);
     settingsGroup->setLayout(settingsLayout);
 
     /* PRAVÝ SPODNÍ GROUPBOX (AKTUALIZACE) */
-    QGroupBox* updateGroup = new QGroupBox(tr("Aktualizace (naposledy st 23.09.2009)"));
-
-    /* Layout pro checkbox */
-    QHBoxLayout* updateAutoLayout = new QHBoxLayout;
-    updateAutoLayout->addWidget(new QCheckBox, 0);
-    updateAutoLayout->addWidget(new QLabel(tr("Zjišťovat aktualizace při startu")), 1);
+    QGroupBox* updateGroup = new QGroupBox(tr("Aktualizace (naposledy ") + configurationModel->index(0, 4).data().toString() + ")");
 
     /* Layout pro tlačítka */
     QHBoxLayout* updateButtonLayout = new QHBoxLayout;
@@ -103,20 +124,15 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     updateButtonLayout->addWidget(createUpdateButton);
 
     /* Celkový layout */
-    /** @todo Check funkce pro webovou adresu */
     QVBoxLayout* updateLayout = new QVBoxLayout;
-    updateLayout->addLayout(updateAutoLayout);
-    updateLayout->addWidget(new QLineEdit("http://disk.jabbim.cz/mosra@jabbim.cz/absencoid-update.zip"));
+    updateLayout->addWidget(new QLabel(configurationModel->headerData(3, Qt::Horizontal).toString()+":"));
+    updateLayout->addWidget(webUpdateUrl);
+    updateLayout->addWidget(updateOnStart);
     updateLayout->addLayout(updateButtonLayout, 1);
     updateGroup->setLayout(updateLayout);
 
     /* PRAVÝ SPODNÍ GROUPBOX (ZÁLOHA) */
     QGroupBox* dumpGroup = new QGroupBox(tr("Záloha dat"));
-
-    /* Layout pro checkbox */
-    QHBoxLayout* dumpAutoLayout = new QHBoxLayout;
-    dumpAutoLayout->addWidget(new QCheckBox, 0);
-    dumpAutoLayout->addWidget(new QLabel(tr("Automaticky zálohovat při ukončení programu")), 1);
 
     /* Layout pro tlačítka */
     QHBoxLayout* dumpButtonsLayout = new QHBoxLayout;
@@ -125,7 +141,7 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
 
     /* Celkový layout */
     QVBoxLayout* dumpLayout = new QVBoxLayout;
-    dumpLayout->addLayout(dumpAutoLayout);
+    dumpLayout->addWidget(dumpOnExit);
     dumpLayout->addLayout(dumpButtonsLayout, 1);
     dumpGroup->setLayout(dumpLayout);
 
@@ -140,8 +156,8 @@ SummaryTab::SummaryTab(QWidget* parent): QWidget(parent) {
     layout->addWidget(hottestGroup, 1, 0);
     layout->addWidget(settingsGroup, 0, 1);
     layout->addLayout(bottomRightLayout, 1, 1);
-    layout->setColumnStretch(0, 1);
-    layout->setColumnStretch(1, 1);
+    layout->setColumnStretch(0, 0);
+    layout->setColumnStretch(1, 0);
 
     #ifndef ADMIN_VERSION
     begin->setDisabled(true);
@@ -254,6 +270,21 @@ void SummaryTab::createUpdate() {
         .arg(dump.deltaClasses()).arg(dump.deltaTimetables())
         .arg(dump.deltaTimetableData()).arg(dump.deltaChanges()),
         QMessageBox::Ok, QMessageBox::Ok);
+}
+
+/* Ověření URL v editovacím políčku */
+void SummaryTab::validateUrlEdit() {
+    QPalette p = webUpdateUrl->palette();
+
+    if(!webUpdateUrl->hasAcceptableInput()) {
+        p.setColor(QPalette::Base, QColor("#ffcccc"));
+        updateFromWeb->setDisabled(true);
+    } else {
+        p.setColor(QPalette::Base, QColor("#ffffff"));
+        updateFromWeb->setDisabled(false);
+    }
+
+    webUpdateUrl->setPalette(p);
 }
 
 }

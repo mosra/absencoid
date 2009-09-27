@@ -63,10 +63,6 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     tabWidget->setTabPosition(QTabWidget::West);
     tabWidget->setUsesScrollButtons(false);
 
-    /* Souhrn */
-    SummaryTab* summaryTab = new SummaryTab(this);
-    tabWidget->addTab(summaryTab, tr("Souhrn"));
-
     /* Učitelé */
     TeachersTab* teachersTab = new TeachersTab(tabWidget);
     tabWidget->addTab(teachersTab, tr("Učitelé"));
@@ -81,11 +77,17 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Změny */
     ChangesTab* changesTab =
-        new ChangesTab(timetableTab->getTimetableModel(), classesTab->getClassesModel(), this);
+        new ChangesTab(timetableTab->getTimetableModel(), classesTab->getClassesModel());
     tabWidget->addTab(changesTab, tr("Změny"));
 
     /* Absence */
     tabWidget->addTab(new QLabel(tr("Zde bude seznam absencí")), tr("Absence"));
+
+    /* Souhrn - na začátek, ale potřebuje data z ostatních, proto je na konci */
+    SummaryTab* summaryTab = new SummaryTab(timetableTab->getTimetableModel());
+    tabWidget->insertTab(0, summaryTab, tr("Souhrn"));
+
+    tabWidget->setCurrentIndex(0);
 
     setCentralWidget(tabWidget);
 

@@ -5,7 +5,12 @@
 
 #include "Dump.h"
 
+class QLineEdit;
+
 namespace Absencoid {
+
+class TimetableModel;
+class ConfigurationModel;
 
 class SummaryTab: public QWidget {
     Q_OBJECT
@@ -14,7 +19,7 @@ class SummaryTab: public QWidget {
         /**
          * @brief Konstruktor
          */
-        SummaryTab(QWidget* parent = 0);
+        SummaryTab(TimetableModel* timetableModel, QWidget* parent = 0);
 
     private slots:
         /**
@@ -27,8 +32,18 @@ class SummaryTab: public QWidget {
          */
         void createUpdate();
 
+        /**
+         * @brief Ověření správnosti URL
+         */
+        void validateUrlEdit();
+
     private:
-        Dump dump;  /** @brief Třída pro vytváření a načítání XML dumpů */
+        Dump dump;                  /** @brief Třída pro vytváření a načítání XML dumpů */
+        QLineEdit* webUpdateUrl;    /** @brief Políčko s URL pro aktualizaci z internetu */
+        QAction* updateFromWeb;     /** @brief Akce menu pro aktualizaci z internetu */
+
+        /** @brief Model pro konfiguraci */
+        ConfigurationModel* configurationModel;
 };
 
 }
