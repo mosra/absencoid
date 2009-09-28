@@ -21,18 +21,19 @@ AbsencesTab::AbsencesTab(ClassesModel* classesModel, TimetableModel* timetableMo
     /* Tabulka s absencemi */
     absencesView = new QTableView;
     absencesView->setModel(absencesModel);
+    absencesView->setColumnWidth(0, 120);
     absencesView->setItemDelegateForColumn(0, new DateEditDelegate(absencesView));
-    absencesView->setColumnWidth(1, 70);
-    absencesView->setColumnWidth(2, 70);
-    absencesView->setColumnWidth(3, 70);
-    absencesView->setColumnWidth(4, 70);
-    absencesView->setColumnWidth(5, 70);
-    absencesView->setColumnWidth(6, 70);
-    absencesView->setColumnWidth(7, 70);
-    absencesView->setColumnWidth(8, 70);
-    absencesView->setColumnWidth(9, 70);
-    absencesView->setColumnWidth(10, 70);
-    absencesView->setColumnWidth(11, 70);
+    absencesView->setColumnWidth(1, 66);
+    absencesView->setColumnWidth(2, 66);
+    absencesView->setColumnWidth(3, 66);
+    absencesView->setColumnWidth(4, 66);
+    absencesView->setColumnWidth(5, 66);
+    absencesView->setColumnWidth(6, 66);
+    absencesView->setColumnWidth(7, 66);
+    absencesView->setColumnWidth(8, 66);
+    absencesView->setColumnWidth(9, 66);
+    absencesView->setColumnWidth(10, 66);
+    absencesView->setColumnWidth(11, 66);
 
     /* Tlačítka nahoře */
     QPushButton* addAbsenceButton = new QPushButton(tr("Přidat absenci"));

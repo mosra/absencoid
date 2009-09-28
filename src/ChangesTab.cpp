@@ -22,6 +22,8 @@ ChangesTab::ChangesTab(TimetableModel* timetableModel, ClassesModel* classesMode
     /* Tabulka se změnami */
     changesView = new QTableView;
     changesView->setModel(changesModel);
+    changesView->setColumnWidth(0, 120);
+    changesView->setColumnWidth(1, 80);
 
     /* Delegát pro datum */
     DateEditDelegate* dateEditDelegate = new DateEditDelegate(changesView);
