@@ -5,6 +5,7 @@
 #include <QDate>
 
 namespace Absencoid {
+
 class TimetableModel;
 
 /**
@@ -56,14 +57,24 @@ class ConfigurationModel: public QAbstractTableModel {
          */
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
+        /**
+         * @brief Flags
+         */
+        virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+
+        /**
+         * @brief Zápisový přístup k datům
+         */
+        virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+
     private:
         TimetableModel* timetableModel; /** @brief Ukazatel na model rozvrhů */
-        QDate beginDate;        /** @brief Začátek pololetí */
-        QDate endDate;          /** @brief Konec pololetí */
-        QDate lastUpdate;       /** @brief Poslední aktualizace */
-        int activeTimetableId;  /** @brief ID aktivního rozvrhu */
-        int flags;              /** @brief Flags (boolean hodnoty) */
-        QString webUpdateUrl;   /** @brief URL pro aktualizaci z internetu */
+        QDate beginDate;                /** @brief Začátek pololetí */
+        QDate endDate;                  /** @brief Konec pololetí */
+        QDate lastUpdate;               /** @brief Poslední aktualizace */
+        int activeTimetableId;          /** @brief ID aktivního rozvrhu */
+        int booleans;                   /** @brief Flags (boolean hodnoty) */
+        QString webUpdateUrl;           /** @brief URL pro aktualizaci z internetu */
 };
 
 }

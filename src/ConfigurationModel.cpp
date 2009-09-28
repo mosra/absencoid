@@ -10,7 +10,7 @@ namespace Absencoid {
 
 /* Konstruktor */
 ConfigurationModel::ConfigurationModel(TimetableModel* _timetableModel, QObject* parent):
-QAbstractTableModel(parent), timetableModel(_timetableModel), activeTimetableId(0), flags(0) {
+QAbstractTableModel(parent), timetableModel(_timetableModel), activeTimetableId(0), booleans(0) {
     QSqlQuery query(
         "SELECT beginDate, endDate, activeTimetableId, webUpdateUrl, lastUpdate, flags "
         "FROM configuration LIMIT 1;");
@@ -28,7 +28,7 @@ QAbstractTableModel(parent), timetableModel(_timetableModel), activeTimetableId(
     activeTimetableId = query.value(2).toInt();
     webUpdateUrl = query.value(3).toString();
     lastUpdate = query.value(4).toDate();
-    flags = query.value(5).toInt();
+    booleans = query.value(5).toInt();
 }
 
 /* Počet sloupců */
@@ -95,21 +95,98 @@ QVariant ConfigurationModel::data(const QModelIndex& index, int role) const {
 
     /* Zda zjišťovat aktualizace po startu */
     } else if(index.column() == 5) {
-        if(role == Qt::DisplayRole) return flags & 0x01 ? "Ano" : "Ne";
-        if(role == Qt::EditRole)    return (bool) (flags & 0x01);
+        if(role == Qt::DisplayRole) return booleans & 0x01 ? "Ano" : "Ne";
+        if(role == Qt::EditRole)    return (bool) (booleans & 0x01);
         if(role == Qt::CheckStateRole)
-            return flags & 0x01 ? Qt::Checked : Qt::Unchecked;
+            return booleans & 0x01 ? Qt::Checked : Qt::Unchecked;
 
     /* Zda vytvářet zálohy při ukončení */
     } else if(index.column() == 6) {
-        if(role == Qt::DisplayRole) return flags & 0x02 ? "Ano" : "Ne";
-        if(role == Qt::EditRole)    return (bool) (flags & 0x02);
+        if(role == Qt::DisplayRole) return booleans & 0x02 ? "Ano" : "Ne";
+        if(role == Qt::EditRole)    return (bool) (booleans & 0x02);
         if(role == Qt::CheckStateRole)
-            return flags & 0x02 ? Qt::Checked : Qt::Unchecked;
+            return booleans & 0x02 ? Qt::Checked : Qt::Unchecked;
     }
 
     /* Něco jiného */
     return QVariant();
+}
+
+/* Flags */
+Qt::ItemFlags ConfigurationModel::flags(const QModelIndex& index) const {
+    if(!index.isValid()) return Qt::ItemIsEnabled;
+
+    /* Editovatelné položky */
+    if(index.column() < 5) return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+
+    /* Zaškrtávatelné položky */
+    return QAbstractItemModel::flags(index) | Qt::ItemIsUserCheckable;
+}
+
+/* Zápisový přístup k datům */
+bool ConfigurationModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if(!index.isValid()) return false;
+
+    QSqlQuery query;
+
+    /* Začátek pololetí */
+    if(index.column() == 0 && role == Qt::EditRole) {
+        beginDate = value.toDate();
+
+        query.prepare("UPDATE configuration SET beginDate = :beginDate;");
+        query.bindValue(":beginDate", beginDate.toString(Qt::ISODate));
+
+    /* Konec pololetí */
+    } else if(index.column() == 1 && role == Qt::EditRole) {
+        endDate = value.toDate();
+
+        query.prepare("UPDATE configuration SET endDate = :endDate;");
+        query.bindValue(":endDate", endDate.toString(Qt::ISODate));
+
+    /* Aktuální použitý rozvrh (konverze z indexu) */
+    } else if(index.column() == 2 && role == Qt::EditRole) {
+        activeTimetableId = timetableModel->idFromIndex(value.toInt());
+
+        query.prepare("UPDATE configuration SET activeTimetableId = :activeTimetableId;");
+        query.bindValue(":activeTimetableId", activeTimetableId);
+
+    /* URL pro aktualizace */
+    } else if(index.column() == 3 && role == Qt::EditRole) {
+        webUpdateUrl = value.toString();
+
+        query.prepare("UPDATE configuration SET webUpdateUrl = :webUpdateUrl;");
+        query.bindValue(":webUpdateUrl", webUpdateUrl);
+
+    /* Datum poslední aktualizace */
+    } else if(index.column() == 4 && role == Qt::EditRole) {
+        lastUpdate = value.toDate();
+
+        query.prepare("UPDATE configuration SET lastUpdate = :lastUpdate;");
+        query.bindValue(":lastUpdate", lastUpdate);
+
+    /* Zda zjišťovat aktualizace po startu, zda zálohovat před ukončením */
+    } else if(index.column() < 7 && role == Qt::CheckStateRole) {
+        /* Zaškrtnuto, přiORujeme */
+        if(value.toBool())  booleans |= 1 << (index.column()-5);
+
+        /* Odškrtnuto, AND s doplňkem */
+        else                booleans &= ~(1 << (index.column()-5));
+
+        query.prepare("UPDATE configuration SET flags = :flags;");
+        query.bindValue(":flags", booleans);
+
+    /* Něco jiného */
+    } else return false;
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se aktualizovat konfiguraci!")
+                 << query.lastError() << query.lastQuery();
+        return false;
+    }
+
+    emit dataChanged(index, index);
+    return true;
 }
 
 }

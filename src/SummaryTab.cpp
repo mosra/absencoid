@@ -26,40 +26,40 @@
 namespace Absencoid {
 
 /* Konstruktor */
-SummaryTab::SummaryTab(TimetableTab* timetableTab, QWidget* parent): QWidget(parent) {
+SummaryTab::SummaryTab(TimetableTab* timetableTab, QWidget* parent): QWidget(parent), timetableModel(timetableTab->getTimetableModel()) {
     /* Inicializace konfiguračního modelu */
     configurationModel = new ConfigurationModel(timetableTab->getTimetableModel(), this);
 
     /* Políčka pro editaci data */
-    QDateEdit* begin = new QDateEdit(configurationModel->index(0, 0).data(Qt::EditRole).toDate());
-    QDateEdit* end   = new QDateEdit(configurationModel->index(0, 1).data(Qt::EditRole).toDate());
-    begin->setDisplayFormat("ddd dd.MM.yyyy");
-    end  ->setDisplayFormat("ddd dd.MM.yyyy");
+    beginDate = new QDateEdit(configurationModel->index(0, 0).data(Qt::EditRole).toDate());
+    endDate   = new QDateEdit(configurationModel->index(0, 1).data(Qt::EditRole).toDate());
+    beginDate->setDisplayFormat("ddd dd.MM.yyyy");
+    endDate  ->setDisplayFormat("ddd dd.MM.yyyy");
 
     /* Kalendářový popup pro editaci data */
     QCalendarWidget* beginPopup = new QCalendarWidget;
     QCalendarWidget* endPopup = new QCalendarWidget;
     beginPopup->setFirstDayOfWeek(Qt::Monday);
     endPopup->setFirstDayOfWeek(Qt::Monday);
-    begin->setCalendarPopup(true);
-    end  ->setCalendarPopup(true);
-    begin->setCalendarWidget(beginPopup);
-    end  ->setCalendarWidget(endPopup);
+    beginDate->setCalendarPopup(true);
+    endDate  ->setCalendarPopup(true);
+    beginDate->setCalendarWidget(beginPopup);
+    endDate  ->setCalendarWidget(endPopup);
 
     /* Combobox pro výběr aktuálního rozvrhu */
-    QComboBox* actualTimetable = new QComboBox;
-    actualTimetable->setModel(timetableTab->getTimetableModel());
-    actualTimetable->setModelColumn(1);
-    actualTimetable->setCurrentIndex(configurationModel->index(0, 2).data(Qt::EditRole).toInt());
+    activeTimetable = new QComboBox;
+    activeTimetable->setModel(timetableTab->getTimetableModel());
+    activeTimetable->setModelColumn(1);
+    activeTimetable->setCurrentIndex(configurationModel->index(0, 2).data(Qt::EditRole).toInt());
 
     /* Nastavení aktuálního indexu do modelu rozvrhů, načtení aktuálního rozvrhu */
-    timetableTab->getTimetableModel()->setActualTimetable(actualTimetable->currentIndex());
-    timetableTab->loadTimetable(actualTimetable->currentIndex());
+    timetableTab->getTimetableModel()->setActualTimetable(activeTimetable->currentIndex());
+    timetableTab->loadTimetable(activeTimetable->currentIndex());
 
     /* Checkboxy */
-    QCheckBox* updateOnStart = new QCheckBox(configurationModel->headerData(5, Qt::Horizontal).toString());
+    updateOnStart = new QCheckBox(configurationModel->headerData(5, Qt::Horizontal).toString());
     updateOnStart->setChecked(configurationModel->index(0, 5).data(Qt::EditRole).toBool());
-    QCheckBox* dumpOnExit = new QCheckBox(configurationModel->headerData(6, Qt::Horizontal).toString());
+    dumpOnExit = new QCheckBox(configurationModel->headerData(6, Qt::Horizontal).toString());
     dumpOnExit->setChecked(configurationModel->index(0, 6).data(Qt::EditRole).toBool());
 
     /* Tlačítko pro aktualizaci */
@@ -83,6 +83,14 @@ SummaryTab::SummaryTab(TimetableTab* timetableTab, QWidget* parent): QWidget(par
     QPushButton* createDumpButton = new QPushButton(tr("Zálohovat"));
     connect(createUpdateButton, SIGNAL(clicked(bool)), this, SLOT(createUpdate()));
     connect(createDumpButton, SIGNAL(clicked(bool)), this, SLOT(createDump()));
+
+    /* Propojení změn v políčkách s ukládacími akcemi */
+    connect(beginDate, SIGNAL(editingFinished()), this, SLOT(setBeginDate()));
+    connect(endDate, SIGNAL(editingFinished()), this, SLOT(setEndDate()));
+    connect(activeTimetable, SIGNAL(currentIndexChanged(int)), this, SLOT(setActiveTimetable()));
+    connect(webUpdateUrl, SIGNAL(editingFinished()), this, SLOT(setWebUpdateUrl()));
+    connect(updateOnStart, SIGNAL(toggled(bool)), this, SLOT(setUpdateOnStart()));
+    connect(dumpOnExit, SIGNAL(toggled(bool)), this, SLOT(setDumpOnExit()));
 
     /* LEVÝ VRCHNÍ GROUPBOX (STATISTIKA) */
     QGroupBox* statisticsGroup = new QGroupBox(tr("Statistika"));
@@ -111,17 +119,18 @@ SummaryTab::SummaryTab(TimetableTab* timetableTab, QWidget* parent): QWidget(par
     QGroupBox* settingsGroup = new QGroupBox(tr("Nastavení"));
     QGridLayout* settingsLayout = new QGridLayout;
     settingsLayout->addWidget(new QLabel(configurationModel->headerData(0, Qt::Horizontal).toString()+":"), 0, 0);
-    settingsLayout->addWidget(begin, 0, 1);
+    settingsLayout->addWidget(beginDate, 0, 1);
     settingsLayout->addWidget(new QLabel(configurationModel->headerData(1, Qt::Horizontal).toString()+":"), 1, 0);
-    settingsLayout->addWidget(end, 1, 1);
+    settingsLayout->addWidget(endDate, 1, 1);
     settingsLayout->addWidget(new QLabel(configurationModel->headerData(2, Qt::Horizontal).toString()+":"), 2, 0);
-    settingsLayout->addWidget(actualTimetable, 2, 1);
+    settingsLayout->addWidget(activeTimetable, 2, 1);
     settingsLayout->addWidget(new QWidget, 3, 0);
     settingsLayout->setRowStretch(3, 1);
     settingsGroup->setLayout(settingsLayout);
 
     /* PRAVÝ SPODNÍ GROUPBOX (AKTUALIZACE) */
-    QGroupBox* updateGroup = new QGroupBox(tr("Aktualizace (naposledy ") + configurationModel->index(0, 4).data().toString() + ")");
+    QString lastUpdate = configurationModel->index(0, 4).data().toDate().toString("ddd dd.MM.yyyy");
+    updateGroup = new QGroupBox(tr("Aktualizace") + (!lastUpdate.isEmpty() ? tr(" (naposledy %1)").arg(lastUpdate) : ""));
 
     /* Layout pro tlačítka */
     QHBoxLayout* updateButtonLayout = new QHBoxLayout;
@@ -290,6 +299,42 @@ void SummaryTab::validateUrlEdit() {
     }
 
     webUpdateUrl->setPalette(p);
+}
+
+/* Nastavení začátku pololetí */
+void SummaryTab::setBeginDate() {
+    configurationModel->setData(configurationModel->index(0, 0), beginDate->date(), Qt::EditRole);
+}
+
+/* Nastavení konce pololetí */
+void SummaryTab::setEndDate() {
+    configurationModel->setData(configurationModel->index(0, 1), endDate->date(), Qt::EditRole);
+}
+
+/* Nastavení aktuálního rozvrhu */
+void SummaryTab::setActiveTimetable() {
+    configurationModel->setData(configurationModel->index(0, 2), activeTimetable->currentIndex(), Qt::EditRole);
+
+    /* Nastavení rozvrhu jako aktuálního */
+    timetableModel->setActualTimetable(activeTimetable->currentIndex());
+}
+
+/* Nastavení URL pro aktualizace z internetu */
+void SummaryTab::setWebUpdateUrl() {
+    /* Jen pokud je URL správně formátovaná */
+    if(!webUpdateUrl->hasAcceptableInput()) return;
+
+    configurationModel->setData(configurationModel->index(0, 3), webUpdateUrl->text(), Qt::EditRole);
+}
+
+/* Nastavení aktualizace po startu */
+void SummaryTab::setUpdateOnStart() {
+    configurationModel->setData(configurationModel->index(0, 5), updateOnStart->checkState(), Qt::CheckStateRole);
+}
+
+/* Nastavení zálohování při ukončení */
+void SummaryTab::setDumpOnExit() {
+    configurationModel->setData(configurationModel->index(0, 6), dumpOnExit->checkState(), Qt::CheckStateRole);
 }
 
 }
