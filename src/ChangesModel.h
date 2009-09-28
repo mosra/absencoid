@@ -78,13 +78,11 @@ class ChangesModel: public QAbstractTableModel {
          * @brief Změny, které souvisí s daným datem a rozvrhem, který tou dobou platil
          *
          * Vrací indexy změn, které souvisí s rozvrhem platným v daný datum:
-         * <ul>
-         *  <li>když hodiny, ze kterých se mění, jsou v něm na stejné pozici</li>
-         *  <li>nebo rozvrh obsahuje hodiny, na které se mění (pokud se mění z
-         *   prázdné hodiny)</li>
-         * </ul>
+         * Pokud hodina, ze které se mění, je v něm na stejné pozici, nebo
+         * rozvrh kdekoli obsahuje hodinu, na kterou se mění (pokud se mění z
+         * prázdné hodiny).
          * @param   date        Datum
-         * @return  List s indexy změn
+         * @return  Seznam indexů změn
          */
         QList<int> relatedChanges(QDate date) const;
 
@@ -97,7 +95,7 @@ class ChangesModel: public QAbstractTableModel {
             /**
              * @brief Hodina, ze které se mění
              * 0 - 9 značí nultou až devátou hodinu, hodnota -1 znamená
-             * všechny hodiny.
+             * všechny hodiny v daném dni.
              */
             int hour;
 
