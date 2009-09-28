@@ -331,7 +331,7 @@ QString Dump::create(int flags, const QString& note) {
         while(absencesQuery.next()) {
             QDomElement absence = doc.createElement("absence");
             absences.appendChild(absence);
-            absence.setAttribute("id", absencesQuery.value(0).toString());
+            absence.setAttribute("id", "a" + absencesQuery.value(0).toString());
 
             /* <date> */
             QDomElement date = doc.createElement("date");
