@@ -81,15 +81,15 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
         new ChangesTab(timetableTab->getTimetableModel(), classesTab->getClassesModel());
     tabWidget->addTab(changesTab, tr("Změny"));
 
-    /* Absence */
-    AbsencesTab* absencesTab = new AbsencesTab;
-    tabWidget->addTab(absencesTab, tr("Absence"));
-
-    /* Souhrn - na začátek, ale potřebuje data z ostatních, proto je na konci */
+    /* Souhrn - potřebuje data rozvrhu, ale absence potřebují jeho aktuální
+        rozvrh, proto je zde */
     SummaryTab* summaryTab = new SummaryTab(timetableTab);
     tabWidget->insertTab(0, summaryTab, tr("Souhrn"));
-
     tabWidget->setCurrentIndex(0);
+
+    /* Absence */
+    AbsencesTab* absencesTab = new AbsencesTab(classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
+    tabWidget->addTab(absencesTab, tr("Absence"));
 
     setCentralWidget(tabWidget);
 
@@ -98,8 +98,8 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     statusBar()->addWidget(new QLabel(tr("Absencoid k vašim službám.")), 1);
     statusBar()->addWidget(new QLabel(SVN_VERSION));
 
-    /* Změna velikosti na nejmenší výšku v poměru stran 16:10 */
-    resize(sizeHint().height()*8/5, sizeHint().height());
+    /* Změna velikosti (16:10) */
+    resize(960, 600);
 }
 
 }

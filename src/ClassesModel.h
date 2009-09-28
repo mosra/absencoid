@@ -31,8 +31,8 @@ class ClassesModel: public QAbstractTableModel {
         /**
         * @brief Konstanta značící jakoukoli hodinu
         *
-        * Jakákoli hodina je použitelná v změněných hodinách, pokud změna platí
-        * plošně pro všechny hodiny / rozvrhy.
+        * Použitelné ve změnách, pokud se mění z jakékoli hodiny. Index
+        * odpovídající této hodině = 1
         */
         static const int WHATEVER;
 

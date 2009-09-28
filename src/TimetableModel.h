@@ -183,13 +183,29 @@ class TimetableModel: public QAbstractItemModel {
         }
 
         /**
-        * @brief Zjištění, kolik rozvrhů má tento předmět v daný den/hodinu
-        *
-        * @param   dayHour     Den/hodina
-        * @param   classId     Id předmětu
-        * @return  Počet rozvrhů, který odpovídá dotazu.
-        */
+         * @brief Zjištění, kolik rozvrhů obsahuje tento předmět v daný den/hodinu
+         *
+         * @todo Sloučit s hasLesson
+         * @todo Ověřovat datum a zda rozvrh v dané datum platí
+         * @param   dayHour     Den/hodina
+         * @param   classId     Id předmětu
+         * @return  Počet rozvrhů, který odpovídá dotazu.
+         */
         int timetablesWithThisClass(int dayHour, int classId);
+
+        /**
+         * @brief Zjištění indexu aktuálního (tj. vybraného a platného) rozvrhu
+         */
+        int timetableForDate(QDate date);
+
+        /**
+         * @brief Zjištění, zda rozvrh obsahuje danou hodinu
+         *
+         * Vrací true, pokud rozvrh (platný v dané datum) obsahuje v danou hodinu
+         * předaný předmět. Pokud hodina není uvedena, vrací true, pokud rozvrh
+         * kdekoliv obsahuje předaný předmět.
+         */
+        bool hasLesson(QDate date, int classId, int hour = -1);
 
     public slots:
         /**

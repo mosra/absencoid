@@ -304,6 +304,41 @@ bool ChangesModel::checkUnique(QDate date, int hour, int fromClassId) {
     return true;
 }
 
+/* Změny, které souvisí s daným datem a rozvrhem, který tou dobou platil */
+QList<int> ChangesModel::relatedChanges(QDate date) const {
+    QList<int> list;
+
+    /* Hledání změn v příslušný datum */
+    for(int i = 0; i != changes.size(); ++i) if(changes[i].date == date) {
+        /* Měníme z jakékoli hodiny */
+        if(changes[i].fromClassId == ClassesModel::WHATEVER) {
+            list.append(i);
+
+        /* Měníme z prázdné hodiny */
+        } else if(changes[i].fromClassId == 0) {
+            /* Pokud rozvrh obsahuje hodinu, na kterou měníme, přidáme */
+            if(timetableModel->hasLesson(date, changes[i].toClassId))
+                list.append(i);
+
+        /* Měníme z hodiny na hodinu */
+        } else {
+            /* Změna ovlivňuje všechny hodiny */
+            if(changes[i].hour == -1) {
+                for(int hour = 0; hour != 10; ++hour) {
+                    if(timetableModel->hasLesson(date, changes[i].fromClassId, hour))
+                        list.append(i);
+                }
+            }
+
+            /* Pokud rozvrh obsahuje v danou dobu hodinu, ze které měníme, přidáme */
+            else if(timetableModel->hasLesson(date, changes[i].fromClassId, changes[i].hour))
+                list.append(i);
+        }
+    }
+
+    return list;
+}
+
 /* Uložení nového záznamu do DB */
 bool ChangesModel::saveRow(int row) {
     /* Špatný index */

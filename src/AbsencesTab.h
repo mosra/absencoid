@@ -5,12 +5,16 @@
 
 namespace Absencoid {
 
+class ClassesModel;
+class TimetableModel;
+class ChangesModel;
+
 class AbsencesTab: public QWidget {
     public:
         /**
          * @brief Konstruktor
          */
-        AbsencesTab(QWidget* parent = 0);
+        AbsencesTab(ClassesModel* classesModel, TimetableModel* timetablesModel, ChangesModel* changesModel, QWidget* parent = 0);
 };
 
 }

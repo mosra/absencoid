@@ -16,14 +16,11 @@ class TimetableModel;
  * data:
  * <ul>
  *  <li>Datum</li>
- *  <li>Číslo hodiny (0-9)</li>
- *  <li>Předmět, ze kterého se mění</li>
+ *  <li>Číslo hodiny (viz ChangesModel::Change::hour)</li>
+ *  <li>Předmět, ze kterého se mění (viz ChangesModel::Change::fromClassId)</li>
  *  <li>Předmět, na který se mění</li>
  *  <li>Počet rozvrhů, které tato změna ovlivní (needitovatelné)</li>
  * </ul>
- * @bug A co změny z "volné hodiny" na nějakou hodinu? Komu se to započítá?
- *      Jedině započítávat jen ty "na které se mění", které jsou v uživatelově
- *      rozvrhu. Ale přesto můžou nastat některé vyjímky.
  */
 class ChangesModel: public QAbstractTableModel {
     public:
@@ -77,18 +74,46 @@ class ChangesModel: public QAbstractTableModel {
          */
         virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
+        /**
+         * @brief Změny, které souvisí s daným datem a rozvrhem, který tou dobou platil
+         *
+         * Vrací indexy změn, které souvisí s rozvrhem platným v daný datum:
+         * <ul>
+         *  <li>když hodiny, ze kterých se mění, jsou v něm na stejné pozici</li>
+         *  <li>nebo rozvrh obsahuje hodiny, na které se mění (pokud se mění z
+         *   prázdné hodiny)</li>
+         * </ul>
+         * @param   date        Datum
+         * @return  List s indexy změn
+         */
+        QList<int> relatedChanges(QDate date) const;
+
     private:
         /** @brief Struktura změněné hodiny */
         struct Change {
             QDate date;         /** @brief Datum */
             int id;             /** @brief ID změny */
-            int hour;           /** @brief Číslo hodiny (0-9) */
-            int fromClassId;    /** @brief ID předmětu, ze kterého se mění */
+
+            /**
+             * @brief Hodina, ze které se mění
+             * 0 - 9 značí nultou až devátou hodinu, hodnota -1 znamená
+             * všechny hodiny.
+             */
+            int hour;
+
+            /**
+             * @brief ID předmětu, ze kterého se mění
+             * Pokud je uvedena nula, znamená to prázdnou hodinu, hodnota
+             * ClassesModel::WHATEVER značí jakoukoli hodinu.
+             */
+            int fromClassId;
+
             int toClassId;      /** @brief ID předmětu, na který se mění */
         };
 
         ClassesModel* classesModel;     /** @brief Model předmětů */
         TimetableModel* timetableModel; /** @brief Model rozvrhů */
+        /** @todo Předělat změny na multihash, abychom měli rychlejší hledání podle data! */
         QList<Change> changes;          /** @brief List se změnami */
 
         /**

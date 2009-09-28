@@ -35,6 +35,9 @@ QAbstractItemModel(parent), classesModel(_classesModel) {
         t.flags = 0;
 
         timetables.append(t);
+
+        /* Rovnou načtení všech rozvrhů */
+        fetchMore(index(timetables.size()-1, 0));
     }
 }
 
@@ -518,6 +521,8 @@ int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
         /* Pokud rozvrh ještě není načtený, načteme jej */
         if(!(timetables[i].flags & LOADED)) fetchMore(index(i, 0));
 
+        /** @todo Hledání hodiny kdekoliv v rozvrhu! */
+
         /* Pokud jsou označeny "všechny" hodiny, hledáme postupně v každé hodině */
         if(dayHour & 0x0F) for(int hour = 0; hour != 10; ++hour) {
             int _dayHour = (dayHour & 0xF0) | hour;
@@ -538,6 +543,44 @@ int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
     return count;
 }
 
+/* Vrácení indexu aktuálního rozvrhu */
+int TimetableModel::timetableForDate(QDate date) {
+    for(int i = 0; i != timetables.count(); ++i) {
+        /* Narazili jsme na aktivní rozvrh */
+        if(timetables[i].flags & ACTIVE) {
+            /* Má správnou dobu platnosti */
+            if(timetables[i].validFrom <= date &&
+              (timetables[i].followedBy == timetables[i].id ||
+               timetables[indexFromId(timetables[i].followedBy)].validFrom > date))
+                return i;
+        }
+    }
+
+    return -1;
+}
+
+/* Zjištění, zda rozvrh platný v daný datum obsahuje tento předmět */
+bool TimetableModel::hasLesson(QDate date, int classId, int hour) {
+    /* Rozvrh platný v daný datum */
+    int index = timetableForDate(date);
+
+    /* Hledání předmětu v celém rozvrhu */
+    if(hour == -1) {
+        foreach(int _classId, timetables[index].data)
+            if((_classId & ~FIXED) == classId) return true;
+
+    /* Zjištění, zda je předmět v rozvrhu v danou hodinu a den */
+    } else {
+        int _dayHour = dayHour(date.dayOfWeek()-1, hour);
+
+        if(timetables[index].data.contains(_dayHour) &&
+          (timetables[index].data[_dayHour] & ~FIXED) == classId)
+            return true;
+    }
+
+    /* Nic nenalezeno */
+    return false;
+}
 
 /* Zjištění, zda se změny v modelu předmětů projeví zde */
 /** @todo Kvůli classId | FIXED nyní už nechodí */
