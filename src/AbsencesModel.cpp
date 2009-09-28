@@ -4,6 +4,7 @@
 #include <QSqlError>
 #include <QDebug>
 #include <QFont>
+#include <QBrush>
 
 #include "ClassesModel.h"
 #include "TimetableModel.h"
@@ -113,6 +114,10 @@ QVariant AbsencesModel::data(const QModelIndex& index, int role) const {
             return classesModel->index(absences[index.row()].classIndexes[index.column()-2], 1).data();
         if(role == Qt::CheckStateRole)
             return (absences[index.row()].hours >> (index.column()-2)) & 0x01 ? Qt::Checked : Qt::Unchecked;
+        if(role == Qt::BackgroundRole) {
+            if((absences[index.row()].changes >> (index.column()-2)) & 0x01)
+                return QBrush("#dddddd");
+        }
     }
 
     return QVariant();
@@ -120,7 +125,8 @@ QVariant AbsencesModel::data(const QModelIndex& index, int role) const {
 
 /* Zjištění předmětů v jednotlivých hodinách pro daný index */
 void AbsencesModel::loadClassIds(int index) {
-    /* Pročištění listu */
+    /* Pročištění */
+    absences[index].changes = 0;
     absences[index].classIndexes.clear();
 
     /* Aktivní rozvrh platný ten den */
@@ -163,8 +169,12 @@ void AbsencesModel::loadClassIds(int index) {
             for(int hour = 0; hour != 10; ++hour) {
                 /* Pokud měníme z jakéhokoli předmětu a nebo předmět odpovídá, změníme jej */
                 if(fromHour == classesModel->indexFromId(ClassesModel::WHATEVER) ||
-                   absences[index].classIndexes[hour] == fromHour)
+                   absences[index].classIndexes[hour] == fromHour) {
                     absences[index].classIndexes[hour] = toHour;
+
+                    /* Označení dané hodiny jako změněné */
+                    absences[index].changes |= 1 << hour;
+                }
             }
 
             /* Další změny už neaplikujeme */
@@ -174,8 +184,12 @@ void AbsencesModel::loadClassIds(int index) {
         } else {
             /* Pokud měníme z jakéhokoli předmětu a nebo předmět odpovídá, změníme jej */
             if(fromHour == classesModel->indexFromId(ClassesModel::WHATEVER) ||
-               absences[index].classIndexes[hourNumber] == fromHour)
+               absences[index].classIndexes[hourNumber] == fromHour) {
                 absences[index].classIndexes[hourNumber] = toHour;
+
+                /* Označení dané hodiny jako změněné */
+                absences[index].changes |= 1 << hourNumber;
+            }
         }
     }
 }

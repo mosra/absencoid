@@ -63,6 +63,7 @@ class AbsencesModel: public QAbstractTableModel {
         struct Absence {
             QDate date;                 /** @brief Datum absence */
             int id;                     /** @brief ID absence */
+
             /**
              * @brief Zameškané hodiny
              *
@@ -70,6 +71,15 @@ class AbsencesModel: public QAbstractTableModel {
              * první tři hodiny. Může obsahovat také AbsencesModel::SCHOOL_ACTION.
              */
             int hours;
+
+            /**
+             * @brief Změněné hodiny
+             *
+             * Binární checkbox, označuje hodiny, na kterých se projevila nějaká
+             * změna. Tyto hodiny jsou potom odlišně zobrazeny.
+             */
+            int changes;
+
             QList<int> classIndexes;        /** @brief ID předmětů v jednotlivých hodinách */
         };
 
