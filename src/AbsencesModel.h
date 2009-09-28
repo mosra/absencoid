@@ -51,6 +51,16 @@ class AbsencesModel: public QAbstractTableModel {
          */
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
+        /**
+         * @brief Flags
+         */
+        virtual Qt::ItemFlags flags(const QModelIndex& index) const;
+
+        /**
+         * @brief Zápisový přístup k datům
+         */
+        virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+
     private:
         /**
          * @brief Hodnota značící, že se jednalo o školní akci
@@ -95,6 +105,13 @@ class AbsencesModel: public QAbstractTableModel {
          * @param       index       Index, který se má naplnit
          */
         void loadClassIds(int index);
+
+        /**
+         * @brief Uložení řádku
+         *
+         * Uloží ještě neuložený řádek do databáze.
+         */
+        bool saveRow(int index) {}
 };
 
 }

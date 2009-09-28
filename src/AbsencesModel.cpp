@@ -123,6 +123,93 @@ QVariant AbsencesModel::data(const QModelIndex& index, int role) const {
     return QVariant();
 }
 
+/* Flags */
+Qt::ItemFlags AbsencesModel::flags(const QModelIndex& index) const {
+    if(!index.isValid()) return Qt::ItemIsEnabled;
+
+    /* První sloupec je editovatelný */
+    if(index.column() == 0) return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+
+    /* Ostatní jsou zaškrtávatelné */
+    return QAbstractTableModel::flags(index) | Qt::ItemIsUserCheckable;
+}
+
+/* Zápisový přístup k datům */
+bool AbsencesModel::setData(const QModelIndex& index, const QVariant& value, int role) {
+    if(!index.isValid()) return false;
+
+    QSqlQuery query;
+
+    /* Datum */
+    if(index.column() == 0 && role == Qt::EditRole) {
+        absences[index.row()].date = value.toDate();
+
+        loadClassIds(index.row());
+
+        /* Nový záznam, nemůžeme provést UPDATE, ale INSERT */
+        if(absences[index.row()].id == 0) {
+            /* Emitujeme signál o změně dat a pokusíme se řádek uložit */
+            emit dataChanged(index, index);
+
+            return saveRow(index.row());
+        }
+
+        query.prepare("UPDATE absences SET date = :date WHERE id = :id;");
+        query.bindValue(":date", absences[index.row()].date);
+
+    /* Zaškrtávací políčka */
+    } else if(index.column() > 0 && index.column() < 12 && role == Qt::CheckStateRole) {
+        /* Školní akce */
+        if(index.column() == 1) {
+            /* Zaškrtnutí */
+            if(value.toBool())  absences[index.row()].hours |= SCHOOL_ACTION;
+
+            /* Odškrtnutí */
+            else                absences[index.row()].hours &= ~SCHOOL_ACTION;
+
+        /* Hodiny */
+        } else {
+            /* Zaškrtnutí */
+            if(value.toBool())  absences[index.row()].hours |= 1 << (index.column()-2);
+
+            /* Odškrtnutí */
+            else                absences[index.row()].hours &= ~(1 << (index.column()-2));
+        }
+
+        /* Nový záznam, nemůžeme provést UPDATE ale INSERT */
+        if(absences[index.row()].id == 0) {
+            /* Emitujeme signál o změně dat a pokusíme se řádek uložit */
+            emit dataChanged(index, index);
+
+            return saveRow(index.row());
+        }
+
+        query.prepare("UPDATE absences SET hours = :hours WHERE id = :id;");
+        query.bindValue(":hours", absences[index.row()].hours);
+
+    /* Něco jiného */
+    } else return false;
+
+    query.bindValue(":id", absences[index.row()].id);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se aktualizovat absenci!")
+                 << query.lastError() << query.lastQuery();
+        return false;
+    }
+
+    /* Pokud je to datum, přepsaly se hodiny => změna celého řádku */
+    if(index.column() == 0)
+        emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 11));
+
+    /* Jinak emitujeme signál jen o změně aktuálního */
+    else
+        emit dataChanged(index, index);
+
+    return true;
+}
+
 /* Zjištění předmětů v jednotlivých hodinách pro daný index */
 void AbsencesModel::loadClassIds(int index) {
     /* Pročištění */
