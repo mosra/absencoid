@@ -110,11 +110,22 @@ QVariant ChangesModel::data(const QModelIndex& index, int role) const {
 
     /* Počet ovlivněných rozvrhů */
     } else if(index.column() == 4 && role == Qt::DisplayRole) {
-        /* Pondělí v Qt == 1, pondělí v Absencoid == 0 */
-        return timetableModel->timetablesWithThisClass(
-            timetableModel->dayHour(changes[index.row()].date.dayOfWeek()-1,
-                                    changes[index.row()].hour),
-            changes[index.row()].fromClassId);
+        /* Pokud měníme z nějaké určité hodiny, nalezení všech rozvrhů, které ji
+            tento den a hodinu obsahují */
+        if(changes[index.row()].fromClassId != 0) {
+            return timetableModel->timetablesWithThisLesson(
+                changes[index.row()].date,
+                changes[index.row()].hour,
+                changes[index.row()].fromClassId);
+
+        /* Pokud měníme z prázdné hodiny na jinou, nalezení všech rozvrhů, které
+            mají tu "jinou" (kdekoli). */
+        } else {
+            return timetableModel->timetablesWithThisLesson(
+                changes[index.row()].date,
+                0x0F,
+                changes[index.row()].toClassId);
+        }
     }
 
     /* Cokoliv jiného */
@@ -310,28 +321,19 @@ QList<int> ChangesModel::relatedChanges(QDate date) const {
 
     /* Hledání změn v příslušný datum */
     for(int i = 0; i != changes.size(); ++i) if(changes[i].date == date) {
-        /* Měníme z jakékoli hodiny */
-        if(changes[i].fromClassId == ClassesModel::WHATEVER) {
-            list.append(i);
 
         /* Měníme z prázdné hodiny */
-        } else if(changes[i].fromClassId == 0) {
-            /* Pokud rozvrh obsahuje hodinu, na kterou měníme, přidáme */
-            if(timetableModel->hasLesson(date, changes[i].toClassId))
+        if(changes[i].fromClassId == 0) {
+
+            /* Pokud aktivní rozvrh obsahuje _kdekoli_ předmět, na který měníme, přidáme */
+            if(timetableModel->timetablesWithThisLesson(date, 0x0F, changes[i].toClassId, true) != 0)
                 list.append(i);
 
         /* Měníme z hodiny na hodinu */
         } else {
-            /* Změna ovlivňuje všechny hodiny */
-            if(changes[i].hour == -1) {
-                for(int hour = 0; hour != 10; ++hour) {
-                    if(timetableModel->hasLesson(date, changes[i].fromClassId, hour))
-                        list.append(i);
-                }
-            }
 
-            /* Pokud rozvrh obsahuje v danou dobu hodinu, ze které měníme, přidáme */
-            else if(timetableModel->hasLesson(date, changes[i].fromClassId, changes[i].hour))
+            /* Pokud aktivní rozvrh obsahuje v daný den/hodinu předmět, ze které měníme, přidáme */
+            if(timetableModel->timetablesWithThisLesson(date, changes[i].hour, changes[i].fromClassId, true) != 0)
                 list.append(i);
         }
     }

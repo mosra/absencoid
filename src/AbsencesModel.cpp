@@ -123,15 +123,15 @@ void AbsencesModel::loadClassIds(int index) {
     /* Pročištění listu */
     absences[index].classIndexes.clear();
 
-    /* Rozvrh platný daný den */
-    int timetableIndex = timetableModel->timetableForDate(absences[index].date);
+    /* Aktivní rozvrh platný ten den */
+    QList<int> timetableIndex = timetableModel->validTimetables(absences[index].date, true);
 
     /* Den v týdnu pro toto datum */
     int day = absences[index].date.dayOfWeek()-1;
 
     /* Žádný rozvrh ten den neplatil, nebo ten den je víkend
         => naplnění prázdnými hodinami */
-    if(timetableIndex == -1 || day > 4) {
+    if(timetableIndex.count() == 0 || day > 4) {
         for(int hour = 0; hour != 10; ++hour)
             absences[index].classIndexes.append(0);
         return;
@@ -143,7 +143,7 @@ void AbsencesModel::loadClassIds(int index) {
     /* Zjištění jednotlivých hodin z rozvrhu */
     for(int hour = 0; hour != 10; ++hour) {
         absences[index].classIndexes.append(
-            timetableModel->index(timetableIndex, 0).child(hour, day).data(Qt::EditRole).toInt());
+            timetableModel->index(timetableIndex[0], 0).child(hour, day).data(Qt::EditRole).toInt());
     }
 
     /* Aplikování suplů */

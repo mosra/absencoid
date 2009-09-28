@@ -174,42 +174,51 @@ class TimetableModel: public QAbstractItemModel {
         /**
          * @brief Spočítání dne/hodiny
          *
+         * Pokud nejsou parametry v povoleném rozsahu, vrací nulu (tj.
+         * nultá hodina v pondělí).
+         * @todo Udělat privátní, nikdo to nemá právo používat!
          * @param   day         Číslo dne (0-4, 0 = pondělí)
-         * @param   hour        Hodina (0-9, 0 = nultá hodina, -1 = všechny hodiny)
+         * @param   hour        Hodina (0-9, 0 = nultá hodina)
          * @return  Den/hodina
          */
         inline int dayHour(int day, int hour) const  {
-            if(hour == -1) hour = 0x0F; return day << 4 | hour;
+            if(day < 0 || day > 4 || hour < 0 || hour > 9) return 0;
+            return day << 4 | hour;
         }
 
         /**
-         * @brief Zjištění, kolik rozvrhů obsahuje tento předmět v daný den/hodinu
+         * @brief Seznam rozvrhů platných v dané datum
          *
-         * @todo Sloučit s hasLesson
-         * @todo Ověřovat datum a zda rozvrh v dané datum platí
-         * @param   dayHour     Den/hodina
-         * @param   classId     Id předmětu
-         * @return  Počet rozvrhů, který odpovídá dotazu.
+         * @param   date        Datum
+         * @param   activeOnly  Hledat jen aktivní rozvrh
+         * @return  Seznam indexů platných rozvrhů, pokud je nastaveno hledání
+         *          jen aktivního rozvrhu, vrací jednoprvkové nebo prázdné pole.
          */
-        int timetablesWithThisClass(int dayHour, int classId);
+        QList<int> validTimetables(QDate date, bool activeOnly = false);
 
         /**
-         * @brief Zjištění indexu aktuálního (tj. vybraného a platného) rozvrhu
-         */
-        int timetableForDate(QDate date);
-
-        /**
-         * @brief Zjištění, zda rozvrh obsahuje danou hodinu
+         * @brief Počet platných rozvrhů, které obsahují daný předmět
          *
-         * Vrací true, pokud rozvrh (platný v dané datum) obsahuje v danou hodinu
-         * předaný předmět. Pokud hodina není uvedena, vrací true, pokud rozvrh
-         * kdekoliv obsahuje předaný předmět.
+         * Vrátí počet platných rozvrhů, které obsahují daný předmět. V
+         * závislosti na parametrech se předmět hledá v předaném dni a příslušné
+         * hodině, v celém předaném dni nebo v celém rozvrhu.
+         * @param   date        Datum
+         * @param   hour        Číslo hodiny (0 - 9), pokud je uvedeno -1,
+         *          hledá se ve všech hodinách daného dne, pokud je uvedeno
+         *          ještě něco jiného, hledá se v celém rozvrhu.
+         * @param   classId     ID předmětu, pokud je uvedeno
+         *          ClassesModel::WHATEVER, jen se zjišťuje, zda na daném místě
+         *          je nějaká hodina.
+         * @param   activeOnly  Hledat jen v aktivním rozvrhu
+         * @return  Počet rozvrhů, které odpovídají dotazu, pokud je nastaveno
+         *          hledání jen v aktivním rozvrhu, vrací buď 1 (nalezeno) nebo
+         *          0 (nenalezeno).
          */
-        bool hasLesson(QDate date, int classId, int hour = -1);
+        int timetablesWithThisLesson(QDate date, int hour, int classId, bool activeOnly = false);
 
     public slots:
         /**
-         * @brief Slot pro nastavení aktualáního rozvrhu
+         * @brief Slot pro nastavení aktuálního rozvrhu
          */
         void setActualTimetable(int index);
 

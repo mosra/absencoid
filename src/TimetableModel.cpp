@@ -509,77 +509,89 @@ int TimetableModel::indexFromId(int id) const {
     return -1;
 }
 
-/* Kolik rozvrhů má v tento den/hodinu daný předmět */
-int TimetableModel::timetablesWithThisClass(int dayHour, int classId) {
-    /* Celkový počet odpovídajících rozvrhů */
+/* Rozvrhy platné v daný datum */
+QList<int> TimetableModel::validTimetables(QDate date, bool activeOnly) {
+    QList<int> valid;
+    for(int i = 0; i != timetables.count(); ++i) {
+        /* Pokud je rozvrh platný... */
+        if(timetables[i].validFrom <= date &&
+          /* ...a nemá následovníka... */
+          (timetables[i].id == timetables[i].followedBy ||
+          /* ...nebo jeho následovník ještě nezačal platit */
+          timetables[indexFromId(timetables[i].followedBy)].validFrom > date)) {
+
+            /* Chceme jen aktivní */
+            if(activeOnly) {
+
+                /* Tento rozvrh aktivní je, vrátíme jej */
+                if(timetables[i].flags & ACTIVE) {
+                    valid.append(i);
+                    return valid;
+                }
+
+            /* Chceme jakýkoliv, přidáme jej do seznamu */
+            } else valid.append(i);
+        }
+    }
+
+    /* Vrácení seznamu */
+    return valid;
+}
+
+/* Počet platných rozvrhů, které obsahují daný předmět */
+int TimetableModel::timetablesWithThisLesson(QDate date, int hour, int classId, bool activeOnly) {
+    /* Zjištění platných rozvrhů */
+    QList<int> valid = validTimetables(date, activeOnly);
+
+    /* Den v týdnu (pondělí == 0) */
+    int day = date.dayOfWeek()-1;
+
+    /* Ha, víkend! */
+    if(day > 4) return 0;
+
+    /* Počet nalezených rozvrhů */
     int count = 0;
 
-    /* Procházení všech rozvrhů. V každém rozvrhu můžeme count inkrementovat
-        jen jednou! */
-    for(int i = 0; i != timetables.count(); ++i) {
+    /* Procházení platných rozvrhů a hledání hodiny. Bacha na to, v každém
+        rozvrhu můžu inkrementovat jenom jednou! */
+    foreach(int timetableIndex, valid) {
+        /* Hledáme předmět v jakékoli hodině */
+        if(hour == -1) for(int _hour = 0; _hour != 10; ++_hour) {
+            int _dayHour = dayHour(day, _hour);
 
-        /* Pokud rozvrh ještě není načtený, načteme jej */
-        if(!(timetables[i].flags & LOADED)) fetchMore(index(i, 0));
+            /* Pokud je předmět jakýkoli, musí daná hodina alespoň existovat */
+            if((classId == ClassesModel::WHATEVER && timetables[timetableIndex].data[_dayHour] != 0) ||
+               (timetables[timetableIndex].data[_dayHour] & ~FIXED) == classId) {
+                count++;
+                break;
+            }
 
-        /** @todo Hledání hodiny kdekoliv v rozvrhu! */
+        /* Hledáme předmět v dané hodině */
+        } else if(hour < 10) {
+            int _dayHour = dayHour(day, hour);
 
-        /* Pokud jsou označeny "všechny" hodiny, hledáme postupně v každé hodině */
-        if(dayHour & 0x0F) for(int hour = 0; hour != 10; ++hour) {
-            int _dayHour = (dayHour & 0xF0) | hour;
-            /* Testujeme, zda je taková den/hodina přítomná a jestli může být
-                předmět jakýkoli, pokud ne, jestli je tam ten správný */
-            if(timetables[i].data.contains(_dayHour) &&
-            (classId == ClassesModel::WHATEVER || (timetables[i].data[_dayHour] & ~FIXED) == classId)) {
-                count++; break;
+            /* Pokud je předmět jakýkoli, musí daná hodina alespoň existovat */
+            if((classId == ClassesModel::WHATEVER && timetables[timetableIndex].data[_dayHour] != 0) ||
+                (timetables[timetableIndex].data[_dayHour] & ~FIXED) == classId)
+                count++;
+
+        /* Hledáme v celém rozvrhu */
+        } else {
+            /* Hledáme jakýkoli předmět v celém rozvrhu, tedy rozvrh musí obsahovat alespoň jeden předmět */
+            if(classId == ClassesModel::WHATEVER && timetables[timetableIndex].data.count() != 0) count++;
+
+            /* Procházení všech hodin v rozvrhu a hledání příslušené hodiny */
+            else foreach(int _classId, timetables[timetableIndex].data) {
+                if((_classId & ~FIXED) == classId) {
+                    count++;
+                    break;
+                }
             }
         }
-
-        /* Pokud je označena jen jediná hodina */
-        else if(timetables[i].data.contains(dayHour) &&
-        (classId == ClassesModel::WHATEVER || (timetables[i].data[dayHour] & ~FIXED) == classId))
-            count++;
     }
 
+    /* Vrácení počtu odpovídajících rozvrhů */
     return count;
-}
-
-/* Vrácení indexu aktuálního rozvrhu */
-int TimetableModel::timetableForDate(QDate date) {
-    for(int i = 0; i != timetables.count(); ++i) {
-        /* Narazili jsme na aktivní rozvrh */
-        if(timetables[i].flags & ACTIVE) {
-            /* Má správnou dobu platnosti */
-            if(timetables[i].validFrom <= date &&
-              (timetables[i].followedBy == timetables[i].id ||
-               timetables[indexFromId(timetables[i].followedBy)].validFrom > date))
-                return i;
-        }
-    }
-
-    return -1;
-}
-
-/* Zjištění, zda rozvrh platný v daný datum obsahuje tento předmět */
-bool TimetableModel::hasLesson(QDate date, int classId, int hour) {
-    /* Rozvrh platný v daný datum */
-    int index = timetableForDate(date);
-
-    /* Hledání předmětu v celém rozvrhu */
-    if(hour == -1) {
-        foreach(int _classId, timetables[index].data)
-            if((_classId & ~FIXED) == classId) return true;
-
-    /* Zjištění, zda je předmět v rozvrhu v danou hodinu a den */
-    } else {
-        int _dayHour = dayHour(date.dayOfWeek()-1, hour);
-
-        if(timetables[index].data.contains(_dayHour) &&
-          (timetables[index].data[_dayHour] & ~FIXED) == classId)
-            return true;
-    }
-
-    /* Nic nenalezeno */
-    return false;
 }
 
 /* Zjištění, zda se změny v modelu předmětů projeví zde */
