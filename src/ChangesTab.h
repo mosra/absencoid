@@ -27,6 +27,11 @@ class ChangesTab: public QWidget {
          */
         ChangesTab(TimetableModel* timetableModel, ClassesModel* classesModel, QWidget* parent = 0);
 
+        /**
+         * @brief Získání ukazatele na model
+         */
+        ChangesModel* getChangesModel() const { return changesModel; }
+
     private:
         ChangesModel* changesModel;         /** @brief Model změněných hodin */
         QTableView* changesView;            /** @brief Tabulka se změnami */
