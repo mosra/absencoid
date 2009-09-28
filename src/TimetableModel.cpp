@@ -183,7 +183,7 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
         /* Zamknutá položka, editovatelná jen správcem */
         if(id & FIXED) {
             #ifdef ADMIN_VERSION
-            if(role == Qt::BackgroundRole) return QBrush("#cccccc");
+            if(role == Qt::BackgroundRole) return QBrush("#dddddd");
             #endif
 
             id &= ~FIXED;
