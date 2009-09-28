@@ -98,8 +98,8 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     statusBar()->addWidget(new QLabel(tr("Absencoid k vašim službám.")), 1);
     statusBar()->addWidget(new QLabel(SVN_VERSION));
 
-    /* Změna velikosti (16:10) */
-    resize(960, 600);
+    /* Změna velikosti na nejmenší možnou v poměru 16:10 */
+    resize(sizeHint().height()*8/5, sizeHint().height());
 }
 
 }
