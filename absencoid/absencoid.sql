@@ -114,10 +114,10 @@ CREATE TABLE changes (
 -- date         Datum
 -- hours        Hodiny (binární "checkbox") - příklad:
 --                  0x0001 - absence nultou hodinu
---                  0x00F0 == 0b11110000 - absence 4. - 7. hodinu
+--                  0x00F0 == 0b0011110000 - absence 4. - 7. hodinu
 CREATE TABLE absences (
     gradeId INTEGER NOT NULL,
-    id INTEGER NOT NULL,
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL UNIQUE,
     hours INTEGER NOT NULL
 );
