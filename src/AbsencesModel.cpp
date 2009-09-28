@@ -210,6 +210,52 @@ bool AbsencesModel::setData(const QModelIndex& index, const QVariant& value, int
     return true;
 }
 
+/* Přidání řádku */
+bool AbsencesModel::insertRow(int row, const QModelIndex& parent) {
+    beginInsertRows(parent, row, row);
+
+    Absence a;
+    a.id = 0;
+    a.date = QDate::currentDate();
+    a.hours = 0;
+    absences.append(a);
+
+    /* Načtení hodin v tento den */
+    loadClassIds(absences.count()-1);
+
+    endInsertRows();
+    return true;
+}
+
+/* Odstranění řádků */
+bool AbsencesModel::removeRows(int row, int count, const QModelIndex& parent) {
+    beginRemoveRows(parent, row, row+count-1);
+
+    QSqlQuery query;
+    query.prepare("DELETE FROM absences WHERE id = :id;");
+
+    /* Procházení a mazání po jednom */
+    for(int i = row; i != row+count; ++i) {
+        /* Pokud je řádek v databázi, smažeme ho */
+        if(absences[i].id != 0) {
+            query.bindValue(":id", absences[i].id);
+
+            /* Provedení dotazu */
+            if(!query.exec()) {
+                qDebug() << tr("Nepodařilo se odstranit absenci")
+                         << query.lastError() << query.lastQuery();
+                return false;
+            }
+        }
+
+        /* Smazání lokálně */
+        absences.removeAt(i);
+    }
+
+    endRemoveRows();
+    return true;
+}
+
 /* Zjištění předmětů v jednotlivých hodinách pro daný index */
 void AbsencesModel::loadClassIds(int index) {
     /* Pročištění */
@@ -279,6 +325,38 @@ void AbsencesModel::loadClassIds(int index) {
             }
         }
     }
+}
+
+/* Uložení řádku do databáze */
+bool AbsencesModel::saveRow(int index) {
+    /* Špatný řádek, konec */
+    if(index < 0 || index >= absences.count()) return false;
+
+    /* Řádek je již uložený, nebo nemá ještě vyplněnou ani jednu absenci, konec.
+        Vracíme true, protože chyba nenastala, uloží se případně jindy. */
+    if(absences[index].id != 0 || (absences[index].hours & ~SCHOOL_ACTION) == 0)
+        return true;
+
+    QSqlQuery query;
+    query.prepare("INSERT INTO absences (gradeId, date, hours) VALUES (1, :date, :hours);");
+    query.bindValue(":date", absences[index].date.toString(Qt::ISODate));
+    query.bindValue(":hours", absences[index].hours);
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se uložit absenci!")
+                 << query.lastError() << query.lastQuery();
+        return false;
+    }
+
+    /* Uložení nového ID */
+    absences[index].id = query.lastInsertId().toInt();
+
+    /* Signál o změně hlavičky, také aby se šířka hlaviček přizpůsobila dlouhým ID */
+    emit headerDataChanged(Qt::Vertical, index, index);
+    emit layoutChanged();
+
+    return true;
 }
 
 }

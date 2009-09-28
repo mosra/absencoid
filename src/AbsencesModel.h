@@ -61,6 +61,16 @@ class AbsencesModel: public QAbstractTableModel {
          */
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
 
+        /**
+         * @brief Přidání řádku
+         */
+        virtual bool insertRow(int row, const QModelIndex& parent = QModelIndex());
+
+        /**
+         * @brief Odebrání řádků
+         */
+        virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
+
     private:
         /**
          * @brief Hodnota značící, že se jednalo o školní akci
@@ -111,7 +121,7 @@ class AbsencesModel: public QAbstractTableModel {
          *
          * Uloží ještě neuložený řádek do databáze.
          */
-        bool saveRow(int index) {}
+        bool saveRow(int index);
 };
 
 }

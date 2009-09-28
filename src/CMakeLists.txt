@@ -16,6 +16,7 @@ qt4_wrap_cpp(AbsencoidMOC
     TimetableModel.h
     TimetableTab.h
     ChangesTab.h
+    AbsencesTab.h
     )
 
 # Ve FindQt4.cmake je schovaná volba, že v qt4_add_resources můžu za OPTIONS
