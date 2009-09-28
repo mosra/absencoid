@@ -26,9 +26,6 @@ class ChangesModel;
  */
 class AbsencesModel: public QAbstractTableModel {
     public:
-        /** @brief Hodnota značící, že se jednalo o školní akci */
-        static const int SCHOOL_ACTION;
-
         /**
          * @brief Konstruktor
          */
@@ -55,11 +52,24 @@ class AbsencesModel: public QAbstractTableModel {
         virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
 
     private:
+        /**
+         * @brief Hodnota značící, že se jednalo o školní akci
+         *
+         * Spojuje se binárním ORem s AbsencesModel::Absence::hours.
+         */
+        static const int SCHOOL_ACTION;
+
         /** @brief Struktura pro absenci */
         struct Absence {
             QDate date;                 /** @brief Datum absence */
             int id;                     /** @brief ID absence */
-            int hours;                  /** @brief Zameškané hodiny */
+            /**
+             * @brief Zameškané hodiny
+             *
+             * Tzv. binární checkbox, např. 0b0001110 znamená, že jsou zameškané
+             * první tři hodiny. Může obsahovat také AbsencesModel::SCHOOL_ACTION.
+             */
+            int hours;
             QList<int> classIndexes;        /** @brief ID předmětů v jednotlivých hodinách */
         };
 
