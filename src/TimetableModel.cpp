@@ -624,6 +624,9 @@ void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelI
 void TimetableModel::setActualTimetable(int index) {
     int id = idFromIndex(index);
 
+    /* Žádný takový rozvrh ještě neexistuje */
+    if(id == 0) return;
+
     /* Nalezení prvního předka tohoto rozvrhu */
     bool done = false; while(!done) {
         /* Projití od indexu až na první rozvrh, který již nemá žádného předka */
