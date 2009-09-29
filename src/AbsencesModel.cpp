@@ -45,6 +45,10 @@ AbsencesModel::AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timet
     /* Propojení singálu o změně aktuálního rozvrhu s resetovací fcí */
     connect(timetableModel, SIGNAL(actualTimetableChanged()),
             this, SLOT(reloadAllClassIds()));
+
+    /* Propojení signálu o odebrání rozvrhu s resetovací fcí */
+    connect(timetableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(reloadAllClassIds()));
 }
 
 /* Počet sloupců */
