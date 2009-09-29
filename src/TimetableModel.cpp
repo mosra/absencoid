@@ -265,6 +265,10 @@ bool TimetableModel::setData(const QModelIndex& index, const QVariant& value, in
         } else if(index.column() == 3) {
             timetables[index.row()].followedBy = value.toInt();
 
+            /* Pokud je tento rozvrh aktuální, načteme znova řetězec aktivních rozvrhů */
+            if(timetables[index.row()].flags & ACTIVE)
+                setActualTimetable(index.row());
+
             query.prepare("UPDATE timetables SET followedBy = :followedBy WHERE id = :id;");
             query.bindValue(":validTo", timetables[index.row()].followedBy);
 
