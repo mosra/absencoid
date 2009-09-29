@@ -26,7 +26,7 @@
 namespace Absencoid {
 
 /* Konstruktor */
-SummaryTab::SummaryTab(TimetableTab* timetableTab, QWidget* parent): QWidget(parent), timetableModel(timetableTab->getTimetableModel()) {
+SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(parent), timetableTab(_timetableTab) {
     /* Inicializace konfiguračního modelu */
     configurationModel = new ConfigurationModel(timetableTab->getTimetableModel(), this);
 
@@ -316,7 +316,10 @@ void SummaryTab::setActiveTimetable() {
     configurationModel->setData(configurationModel->index(0, 2), activeTimetable->currentIndex(), Qt::EditRole);
 
     /* Nastavení rozvrhu jako aktuálního */
-    timetableModel->setActualTimetable(activeTimetable->currentIndex());
+    timetableTab->getTimetableModel()->setActualTimetable(activeTimetable->currentIndex());
+
+    /* Načtení vybraného rozvrhu v tabu */
+    timetableTab->loadTimetable(activeTimetable->currentIndex());
 }
 
 /* Nastavení URL pro aktualizace z internetu */

@@ -24,7 +24,7 @@ class SummaryTab: public QWidget {
         /**
          * @brief Konstruktor
          */
-        SummaryTab(TimetableTab* timetableTab, QWidget* parent = 0);
+        SummaryTab(TimetableTab* _timetableTab, QWidget* parent = 0);
 
     private slots:
         /**
@@ -86,8 +86,8 @@ class SummaryTab: public QWidget {
         /** @brief Model pro konfiguraci */
         ConfigurationModel* configurationModel;
 
-        /** @brief Model rozvrhu */
-        TimetableModel* timetableModel;
+        /** @brief Tab s rozvrhy */
+        TimetableTab* timetableTab;
 };
 
 }
