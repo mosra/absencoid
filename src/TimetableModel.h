@@ -247,15 +247,6 @@ class TimetableModel: public QAbstractItemModel {
          */
         void setActualTimetable(int index);
 
-    private slots:
-        /**
-         * @brief Zjištění změn v modelu předmětů
-         *
-         * Zjistí, zda se změny v modelu předmětů projeví zde, pokud ani, vyšle
-         * signál dataChanged()
-         */
-        void checkClassChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight);
-
     private:
         /**
          * @brief Index nemá žádnou nadřazenou položku

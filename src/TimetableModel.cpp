@@ -17,10 +17,6 @@ const int TimetableModel::FIXED = 0x70000000;
 TimetableModel::TimetableModel(ClassesModel* _classesModel, QObject* parent):
 QAbstractItemModel(parent), classesModel(_classesModel) {
 
-    /* Propojení změn v předmětech se změnami zde */
-    connect(classesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(checkClassChanges(QModelIndex,QModelIndex)));
-
     /* Načtení seznamu rozvrhů (kořenové položky) */
     QSqlQuery query("SELECT id, description, validFrom, followedBy FROM timetables ORDER BY description, validFrom;");
 
@@ -615,32 +611,6 @@ int TimetableModel::previousTimetable(int index) {
 
     /* Žádný předek nenalezen */
     return -1;
-}
-
-/* Zjištění, zda se změny v modelu předmětů projeví zde */
-/** @todo Kvůli classId | FIXED nyní už nechodí */
-void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
-    /* Projití jednotlivých řádků a zjištění, zda takové předměty máme v rozvrhu */
-    for(int i = topLeft.row(); i <= bottomRight.row(); ++i) {
-        /* ID předmětu odpovídající indexu řádku */
-        int id = classesModel->idFromIndex(i);
-
-        /* Projití všech rozvrhů */
-        for(int ii = 0; ii != timetables.size(); ++ii) {
-
-            /* Všechny hodiny s tímto předmětem */
-            QList<int> hours = timetables[ii].data.keys(id);
-
-            /* Procházení ovliněných hodin */
-            int hour; foreach(hour, hours) {
-                /* Spočítání indexu */
-                QModelIndex dataIndex = index(hour & 0x0F, (hour & 0xF0) >> 4, index(i, 0));
-
-                /* Vyslání signálu */
-                emit dataChanged(dataIndex, dataIndex);
-            }
-        }
-    }
 }
 
 /* Nastavení rozvrhu jako aktuálního */
