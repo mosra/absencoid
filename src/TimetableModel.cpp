@@ -594,6 +594,25 @@ int TimetableModel::timetablesWithThisLesson(QDate date, int hour, int classId, 
     return count;
 }
 
+/* Nalezení předchozího rozvrhu */
+int TimetableModel::previousTimetable(int index) {
+    /* Špatný index */
+    if(index < 0 || index >= timetables.count()) return -1;
+
+    /* ID rozvrhu */
+    int id = timetables[index].id;
+
+    /* Hledání předka */
+    for(int i = 0; i != timetables.count(); ++i) {
+        /* Nalezli jsme předka a není to ten samý rozvrh */
+        if(timetables[i].id != id && timetables[i].followedBy == id)
+            return i;
+    }
+
+    /* Žádný předek nenalezen */
+    return -1;
+}
+
 /* Zjištění, zda se změny v modelu předmětů projeví zde */
 /** @todo Kvůli classId | FIXED nyní už nechodí */
 void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
@@ -622,38 +641,31 @@ void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelI
 
 /* Nastavení rozvrhu jako aktuálního */
 void TimetableModel::setActualTimetable(int index) {
-    int id = idFromIndex(index);
-
-    /* Žádný takový rozvrh ještě neexistuje */
-    if(id == 0) return;
 
     /* Nalezení prvního předka tohoto rozvrhu */
-    bool done = false; while(!done) {
-        /* Projití od indexu až na první rozvrh, který již nemá žádného předka */
-        int i = 0; for(; i != timetables.count(); ++i) {
-            /* Nalezli jsme předka */
-            if(timetables[i].id != id && timetables[i].followedBy == id) {
-                id = timetables[i].id;
-                break;
-            }
-        }
+    int oldIndex = index;
 
-        /* Pokud jsme prošli celý cyklus bez nalezení předka, už jsme na prvním */
-        if(i == timetables.count()) done = true;
+    while(index != -1) {
+        oldIndex = index;
+        index = previousTimetable(index);
     }
+
+    index = oldIndex;
+
+    /* Neplatný index */
+    if(index == -1) return;
 
     /* Zrušení flagu ACTIVE u všech rozvrhů */
     for(int i = 0; i != timetables.count(); ++i)
         timetables[i].flags &= ~ACTIVE;
 
     /* Nastavení flagu ACTIVE u prvního rozvrhu */
-    int _index = indexFromId(id);
-    timetables[_index].flags |= ACTIVE;
+    timetables[index].flags |= ACTIVE;
 
     /* Projití všech následujících rozvrhů a nastavení flagu i jim */
-    while(timetables[_index].id != timetables[_index].followedBy) {
-        _index = indexFromId(timetables[_index].followedBy);
-        timetables[_index].flags |= ACTIVE;
+    while(timetables[index].id != timetables[index].followedBy) {
+        index = indexFromId(timetables[index].followedBy);
+        timetables[index].flags |= ACTIVE;
     }
 }
 

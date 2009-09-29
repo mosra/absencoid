@@ -216,6 +216,25 @@ class TimetableModel: public QAbstractItemModel {
          */
         int timetablesWithThisLesson(QDate date, int hour, int classId, bool activeOnly = false);
 
+        /**
+         * @brief Zjištění, zda je rozvrh aktivní
+         *
+         * S flagem ACTIVE
+         */
+        bool isActive(int index) {
+            if(index < 0 || index > timetables.count()) return false;
+            return timetables[index].flags & ACTIVE;
+        }
+
+        /**
+         * @brief Nalezení předka rozvrhu
+         *
+         * Nalezne rozvrh, který má tento rozvrh jako následovníka
+         * @return  Index nalezeného rozvrhu, nebo index tohoto rozvrhu, pokud
+         *          není žádný předchozí nalezen.
+         */
+        int previousTimetable(int index);
+
     public slots:
         /**
          * @brief Slot pro nastavení aktuálního rozvrhu
