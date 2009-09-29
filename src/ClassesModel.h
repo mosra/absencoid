@@ -24,8 +24,6 @@ class TeachersModel;
  * <tt>classId</tt> je rovno konstantě Absencoid::ClassesModel::WHATEVER.
  */
 class ClassesModel: public QAbstractTableModel {
-    Q_OBJECT
-
     public:
 
         /**
@@ -127,15 +125,6 @@ class ClassesModel: public QAbstractTableModel {
          * @return  Zda se povedlo uložit
          */
         bool saveRow(int index);
-
-    private slots:
-        /**
-         * @brief Zjištění změn v modelu učitelů
-         *
-         * Zjistí, zda se změny v modelu učitelů projeví na tomto modelu, pokud
-         * ano, vyšle signál dataChanged.
-         */
-        void checkTeacherChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight);
 };
 
 }

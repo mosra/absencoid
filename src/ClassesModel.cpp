@@ -28,10 +28,6 @@ QAbstractTableModel(parent), teachersModel(_teachersModel) {
         c.teacherId = query.value(2).toInt();
         classes.append(c);
     }
-
-    /* Propojení změn v TeachersModel se změnami zde */
-    connect(teachersModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(checkTeacherChanges(QModelIndex,QModelIndex)));
 }
 
 /* Počet sloupců */
@@ -211,32 +207,6 @@ bool ClassesModel::setData(const QModelIndex& index, const QVariant& value, int 
     emit dataChanged(index.sibling(index.row(), 0), index.sibling(index.row(), 0));
 
     return true;
-}
-
-/* Zjištění změn v modelu učitelů */
-void ClassesModel::checkTeacherChanges(const QModelIndex& topLeft, const QModelIndex& bottomRight) {
-    /* Pokud nejsou změny ve sloupci se jmény, nás se netýkají */
-    if(topLeft.column() != 0) return;
-
-    /* Z hlediska výkonnosti je jedno, jestli procházíme změněné řádky a až v nich
-        třídy, nebo naopak - není zde žádné break pro předčasné ukončení cyklu,
-        takže vyjde oboje úplně nastejno */
-
-    /* Procházení změněných řádků a zjišťování, jestli jsme změnami ovlivněni */
-    for(int row = topLeft.row(); row <= bottomRight.row(); ++row) {
-        /* Zjištění ID učitele */
-        int teacherId = teachersModel->idFromIndex(row);
-
-        /* Procházení tříd a hledání tohoto učitele */
-        for(int i = 0; i != classes.count(); ++i) {
-            /* Vyslání signálu, že se změnila data ve druhém sloupci daného řádku,
-               do nadřazeného cyklu se nevracíme, protože víc předmětů může mít
-               stejného učitele. */
-            if(classes[i].teacherId == teacherId)
-                /* Data se změnila ve druhém sloupci (učitel)   daného řádku */
-                emit dataChanged(index(i+2, 1), index(i+2, 1));
-        }
-    }
 }
 
 /* Přidání nového předmětu */

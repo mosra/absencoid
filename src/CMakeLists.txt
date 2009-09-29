@@ -11,7 +11,6 @@ qt4_wrap_cpp(AbsencoidMOC
     SummaryTab.h
     CreateUpdateDialog.h
     TeachersTab.h
-    ClassesModel.h
     ClassesTab.h
     TimetableModel.h
     TimetableTab.h
