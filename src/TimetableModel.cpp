@@ -640,33 +640,39 @@ void TimetableModel::checkClassChanges(const QModelIndex& topLeft, const QModelI
 }
 
 /* Nastavení rozvrhu jako aktuálního */
-void TimetableModel::setActualTimetable(int index) {
+void TimetableModel::setActualTimetable(int _index) {
 
     /* Nalezení prvního předka tohoto rozvrhu */
-    int oldIndex = index;
+    int oldIndex = _index;
 
-    while(index != -1) {
-        oldIndex = index;
-        index = previousTimetable(index);
+    while(_index != -1) {
+        oldIndex = _index;
+        _index = previousTimetable(_index);
     }
 
-    index = oldIndex;
+    _index = oldIndex;
 
     /* Neplatný index */
-    if(index == -1) return;
+    if(_index == -1) return;
 
     /* Zrušení flagu ACTIVE u všech rozvrhů */
     for(int i = 0; i != timetables.count(); ++i)
         timetables[i].flags &= ~ACTIVE;
 
     /* Nastavení flagu ACTIVE u prvního rozvrhu */
-    timetables[index].flags |= ACTIVE;
+    timetables[_index].flags |= ACTIVE;
 
     /* Projití všech následujících rozvrhů a nastavení flagu i jim */
-    while(timetables[index].id != timetables[index].followedBy) {
-        index = indexFromId(timetables[index].followedBy);
-        timetables[index].flags |= ACTIVE;
+    while(timetables[_index].id != timetables[_index].followedBy) {
+        _index = indexFromId(timetables[_index].followedBy);
+        timetables[_index].flags |= ACTIVE;
     }
+
+    /* Emitování signálu o změně aktuálního rozvrhu */
+    emit actualTimetableChanged();
+
+    /* Emitování signálu o změně všech popisků (co já to budu počítat) */
+    emit dataChanged(index(0, 0), index(timetables.count()-1, 0));
 }
 
 }

@@ -16,6 +16,7 @@ qt4_wrap_cpp(AbsencoidMOC
     TimetableModel.h
     TimetableTab.h
     ChangesTab.h
+    AbsencesModel.h
     AbsencesTab.h
     )
 

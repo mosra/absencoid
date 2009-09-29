@@ -25,6 +25,8 @@ class ChangesModel;
  * @todo Zredukovat šířku ... jak?
  */
 class AbsencesModel: public QAbstractTableModel {
+    Q_OBJECT
+
     public:
         /**
          * @brief Konstruktor
@@ -70,6 +72,17 @@ class AbsencesModel: public QAbstractTableModel {
          * @brief Odebrání řádků
          */
         virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
+
+    private slots:
+        /**
+         * @brief Zkontrolování změn v rozvrzích a aplikování jich sem
+         */
+        void checkTimetableChanges(QModelIndex topLeft, QModelIndex bottomRight);
+
+        /**
+         * @brief Znovunačtení všech ID předmětů
+         */
+        void reloadAllClassIds();
 
     private:
         /**

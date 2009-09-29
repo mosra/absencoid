@@ -235,6 +235,12 @@ class TimetableModel: public QAbstractItemModel {
          */
         int previousTimetable(int index);
 
+    signals:
+        /**
+         * @brief Signál o změně aktuálního rozvrhu
+         */
+        void actualTimetableChanged();
+
     public slots:
         /**
          * @brief Slot pro nastavení aktuálního rozvrhu

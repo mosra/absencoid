@@ -16,8 +16,9 @@ const int AbsencesModel::SCHOOL_ACTION = 0x8000;
 
 /* Konstruktor */
 AbsencesModel::AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, ChangesModel* _changesModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel), changesModel(_changesModel) {
-    QSqlQuery query;
 
+    /* SQL dotaz */
+    QSqlQuery query;
     if(!query.exec("SELECT id, date, hours FROM absences ORDER BY date;")) {
         qDebug() << tr("Nepodařilo se získat sezman absencí!")
                  << query.lastError() << query.lastQuery();
@@ -36,6 +37,14 @@ AbsencesModel::AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timet
         /* Zjištění názvů předmětů pro jednotlivé hodiny */
         loadClassIds(absences.count()-1);
     }
+
+    /* Propojení signálu o změnách v rozvrzích s ověřovacími fcemi */
+    connect(timetableModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(checkTimetableChanges(QModelIndex,QModelIndex)));
+
+    /* Propojení singálu o změně aktuálního rozvrhu s resetovací fcí */
+    connect(timetableModel, SIGNAL(actualTimetableChanged()),
+            this, SLOT(reloadAllClassIds()));
 }
 
 /* Počet sloupců */
@@ -254,6 +263,36 @@ bool AbsencesModel::removeRows(int row, int count, const QModelIndex& parent) {
 
     endRemoveRows();
     return true;
+}
+
+/* Zkontrolování změn v rozvrzích a aplikování jich sem */
+void AbsencesModel::checkTimetableChanges(QModelIndex topLeft, QModelIndex bottomRight) {
+    /* Zda nás nějaká změna ovlivňbuje */
+    bool affects = false;
+
+    /* Index má platného rodiče, jsou tedy změněny data (jednoho) rozvrhu */
+    if(topLeft.parent().isValid()) {
+        /* Ověříme, jestli je rozvrh aktivní (jiné nás nezajímají) */
+        if(timetableModel->isActive(topLeft.parent().row()))
+            affects = true;
+
+    /* Jsou změněny vlastnosti (více) rozvrhů */
+    } else {
+        for(int index = topLeft.row(); index <= bottomRight.row(); ++index) {
+            /* Ověříme, jestli je rozvrh aktivní (jiné nás nezajímají) */
+            if(timetableModel->isActive(topLeft.row()))
+                affects = true;
+        }
+    }
+
+    /* Pokud nás nějaká změna ovlivňuje, plošný reload všech ID tříd */
+    if(affects) reloadAllClassIds();
+}
+
+/* Znovunačtení všech ID tříd */
+void AbsencesModel::reloadAllClassIds() {
+    for(int i = 0; i != absences.count(); ++i)
+        loadClassIds(i);
 }
 
 /* Zjištění předmětů v jednotlivých hodinách pro daný index */
