@@ -16,10 +16,9 @@ const int Dump::DUMP_VERSION = 1;
 const int Dump::UPDATE_VERSION = 1;
 
 /* Konstruktor */
-Dump::Dump(bool indent): flags(indent ? INDENT : 0) {
-    /* Inicializace statistik na nuly */
-    cleanStats();
-
+Dump::Dump(bool indent): flags(indent ? INDENT : 0), _deltaTeachers(0),
+_deltaClasses(0), _deltaTimetables(0), _deltaTimetableData(0), _deltaChanges(0),
+_deltaAbsences(0) {
     /* Inicializace doctype */
     QDomImplementation i;
     doctype = i.createDocumentType("absencoid", QString(), "absencoid.dtd");
@@ -27,9 +26,6 @@ Dump::Dump(bool indent): flags(indent ? INDENT : 0) {
 
 /* Vytvoření dumpu / aktualizace */
 QString Dump::create(int flags, const QString& note) {
-    /* Pročištění statistik */
-    cleanStats();
-
     /* Inicializace dokumentu a kořenového elementu */
     QDomDocument doc(doctype);
     QDomElement r = doc.createElement("absencoid");
@@ -352,16 +348,6 @@ QString Dump::create(int flags, const QString& note) {
     }
 
     return doc.toString(flags & INDENT ? 4 : -1);
-}
-
-/* Pročištění statistik */
-void Dump::cleanStats() {
-    _deltaTeachers = 0;
-    _deltaClasses = 0;
-    _deltaTimetables = 0;
-    _deltaTimetableData = 0;
-    _deltaChanges = 0;
-    _deltaAbsences = 0;
 }
 
 }

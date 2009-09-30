@@ -52,13 +52,6 @@ class Dump: public QObject {
         inline QString createUpdate(const QString& note) { return create(UPDATE|flags, note); }
 
         /**
-         * @brief Aktualizace / obnovení ze zálohy
-         *
-         * Načte obsah XML souboru zpět do databáze.
-         */
-        bool loadDump(const QString& dump);
-
-        /**
          * @brief Počet ovlivněných učitelů po poslední akci
          *
          * Vrací počet učitelů, kteří byli ovlivněni poslední akcí. Při exportu
@@ -93,13 +86,6 @@ class Dump: public QObject {
         int _deltaAbsences;         /** @brief Počet ovlivněných absencí po poslední akci */
 
         QDomDocumentType doctype;   /** @brief Doctype používané pro vytváření souborů */
-
-        /**
-         * @brief Pročištění statistik
-         *
-         * Nastaví všechny _delta- proměnné na nulu.
-         */
-        void cleanStats();
 
         /**
         * @brief Univerzální funkce pro vytvoření dumpu
