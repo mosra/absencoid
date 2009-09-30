@@ -13,6 +13,8 @@
 #include <QSqlError>
 #include <QFile>
 #include <QDebug>
+#include <QMenuBar>
+#include <QApplication>
 
 #include "configure.h"
 #include "SummaryTab.h"
@@ -22,15 +24,16 @@
 #include "TimetableTab.h"
 #include "ChangesTab.h"
 #include "AbsencesTab.h"
+#include "AboutDialog.h"
 
 namespace Absencoid {
 
 /* Konstruktor */
 MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     #ifdef ADMIN_VERSION
-    setWindowTitle(tr("Absencoid [správce]"));
+    setWindowTitle(tr("Absencoid %1 [správce]").arg(APP_VERSION_LONG));
     #else
-    setWindowTitle(tr("Absencoid [uživatel]"));
+    setWindowTitle(tr("Absencoid %1 [uživatel]").arg(APP_VERSION_LONG));
     #endif
 
     /* Databáze */
@@ -59,6 +62,26 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
             }
         }
     }
+
+    /* Menu */
+    QMenuBar* menu = new QMenuBar();
+
+    /* Menu Soubor */
+    QMenu* fileMenu = menu->addMenu(tr("Soubor"));
+    QAction* quitAction = fileMenu->addAction(tr("Ukončit"));
+    connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
+
+    /* Menu Nápověda */
+    QMenu* helpMenu = menu->addMenu(tr("Nápověda"));
+    QAction* helpAction = helpMenu->addAction(tr("Nápověda"));
+    helpAction->setDisabled(true);
+    QAction* aboutAction = helpMenu->addAction(tr("O programu"));
+    helpMenu->addSeparator();
+    QAction* aboutQtAction = helpMenu->addAction(tr("O Qt"));
+    connect(aboutAction, SIGNAL(triggered(bool)), this, SLOT(about()));
+    connect(aboutQtAction, SIGNAL(triggered(bool)), qApp, SLOT(aboutQt()));
+
+    setMenuBar(menu);
 
     /* Taby */
     tabWidget->setTabPosition(QTabWidget::West);
@@ -96,10 +119,16 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     /* Stavový řádek */
     setStatusBar(new QStatusBar(this));
     statusBar()->addWidget(new QLabel(tr("Absencoid k vašim službám.")), 1);
-    statusBar()->addWidget(new QLabel(SVN_VERSION));
+    statusBar()->addWidget(new QLabel(tr("%1 (%2-%3)").arg(APP_VERSION_LONG).arg(APP_VERSION).arg(SVN_VERSION)));
 
     /* Změna velikosti na nejmenší možnou v poměru 16:10 */
     resize(sizeHint().height()*8/5, sizeHint().height());
+}
+
+/* Dialog O programu */
+void MainWindow::about() {
+    AboutDialog* about = new AboutDialog(this);
+    about->exec();
 }
 
 }

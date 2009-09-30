@@ -16,6 +16,12 @@ class MainWindow: public QMainWindow {
          */
         MainWindow();
 
+    private slots:
+        /**
+         * @brief Zobrazení dialogu O programu
+         */
+        void about();
+
     private:
         QTabWidget* tabWidget;
 };

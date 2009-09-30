@@ -27,7 +27,7 @@ qt4_wrap_cpp(AbsencoidMOC
 qt4_add_resources(AbsencoidRCC data.qrc OPTIONS -compress 9 -threshold 0)
 
 add_executable(absencoid
-    main.cpp MainWindow.cpp
+    main.cpp MainWindow.cpp AboutDialog.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
     SummaryTab.cpp Dump.cpp CreateUpdateDialog.cpp ConfigurationModel.cpp
     TeachersModel.cpp TeachersTab.cpp
