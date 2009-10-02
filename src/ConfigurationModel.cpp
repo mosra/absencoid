@@ -95,14 +95,14 @@ QVariant ConfigurationModel::data(const QModelIndex& index, int role) const {
 
     /* Zda zjišťovat aktualizace po startu */
     } else if(index.column() == 5) {
-        if(role == Qt::DisplayRole) return booleans & 0x01 ? "Ano" : "Ne";
+        if(role == Qt::DisplayRole) return booleans & UPDATE_ON_START ? "Ano" : "Ne";
         if(role == Qt::EditRole)    return (bool) (booleans & 0x01);
         if(role == Qt::CheckStateRole)
             return booleans & 0x01 ? Qt::Checked : Qt::Unchecked;
 
     /* Zda vytvářet zálohy při ukončení */
     } else if(index.column() == 6) {
-        if(role == Qt::DisplayRole) return booleans & 0x02 ? "Ano" : "Ne";
+        if(role == Qt::DisplayRole) return booleans & DUMP_ON_EXIT ? "Ano" : "Ne";
         if(role == Qt::EditRole)    return (bool) (booleans & 0x02);
         if(role == Qt::CheckStateRole)
             return booleans & 0x02 ? Qt::Checked : Qt::Unchecked;
@@ -166,6 +166,7 @@ bool ConfigurationModel::setData(const QModelIndex& index, const QVariant& value
 
     /* Zda zjišťovat aktualizace po startu, zda zálohovat před ukončením */
     } else if(index.column() < 7 && role == Qt::CheckStateRole) {
+        /** @todo Zahodit tenhle hackoidní přístup! */
         /* Zaškrtnuto, přiORujeme */
         if(value.toBool())  booleans |= 1 << (index.column()-5);
 

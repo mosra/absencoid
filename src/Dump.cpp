@@ -10,6 +10,7 @@
 #include "ClassesModel.h"
 #include "TimetableModel.h"
 #include "TeachersModel.h"
+#include "ConfigurationModel.h"
 
 namespace Absencoid {
 
@@ -103,13 +104,13 @@ QString Dump::create(int flags, const QString& note) {
         QDomElement updateOnStart = doc.createElement("updateOnStart");
         configuration.appendChild(updateOnStart);
         updateOnStart.setAttribute("value",
-            configurationQuery.value(5).toInt() & 0x01 ? "true" : "false");
+            configurationQuery.value(5).toInt() & ConfigurationModel::UPDATE_ON_START ? "true" : "false");
 
         /* <dumpOnExit> */
         QDomElement dumpOnExit = doc.createElement("dumpOnExit");
         configuration.appendChild(dumpOnExit);
         dumpOnExit.setAttribute("value",
-            configurationQuery.value(5).toInt() & 0x02 ? "true" : "false");
+            configurationQuery.value(5).toInt() & ConfigurationModel::DUMP_ON_EXIT ? "true" : "false");
     }
 
     /* <teachers> */

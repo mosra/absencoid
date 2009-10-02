@@ -29,6 +29,12 @@ class TimetableModel;
  */
 class ConfigurationModel: public QAbstractTableModel {
     public:
+        /** @brief Flags */
+        enum Flags {
+            UPDATE_ON_START = 1,    /** @brief Aktualizovat po startu */
+            DUMP_ON_EXIT = 2        /** @brief Zálohovat při ukončení */
+        };
+
         /**
          * @brief Konstruktor
          *

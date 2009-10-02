@@ -153,7 +153,7 @@ bool TeachersModel::setData(const QModelIndex& index, const QVariant& value, int
 
     /* Flags */
     } else if(index.column() >= 1 && index.column() <= 2 && role == Qt::CheckStateRole) {
-
+        /** @todo Udělat to čitelně, kua! */
         /* Trochu moc hackoidní přístup, ale budiž. ID sloupce zrovna
             odpovídá použitým flagům, takže to lze takto zkrátit. */
         if(value.toBool())
