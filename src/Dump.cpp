@@ -198,9 +198,9 @@ QString Dump::create(int flags, const QString& note) {
         timetable.appendChild(validFrom);
         validFrom.appendChild(doc.createTextNode(timetablesQuery.value(2).toString()));
 
-        /* <data> */
-        QDomElement data = doc.createElement("data");
-        timetable.appendChild(data);
+        /* <lessons> */
+        QDomElement lessons = doc.createElement("lessons");
+        timetable.appendChild(lessons);
 
         /* Dotaz do databáze na data rozvrhu */
         QSqlQuery timetableDataQuery;
@@ -220,7 +220,7 @@ QString Dump::create(int flags, const QString& note) {
         /*   <lesson> */
         while(timetableDataQuery.next()) {
             QDomElement lesson = doc.createElement("lesson");
-            data.appendChild(lesson);
+            lessons.appendChild(lesson);
             lesson.setAttribute("classId",
                 "c" + QString::number(timetableDataQuery.value(1).toInt() & ~TimetableModel::FIXED));
             lesson.setAttribute("fixed",

@@ -33,7 +33,7 @@
             <timetable id="t1" next="t1">
                 <name>Hlavní rozvrh</name>
                 <validFrom>2009-09-07</validFrom>
-                <data>
+                <lessons>
                     <lesson classId="c1" fixed="true">
                         <day>0</day>
                         <hour>1</hour>
@@ -43,12 +43,12 @@
                         <hour>2</hour>
                     </lesson>
                     <!-- Uživatelsky editovaná (tj. nepovinná) 0. hodina v úterý -->
-                    <lesson classId="c3">
+                    <lesson classId="c3" fixed="false">
                         <day>1</day>
                         <hour>0</hour>
                     </lesson>
                     <!-- ... -->
-                </data>
+                </lessons>
             </timetable>
             <!-- ... -->
         </timetables>

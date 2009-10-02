@@ -58,7 +58,7 @@
 <!ATTLIST timetables activeId IDREF #IMPLIED>
     <!-- ID aktivního rozvrhu, např t1. Pokud se jedná o aktualizaci, je tento
         parametr (ač povinný), ignorován, protože by měnil uživatelská data. -->
-<!ELEMENT timetable (name, validFrom, data)>
+<!ELEMENT timetable (name, validFrom, lessons)>
 <!ATTLIST timetable
     id ID #REQUIRED
     next IDREF #REQUIRED
@@ -68,8 +68,7 @@
 -->
 <!ELEMENT name (#PCDATA)>               <!-- Jméno rozvrhu -->
 <!ELEMENT validFrom (#PCDATA)>          <!-- Odkdy je rozvrh platný -->
-<!-- TODO: Zrušit data? - konfliktní + nejednoznačný název -->
-<!ELEMENT data (lesson*)>               <!-- Jednotlivé položky rozvrhu -->
+<!ELEMENT lessons (lesson*)>            <!-- Jednotlivé položky rozvrhu -->
 
 <!ELEMENT lesson (day, hour)>           <!-- Vyučovací hodina -->
 <!ATTLIST lesson

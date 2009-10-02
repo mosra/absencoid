@@ -37,7 +37,7 @@
             <timetable id="t1" next="t1">
                 <name>Hlavní rozvrh</name>
                 <validFrom>2009-09-07</validFrom>
-                <data>
+                <lessons>
                     <lesson classId="c1" fixed="true">
                         <day>0</day>
                         <hour>1</hour>
@@ -46,7 +46,7 @@
                         <day>0</day>
                         <hour>2</hour>
                     </lesson>
-                </data>
+                </lessons>
             </timetable>
             <!-- ... -->
         </timetables>
