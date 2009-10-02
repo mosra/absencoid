@@ -190,6 +190,7 @@ void SummaryTab::createDump() {
     /* Uživatel nevybral žádný soubor */
     if(filename.isEmpty()) return;
 
+    Dump dump;
     QString data = dump.createDump();
 
     /* Data jsou prázdná - něco se nezdařilo */
@@ -240,6 +241,7 @@ void SummaryTab::createUpdate() {
     if(dialog.exec() != QDialog::Accepted) return;
 
     /* Vytvoření aktualizace */
+    Dump dump;
     QString data = dump.createUpdate(note);
 
     /* Data jsou prázdná - něco se nezdařilo */

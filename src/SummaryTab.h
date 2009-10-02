@@ -3,8 +3,6 @@
 
 #include <QWidget>
 
-#include "Dump.h"
-
 class QGroupBox;
 class QCheckBox;
 class QComboBox;
@@ -73,7 +71,6 @@ class SummaryTab: public QWidget {
         void setDumpOnExit();
 
     private:
-        Dump dump;                  /** @brief Třída pro vytváření a načítání XML dumpů */
         QDateEdit* beginDate;       /** @brief Začátek pololetí */
         QDateEdit* endDate;         /** @brief Konec pololetí */
         QComboBox* activeTimetable; /** @brief Aktuální rozvrh */
