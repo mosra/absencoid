@@ -82,21 +82,21 @@ QVariant TeachersModel::data(const QModelIndex& index, int role) const {
     else if(index.column() == 1) {
         /* Text */
         if(role == Qt::DisplayRole)
-            return teachers[index.row()].flags & 0x01 ? tr("Zapisuje") : tr("Nezapisuje");
+            return teachers[index.row()].flags & COUNTS ? tr("Zapisuje") : tr("Nezapisuje");
 
         /* Checkovatelnost položky */
         else if(role == Qt::CheckStateRole)
-            return teachers[index.row()].flags & 0x01 ? Qt::Checked : Qt::Unchecked;
+            return teachers[index.row()].flags & COUNTS ? Qt::Checked : Qt::Unchecked;
 
     /* Zda uznává školní akce */
     } else if(index.column() == 2) {
         /* Text */
         if(role == Qt::DisplayRole)
-            return teachers[index.row()].flags & 0x02 ? tr("Uznává") : tr("Neuznává");
+            return teachers[index.row()].flags & ACCEPTS ? tr("Uznává") : tr("Neuznává");
 
         /* Checkovatelnost položky */
         else if(role == Qt::CheckStateRole)
-            return teachers[index.row()].flags & 0x02 ? Qt::Checked : Qt::Unchecked;
+            return teachers[index.row()].flags & ACCEPTS ? Qt::Checked : Qt::Unchecked;
     }
 
     /* Nejspíše se nehodila role */
@@ -193,7 +193,7 @@ bool TeachersModel::insertRow(int row, const QModelIndex& parent) {
 
     Teacher t;
     t.id = 0;
-    t.flags = 2;
+    t.flags = ACCEPTS | COUNTS;
     teachers.insert(row, t);
 
     /* Do DB se ukládá až při zadání jména */

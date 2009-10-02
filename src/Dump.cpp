@@ -9,6 +9,7 @@
 #include "configure.h"
 #include "ClassesModel.h"
 #include "TimetableModel.h"
+#include "TeachersModel.h"
 
 namespace Absencoid {
 
@@ -132,9 +133,9 @@ QString Dump::create(int flags, const QString& note) {
         teachers.appendChild(teacher);
         teacher.setAttribute("id", "p" + teachersQuery.value(0).toString());
         teacher.setAttribute("counts",
-            teachersQuery.value(2).toInt() & 0x01 ? "true" : "false");
+            teachersQuery.value(2).toInt() & TeachersModel::COUNTS ? "true" : "false");
         teacher.setAttribute("accepts",
-            teachersQuery.value(2).toInt() & 0x02 ? "true" : "false");
+            teachersQuery.value(2).toInt() & TeachersModel::ACCEPTS ? "true" : "false");
         teacher.appendChild(doc.createTextNode(teachersQuery.value(1).toString()));
 
         /* Inkrementace počtu ovlivněných učitelů */

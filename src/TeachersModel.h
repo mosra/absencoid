@@ -12,6 +12,12 @@ namespace Absencoid {
  */
 class TeachersModel: public QAbstractTableModel {
     public:
+        /** @brief Flags */
+        enum Flags {
+            COUNTS = 1,                 /** @brief Zda učitel počítá absence */
+            ACCEPTS = 2                 /** @brief Zda učitel uznává školní akce */
+        };
+
         /**
          * @brief Konstruktor
          *
@@ -72,6 +78,7 @@ class TeachersModel: public QAbstractTableModel {
          * @brief Získání indexu odpovídajícího předanému ID učitele
          *
          * Index ukazuje na první položku odpovídajícího řádku (tj. jméno)
+         * @todo Vracet jen int
          */
         QModelIndex indexFromId(int id) const;
 
