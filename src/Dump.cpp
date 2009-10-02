@@ -170,6 +170,7 @@ QString Dump::create(int flags, const QString& note) {
     root.appendChild(timetables);
 
     /* ID aktuaálního rozvrhu jen u zálohy, aktualizace jej měnit nesmí */
+    /** @todo Nastavovat, jen pokud existuje nějaký rozvrh (potom DTD řve o neplatném IDREF) */
     if(flags & DUMP) timetables.setAttribute("activeId", "t" + configurationQuery.value(4).toString());
 
     /* Dotaz do databáze na rozvrhy */
