@@ -82,7 +82,7 @@ CREATE TABLE timetables (
 -- dayHour      Den v týdnu a hodina (binárně oddělitelné)
 --                  0xF0 (4 bity) - den v týdnu (0x10 = úterý)
 --                  0x0F (4 bity) - hodina (0x02 = druhá hodina)
--- classId      ID předmětu. Pokud obsahuje 0x8000 0000, znamená to, že je hodina
+-- classId      ID předmětu. Pokud obsahuje 0x7000 0000, znamená to, že je hodina
 --                  zamknutá pro editaci jen správcem.
 CREATE TABLE timetableData (
     gradeId INTEGER NOT NULL,
