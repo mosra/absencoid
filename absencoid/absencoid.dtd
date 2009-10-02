@@ -57,7 +57,7 @@
 <!ELEMENT timetables (timetable*)>
 <!ATTLIST timetables activeId IDREF #IMPLIED>
     <!-- ID aktivního rozvrhu, např t1. Pokud se jedná o aktualizaci, je tento
-        parametr (ač povinný), ignorová, protože by měnil uživatelská data. -->
+        parametr (ač povinný), ignorován, protože by měnil uživatelská data. -->
 <!ELEMENT timetable (name, validFrom, data)>
 <!ATTLIST timetable
     id ID #REQUIRED
