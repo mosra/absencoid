@@ -41,7 +41,11 @@ class TimetableModel: public QAbstractItemModel {
     Q_OBJECT
 
     public:
-        static const int FIXED;    /** @brief Označení zamknuté položky */
+        /**
+         * @brief Označení zamknuté položky
+         * @todo Raději nějakou menší + jednobitovou hodnotu!
+         */
+        static const int FIXED = 0x70000000;
 
         /**
          * @brief Konstruktor
@@ -254,7 +258,7 @@ class TimetableModel: public QAbstractItemModel {
          * Konstanta použitá při specifikaci <tt>internalId</tt> indexu.
          * Označuje index jako kořenový (nemá žádnou nadřazenou položku).
          */
-        static const quint32 NO_PARENT;
+        static const quint32 NO_PARENT = 0xFFFF;
 
         /** @brief Flags pro rozvrh */
         enum Flags {

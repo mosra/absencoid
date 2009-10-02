@@ -10,10 +10,6 @@
 
 namespace Absencoid {
 
-const quint32 TimetableModel::NO_PARENT = 0xFFFF;
-/** @todo Raději nějakou menší + jednobitovou hodnotu! */
-const int TimetableModel::FIXED = 0x70000000;
-
 /* Konstruktor */
 TimetableModel::TimetableModel(ClassesModel* _classesModel, QObject* parent):
 QAbstractItemModel(parent), classesModel(_classesModel) {
