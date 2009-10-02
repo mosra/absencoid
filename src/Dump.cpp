@@ -13,9 +13,6 @@
 
 namespace Absencoid {
 
-const int Dump::DUMP_VERSION = 1;
-const int Dump::UPDATE_VERSION = 1;
-
 /* Konstruktor */
 Dump::Dump(bool indent): flags(indent ? INDENT : 0), _deltaTeachers(0),
 _deltaClasses(0), _deltaTimetables(0), _deltaTimetableData(0), _deltaChanges(0),

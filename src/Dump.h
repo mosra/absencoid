@@ -22,9 +22,8 @@ class Dump: public QObject {
         };
 
     public:
-        static const int
-            DUMP_VERSION,       /** @brief Verze dumpů */
-            UPDATE_VERSION;     /** @brief Verze aktualizací */
+        static const int DUMP_VERSION = 1;      /** @brief Verze dumpů */
+        static const int UPDATE_VERSION = 1;    /** @brief Verze aktualizací */
 
         /**
          * @brief Konstruktor
