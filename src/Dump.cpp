@@ -230,13 +230,13 @@ QString Dump::create(int flags, const QString& note) {
             QDomElement day = doc.createElement("day");
             lesson.appendChild(day);
             day.appendChild(doc.createTextNode(
-                QString::number((timetableDataQuery.value(0).toInt() & 0x70) >> 4)));
+                QString::number(TimetableModel::day(timetableDataQuery.value(0).toInt()))));
 
             /* <hour> */
             QDomElement hour = doc.createElement("hour");
             lesson.appendChild(hour);
             hour.appendChild(doc.createTextNode(
-                QString::number(timetableDataQuery.value(0).toInt() & 0x0F)));
+                QString::number(TimetableModel::hour(timetableDataQuery.value(0).toInt()))));
 
             /* Inkrementace počtu ovlivněných vyučovacích hodin */
             ++_deltaTimetableData;

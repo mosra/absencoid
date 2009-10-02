@@ -185,9 +185,31 @@ class TimetableModel: public QAbstractItemModel {
          * @param   hour        Hodina (0-9, 0 = nultá hodina)
          * @return  Den/hodina
          */
-        inline int dayHour(int day, int hour) const  {
+        static inline int dayHour(int day, int hour) {
             if(day < 0 || day > 4 || hour < 0 || hour > 9) return 0;
             return day << 4 | hour;
+        }
+
+        /**
+         * @brief Zjištění dne z dne/hodiny
+         *
+         * Pokud je předaný den/hodina neplatný, vrací 0 (pondělí).
+         */
+        static inline int day(int dayHour) {
+            int day = (dayHour & 0xF0) >> 4;
+            if(day < 0 || day > 4) return 0;
+            return day;
+        }
+
+        /**
+         * @brief Zjištění hodiny z dne/hodiny
+         *
+         * Pokud je předaný den/hodina neplatný, vrací 0 (nultá hodina).
+         */
+        static inline int hour(int dayHour) {
+            int hour = dayHour & 0x0F;
+            if(hour < 0 || hour > 9) return 0;
+            return hour;
         }
 
         /**
