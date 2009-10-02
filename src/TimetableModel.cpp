@@ -7,6 +7,7 @@
 
 #include "configure.h"
 #include "ClassesModel.h"
+#include "ChangesModel.h"
 
 namespace Absencoid {
 
@@ -552,8 +553,8 @@ int TimetableModel::timetablesWithThisLesson(QDate date, int hour, int classId, 
     /* Procházení platných rozvrhů a hledání hodiny. Bacha na to, v každém
         rozvrhu můžu inkrementovat jenom jednou! */
     foreach(int timetableIndex, valid) {
-        /* Hledáme předmět v jakékoli hodině */
-        if(hour == -1) for(int _hour = 0; _hour != 10; ++_hour) {
+        /* Hledáme předmět ve všech hodinách */
+        if(hour == ChangesModel::ALL_HOURS) for(int _hour = 0; _hour != 10; ++_hour) {
             int _dayHour = dayHour(day, _hour);
 
             /* Pokud je předmět jakýkoli, musí daná hodina alespoň existovat */

@@ -82,7 +82,7 @@ QVariant ChangesModel::data(const QModelIndex& index, int role) const {
     /* Hodina */
     } else if(index.column() == 1 && (role == Qt::DisplayRole || role == Qt::EditRole)) {
         /* Číslo hodiny -1 značí všechny hodiny */
-        if(changes[index.row()].hour == -1 && role == Qt::DisplayRole)
+        if(changes[index.row()].hour == ALL_HOURS && role == Qt::DisplayRole)
             return tr("Všechny");
 
         return changes[index.row()].hour;

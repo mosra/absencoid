@@ -229,9 +229,10 @@ class TimetableModel: public QAbstractItemModel {
          * závislosti na parametrech se předmět hledá v předaném dni a příslušné
          * hodině, v celém předaném dni nebo v celém rozvrhu.
          * @param   date        Datum
-         * @param   hour        Číslo hodiny (0 - 9), pokud je uvedeno -1,
-         *          hledá se ve všech hodinách daného dne, pokud je uvedeno
-         *          ještě něco jiného, hledá se v celém rozvrhu.
+         * @param   hour        Číslo hodiny (0 - 9), pokud je uvedeno
+         *          ChangesModel::ALL_HOURS, hledá se ve všech hodinách daného
+         *          dne, pokud je uvedeno ještě něco jiného, hledá se v celém
+         *          rozvrhu.
          * @param   classId     ID předmětu, pokud je uvedeno
          *          ClassesModel::WHATEVER, jen se zjišťuje, zda na daném místě
          *          je nějaká hodina.

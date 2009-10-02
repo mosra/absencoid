@@ -24,6 +24,11 @@ class TimetableModel;
  */
 class ChangesModel: public QAbstractTableModel {
     public:
+        /** @brief Flags */
+        enum Flags {
+            ALL_HOURS = -1      /** @brief Změna platí pro všechny hodiny */
+        };
+
         /**
          * @brief Konstruktor
          */
