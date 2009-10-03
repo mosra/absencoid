@@ -134,7 +134,7 @@ void UpdateDialog::downloadError(QNetworkReply::NetworkError code) {
             str = tr("Chyba při stahování: požadováno ověření uživatele!");
             break;
         default:
-            str = tr("Chyba při stahování souboru!").arg(code);
+            str = tr("Chyba při stahování souboru!");
     }
     addLogMessage(str, ERROR);
 }
