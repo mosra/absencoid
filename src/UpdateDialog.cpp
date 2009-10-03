@@ -108,10 +108,6 @@ void UpdateDialog::downloadProgress(qint64 bytesReceived, qint64 bytesTotal) {
     /* Neznámá velikost souboru */
     } else if(bytesTotal == -1)
         progressItem->setText(tr("  Stahování: %1 kB (neznámá velikost souboru)").arg(bytesReceived/1024));
-
-    /* Nulová velikost souboru (např. přesměrování) */
-    else
-        progressItem->setText(tr("  Stahování souboru"));
 }
 
 /* Chyba při stahování */
@@ -136,6 +132,7 @@ void UpdateDialog::downloadError(QNetworkReply::NetworkError code) {
         default:
             str = tr("Chyba při stahování souboru!");
     }
+    flags |= ERROR_OCCURED;
     addLogMessage(str, ERROR);
 }
 
@@ -167,7 +164,7 @@ void UpdateDialog::downloadFinished() {
         progressItem = 0;
 
     /* Normální chování */
-    } else if(code == 200) {
+    } else if(code == 200 && !(flags & ERROR_OCCURED)) {
         reply->close();
         addLogMessage(tr("Stahování bylo dokončeno"), DONE);
 
