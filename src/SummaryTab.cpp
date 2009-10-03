@@ -189,8 +189,9 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
 
     setLayout(layout);
 
-    /* Aktualizace z internetu po startu */
-    if(updateOnStart->isChecked()) QTimer::singleShot(0, this, SLOT(updateFromWebSilent()));
+    /* Aktualizace z internetu po startu (jen když je platná adresa) */
+    if(updateOnStart->isChecked() && webUpdateUrl->hasAcceptableInput())
+        QTimer::singleShot(0, this, SLOT(updateFromWebSilent()));
 }
 
 /* Vytvoření zálohy */
