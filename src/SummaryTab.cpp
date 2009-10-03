@@ -15,6 +15,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QTimer>
 
 #include "configure.h"
 #include "Dump.h"
@@ -187,6 +188,9 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     #endif
 
     setLayout(layout);
+
+    /* Aktualizace z internetu po startu */
+    if(updateOnStart->isChecked()) QTimer::singleShot(0, this, SLOT(updateFromWebSilent()));
 }
 
 /* Vytvoření zálohy */
@@ -351,7 +355,15 @@ void SummaryTab::setDumpOnExit() {
 
 /* Aktualizace z internetu */
 void SummaryTab::updateFromWeb() {
-    UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB|UpdateDialog::CHECK_DATE,
+    UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB,
+                        configurationModel->index(0, 4).data(Qt::EditRole).toDate(),
+                        webUpdateUrl->text());
+    dialog.exec();
+}
+
+/* Aktualizace z internetu */
+void SummaryTab::updateFromWebSilent() {
+    UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB|UpdateDialog::CHECK_DATE_SILENT,
                         configurationModel->index(0, 4).data(Qt::EditRole).toDate(),
                         webUpdateUrl->text());
     dialog.exec();

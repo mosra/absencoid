@@ -200,7 +200,7 @@ void UpdateDialog::updateStart(const QString& data, bool doUpdate) {
         /* Pokud je datum stejné nebo starší než datum poslední aktualizace,
             nemáme co aktualizovat */
         if(flags & CHECK_DATE && date <= lastUpdate) {
-            QMessageBox::information(this, tr("Žádné aktualizace k dispozici"),
+            if(!flags & CHECK_DATE_SILENT) QMessageBox::information(this, tr("Žádné aktualizace k dispozici"),
                 tr("Nebyla nalezena žádná aktualizace novější než z %1.").arg(lastUpdate.toString("ddd dd.MM.yyyy")));
             return accept();
         }

@@ -55,6 +55,9 @@ class SummaryTab: public QWidget {
         /** @brief Aktualizace z internetu */
         void updateFromWeb();
 
+        /** @brief Aktualizace z internetu, pokud nenajde novější aktualizaci, neaktualizuje */
+        void updateFromWebSilent();
+
         /** @brief Aktualizace ze souboru */
         void updateFromFile();
 

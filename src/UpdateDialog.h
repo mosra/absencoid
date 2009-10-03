@@ -25,7 +25,22 @@ class UpdateDialog: public QDialog {
             LOAD_DUMP = 2,      /** @brief Načíst zálohu */
             FROM_FILE = 4,      /** @brief Aktualizovat ze soubor */
             FROM_WEB = 8,       /** @brief Aktualizovat z internetu */
-            CHECK_DATE = 16     /** @brief Kontrolovat datum aktualizace, pokud není novější, neaktualizovat */
+
+            /**
+             * @brief Kontrolovat datum aktualizace
+             *
+             * Pokud není nalezena novější aktualizace, zobrazí informační
+             * okénko a poté zavře dialog.
+             */
+            CHECK_DATE = 0x10,
+
+            /**
+             * @brief Kontrolovat (potichu) datum aktualizace
+             *
+             * Pokud není nalezena novější aktualizace, tiše zavře dialog.
+             * Implikuje UpdateDialog::CHECK_DATE.
+             */
+            CHECK_DATE_SILENT = 0x30
         };
 
         /**
