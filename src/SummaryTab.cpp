@@ -22,6 +22,7 @@
 #include "ConfigurationModel.h"
 #include "TimetableTab.h"
 #include "TimetableModel.h"
+#include "UpdateDialog.h"
 
 namespace Absencoid {
 
@@ -62,12 +63,16 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     dumpOnExit = new QCheckBox(configurationModel->headerData(6, Qt::Horizontal).toString());
     dumpOnExit->setChecked(configurationModel->index(0, 6).data(Qt::EditRole).toBool());
 
-    /* Tlačítko pro aktualizaci */
+    /* Tlačítko pro aktualizaci s popup menu */
     QPushButton* updateButton = new QPushButton(tr("Aktualizovat"));
     QMenu* updateButtonMenu = new QMenu(updateButton);
-    updateFromWeb = updateButtonMenu->addAction("Z internetu");
-    updateButtonMenu->addAction("Ze souboru");
     updateButton->setMenu(updateButtonMenu);
+
+    /* Položky v menu */
+    updateFromWebAction =           updateButtonMenu->addAction("Z internetu");
+    QAction* updateFromFileAction = updateButtonMenu->addAction("Ze souboru");
+    connect(updateFromWebAction,    SIGNAL(triggered(bool)), this, SLOT(updateFromWeb()));
+    connect(updateFromFileAction,   SIGNAL(triggered(bool)), this, SLOT(updateFromFile()));
 
     /* Políčko s URL */
     webUpdateUrl = new QLineEdit;
@@ -78,11 +83,13 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     connect(webUpdateUrl, SIGNAL(textChanged(QString)), this, SLOT(validateUrlEdit()));
     webUpdateUrl->setText(configurationModel->index(0, 3).data().toString());
 
-    /* Tlačítko pro vytvoření aktualizace, zálohy */
+    /* Tlačítko pro vytvoření aktualizace, zálohy, obnovení ze zálohy */
     QPushButton* createUpdateButton = new QPushButton(tr("Vytvořit aktualizaci"));
     QPushButton* createDumpButton = new QPushButton(tr("Zálohovat"));
+    QPushButton* loadDumpButton = new QPushButton(tr("Obnovit ze zálohy"));
     connect(createUpdateButton, SIGNAL(clicked(bool)), this, SLOT(createUpdate()));
     connect(createDumpButton, SIGNAL(clicked(bool)), this, SLOT(createDump()));
+    connect(loadDumpButton, SIGNAL(clicked(bool)), this, SLOT(loadDump()));
 
     /* Propojení změn v políčkách s ukládacími akcemi */
     connect(beginDate, SIGNAL(editingFinished()), this, SLOT(setBeginDate()));
@@ -129,7 +136,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     settingsGroup->setLayout(settingsLayout);
 
     /* PRAVÝ SPODNÍ GROUPBOX (AKTUALIZACE) */
-    QString lastUpdate = configurationModel->index(0, 4).data().toDate().toString("ddd dd.MM.yyyy");
+    QString lastUpdate = configurationModel->index(0, 4).data().toString();
     updateGroup = new QGroupBox(tr("Aktualizace") + (!lastUpdate.isEmpty() ? tr(" (naposledy %1)").arg(lastUpdate) : ""));
 
     /* Layout pro tlačítka */
@@ -151,7 +158,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     /* Layout pro tlačítka */
     QHBoxLayout* dumpButtonsLayout = new QHBoxLayout;
     dumpButtonsLayout->addWidget(createDumpButton);
-    dumpButtonsLayout->addWidget(new QPushButton(tr("Obnovit ze zálohy")));
+    dumpButtonsLayout->addWidget(loadDumpButton);
 
     /* Celkový layout */
     QVBoxLayout* dumpLayout = new QVBoxLayout;
@@ -294,10 +301,10 @@ void SummaryTab::validateUrlEdit() {
 
     if(!webUpdateUrl->hasAcceptableInput()) {
         p.setColor(QPalette::Base, QColor("#ffcccc"));
-        updateFromWeb->setDisabled(true);
+        updateFromWebAction->setDisabled(true);
     } else {
         p.setColor(QPalette::Base, QColor("#ffffff"));
-        updateFromWeb->setDisabled(false);
+        updateFromWebAction->setDisabled(false);
     }
 
     webUpdateUrl->setPalette(p);
@@ -340,6 +347,28 @@ void SummaryTab::setUpdateOnStart() {
 /* Nastavení zálohování při ukončení */
 void SummaryTab::setDumpOnExit() {
     configurationModel->setData(configurationModel->index(0, 6), dumpOnExit->checkState(), Qt::CheckStateRole);
+}
+
+/* Aktualizace z internetu */
+void SummaryTab::updateFromWeb() {
+    UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB|UpdateDialog::CHECK_DATE,
+                        configurationModel->index(0, 4).data(Qt::EditRole).toDate(),
+                        webUpdateUrl->text());
+    dialog.exec();
+}
+
+/* Aktualizace ze souboru */
+void SummaryTab::updateFromFile() {
+    UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_FILE,
+                        configurationModel->index(0, 4).data(Qt::EditRole).toDate());
+    dialog.exec();
+}
+
+/* Načtení zálohy */
+void SummaryTab::loadDump() {
+    UpdateDialog dialog(UpdateDialog::LOAD_DUMP|UpdateDialog::FROM_FILE,
+                        configurationModel->index(0, 4).data(Qt::EditRole).toDate());
+    dialog.exec();
 }
 
 }

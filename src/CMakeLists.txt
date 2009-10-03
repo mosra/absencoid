@@ -9,7 +9,9 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/configure.h.cmake ${CMAKE_CURRENT_BIN
 qt4_wrap_cpp(AbsencoidMOC
     MainWindow.h
     SummaryTab.h
+    Update.h
     CreateUpdateDialog.h
+    UpdateDialog.h
     TeachersTab.h
     ClassesTab.h
     TimetableModel.h
@@ -29,7 +31,8 @@ qt4_add_resources(AbsencoidRCC data.qrc OPTIONS -compress 9 -threshold 0)
 add_executable(absencoid
     main.cpp MainWindow.cpp AboutDialog.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
-    SummaryTab.cpp Dump.cpp CreateUpdateDialog.cpp ConfigurationModel.cpp
+    SummaryTab.cpp CreateUpdateDialog.cpp UpdateDialog.cpp
+    Dump.cpp Update.cpp ConfigurationModel.cpp
     TeachersModel.cpp TeachersTab.cpp
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp
@@ -37,4 +40,4 @@ add_executable(absencoid
     AbsencesModel.cpp AbsencesTab.cpp
     ${AbsencoidMOC} ${AbsencoidRCC}
     )
-target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTXML_LIBRARY})
+target_link_libraries(absencoid ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY} ${QT_QTSQL_LIBRARY} ${QT_QTXML_LIBRARY} ${QT_QTNETWORK_LIBRARY})

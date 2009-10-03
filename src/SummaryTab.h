@@ -25,50 +25,41 @@ class SummaryTab: public QWidget {
         SummaryTab(TimetableTab* _timetableTab, QWidget* parent = 0);
 
     private slots:
-        /**
-         * @brief Vytvoření zálohy
-         */
+        /** @brief Vytvoření zálohy */
         void createDump();
 
-        /**
-         * @brief Vytvoření aktualizačního souboru
-         */
+        /** @brief Vytvoření aktualizačního souboru */
         void createUpdate();
 
-        /**
-         * @brief Ověření správnosti URL
-         */
+        /** @brief Ověření správnosti URL */
         void validateUrlEdit();
 
-        /**
-         * @brief Nastavení data začátku pololetí
-         */
+        /** @brief Nastavení data začátku pololetí */
         void setBeginDate();
 
-        /**
-         * @brief Nastavení data konce pololetí
-         */
+        /** @brief Nastavení data konce pololetí */
         void setEndDate();
 
-        /**
-         * @brief Nastavení aktuálního rozvrhu
-         */
+        /** @brief Nastavení aktuálního rozvrhu */
         void setActiveTimetable();
 
-        /**
-         * @brief Nastavení URL pro aktualizaci z internetu
-         */
+        /** @brief Nastavení URL pro aktualizaci z internetu */
         void setWebUpdateUrl();
 
-        /**
-         * @brief Nastavení aktualizace po startu
-         */
+        /** @brief Nastavení aktualizace po startu */
         void setUpdateOnStart();
 
-        /**
-         * @brief Nastavení zálohování při ukončení
-         */
+        /** @brief Nastavení zálohování při ukončení */
         void setDumpOnExit();
+
+        /** @brief Aktualizace z internetu */
+        void updateFromWeb();
+
+        /** @brief Aktualizace ze souboru */
+        void updateFromFile();
+
+        /** @brief Obnovení zálohy */
+        void loadDump();
 
     private:
         QDateEdit* beginDate;       /** @brief Začátek pololetí */
@@ -78,7 +69,7 @@ class SummaryTab: public QWidget {
         QCheckBox* updateOnStart;   /** @brief Aktualizovat po startu */
         QCheckBox* dumpOnExit;      /** @brief Zálohovat při ukončení */
         QLineEdit* webUpdateUrl;    /** @brief Políčko s URL pro aktualizaci z internetu */
-        QAction* updateFromWeb;     /** @brief Akce menu pro aktualizaci z internetu */
+        QAction* updateFromWebAction; /** @brief Akce menu pro aktualizaci z internetu */
 
         /** @brief Model pro konfiguraci */
         ConfigurationModel* configurationModel;
