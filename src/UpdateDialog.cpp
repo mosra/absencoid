@@ -199,7 +199,7 @@ void UpdateDialog::updateStart(const QString& data, bool doUpdate) {
         if(flags & CHECK_DATE && date <= lastUpdate) {
             if(!flags & CHECK_DATE_SILENT) QMessageBox::information(this, tr("Žádné aktualizace k dispozici"),
                 tr("Nebyla nalezena žádná aktualizace novější než z %1.").arg(lastUpdate.toString("ddd dd.MM.yyyy")));
-            return accept();
+            return reject();
         }
 
         QString text = tr("<strong>Datum aktualizačního souboru:</strong> %1").arg(date.toString("ddd dd.MM.yyyy"));
