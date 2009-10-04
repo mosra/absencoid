@@ -17,12 +17,17 @@
 #include <QApplication>
 
 #include "configure.h"
+#include "ConfigurationModel.h"
 #include "SummaryTab.h"
 #include "TeachersModel.h"
 #include "TeachersTab.h"
+#include "ClassesModel.h"
 #include "ClassesTab.h"
+#include "TimetableModel.h"
 #include "TimetableTab.h"
+#include "ChangesModel.h"
 #include "ChangesTab.h"
+#include "AbsencesModel.h"
 #include "AbsencesTab.h"
 #include "AboutDialog.h"
 
@@ -113,6 +118,16 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     /* Absence */
     AbsencesTab* absencesTab = new AbsencesTab(classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
     tabWidget->addTab(absencesTab, tr("Absence"));
+
+    /* Propojení signálu o aktualizaci databáze s reload funkcemi modelů.
+        Bacha, pořadí je důležité! ConfigurationModel potřebuje aktualizovaná
+        data z TimetableTab */
+    connect(summaryTab, SIGNAL(updated()), teachersTab->getTeachersModel(), SLOT(reload()));
+    connect(summaryTab, SIGNAL(updated()), classesTab->getClassesModel(), SLOT(reload()));
+    connect(summaryTab, SIGNAL(updated()), timetableTab->getTimetableModel(), SLOT(reload()));
+    connect(summaryTab, SIGNAL(updated()), changesTab->getChangesModel(), SLOT(reload()));
+    connect(summaryTab, SIGNAL(updated()), absencesTab->getAbsencesModel(), SLOT(reload()));
+    connect(summaryTab, SIGNAL(updated()), summaryTab->getConfigurationModel(), SLOT(reload()));
 
     setCentralWidget(tabWidget);
 

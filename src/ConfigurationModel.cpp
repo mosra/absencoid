@@ -11,6 +11,11 @@ namespace Absencoid {
 /* Konstruktor */
 ConfigurationModel::ConfigurationModel(TimetableModel* _timetableModel, QObject* parent):
 QAbstractTableModel(parent), timetableModel(_timetableModel), activeTimetableId(0), booleans(0) {
+    reload();
+}
+
+/* (Znovu)načtení dat z DB */
+void ConfigurationModel::reload() {
     QSqlQuery query(
         "SELECT beginDate, endDate, activeTimetableId, webUpdateUrl, lastUpdate, flags "
         "FROM configuration LIMIT 1;");
@@ -29,6 +34,8 @@ QAbstractTableModel(parent), timetableModel(_timetableModel), activeTimetableId(
     webUpdateUrl = query.value(3).toString();
     lastUpdate = query.value(4).toDate();
     booleans = query.value(5).toInt();
+
+    reset();
 }
 
 /* Počet sloupců */

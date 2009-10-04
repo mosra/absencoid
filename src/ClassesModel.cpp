@@ -15,6 +15,13 @@ const int ClassesModel::WHATEVER = -1;
 /* Konstruktor */
 ClassesModel::ClassesModel(TeachersModel* _teachersModel, QObject* parent):
 QAbstractTableModel(parent), teachersModel(_teachersModel) {
+    reload();
+}
+
+/* (Znovu)načtení dat z databáze */
+void ClassesModel::reload() {
+    classes.clear();
+
     /* Dotaz */
     QSqlQuery query("SELECT id, name, teacherId FROM classes ORDER by name;");
 
@@ -28,6 +35,8 @@ QAbstractTableModel(parent), teachersModel(_teachersModel) {
         c.teacherId = query.value(2).toInt();
         classes.append(c);
     }
+
+    reset();
 }
 
 /* Počet sloupců */

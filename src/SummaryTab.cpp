@@ -29,12 +29,13 @@ namespace Absencoid {
 
 /* Konstruktor */
 SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(parent), timetableTab(_timetableTab) {
-    /* Inicializace konfiguračního modelu */
+    /* Inicializace konfiguračního modelu, propojení aktualizace DB s jeho reloadem */
     configurationModel = new ConfigurationModel(timetableTab->getTimetableModel(), this);
+    connect(configurationModel, SIGNAL(modelReset()), this, SLOT(loadData()));
 
     /* Políčka pro editaci data */
-    beginDate = new QDateEdit(configurationModel->index(0, 0).data(Qt::EditRole).toDate());
-    endDate   = new QDateEdit(configurationModel->index(0, 1).data(Qt::EditRole).toDate());
+    beginDate = new QDateEdit;
+    endDate   = new QDateEdit;
     beginDate->setDisplayFormat("ddd dd.MM.yyyy");
     endDate  ->setDisplayFormat("ddd dd.MM.yyyy");
 
@@ -52,7 +53,6 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     activeTimetable = new QComboBox;
     activeTimetable->setModel(timetableTab->getTimetableModel());
     activeTimetable->setModelColumn(1);
-    activeTimetable->setCurrentIndex(configurationModel->index(0, 2).data(Qt::EditRole).toInt());
 
     /* Nastavení aktuálního indexu do modelu rozvrhů, načtení aktuálního rozvrhu */
     timetableTab->getTimetableModel()->setActualTimetable(activeTimetable->currentIndex());
@@ -60,9 +60,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
 
     /* Checkboxy */
     updateOnStart = new QCheckBox(configurationModel->headerData(5, Qt::Horizontal).toString());
-    updateOnStart->setChecked(configurationModel->index(0, 5).data(Qt::EditRole).toBool());
     dumpOnExit = new QCheckBox(configurationModel->headerData(6, Qt::Horizontal).toString());
-    dumpOnExit->setChecked(configurationModel->index(0, 6).data(Qt::EditRole).toBool());
 
     /* Tlačítko pro aktualizaci s popup menu */
     QPushButton* updateButton = new QPushButton(tr("Aktualizovat"));
@@ -82,7 +80,6 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
 
     /* Ověřování zadané URL */
     connect(webUpdateUrl, SIGNAL(textChanged(QString)), this, SLOT(validateUrlEdit()));
-    webUpdateUrl->setText(configurationModel->index(0, 3).data().toString());
 
     /* Tlačítko pro vytvoření aktualizace, zálohy, obnovení ze zálohy */
     QPushButton* createUpdateButton = new QPushButton(tr("Vytvořit aktualizaci"));
@@ -137,8 +134,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     settingsGroup->setLayout(settingsLayout);
 
     /* PRAVÝ SPODNÍ GROUPBOX (AKTUALIZACE) */
-    QString lastUpdate = configurationModel->index(0, 4).data().toString();
-    updateGroup = new QGroupBox(tr("Aktualizace") + (!lastUpdate.isEmpty() ? tr(" (naposledy %1)").arg(lastUpdate) : ""));
+    updateGroup = new QGroupBox;
 
     /* Layout pro tlačítka */
     QHBoxLayout* updateButtonLayout = new QHBoxLayout;
@@ -188,6 +184,9 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     #endif
 
     setLayout(layout);
+
+    /* Načtení dat */
+    loadData();
 
     /* Aktualizace z internetu po startu (jen když je platná adresa) */
     if(updateOnStart->isChecked() && webUpdateUrl->hasAcceptableInput())
@@ -315,6 +314,27 @@ void SummaryTab::validateUrlEdit() {
     webUpdateUrl->setPalette(p);
 }
 
+/* (Znovu)načtení dat do políček */
+void SummaryTab::loadData() {
+    /* Datum začátku a konce pololetí */
+    beginDate->setDate(configurationModel->index(0, 0).data(Qt::EditRole).toDate());
+    endDate->setDate(configurationModel->index(0, 1).data(Qt::EditRole).toDate());
+
+    /* Aktivní rozvrh */
+    activeTimetable->setCurrentIndex(configurationModel->index(0, 2).data(Qt::EditRole).toInt());
+
+    /* Zda aktualizovat po startu, zálohovat při ukončení */
+    updateOnStart->setChecked(configurationModel->index(0, 5).data(Qt::EditRole).toBool());
+    dumpOnExit->setChecked(configurationModel->index(0, 6).data(Qt::EditRole).toBool());
+
+    /* Datum poslední aktualizace v nadpisku */
+    QString lastUpdate = configurationModel->index(0, 4).data().toString();
+    updateGroup->setTitle(tr("Aktualizace") + (!lastUpdate.isEmpty() ? tr(" (naposledy %1)").arg(lastUpdate) : ""));
+
+    /* URL pro aktualizace po internetu */
+    webUpdateUrl->setText(configurationModel->index(0, 3).data().toString());
+}
+
 /* Nastavení začátku pololetí */
 void SummaryTab::setBeginDate() {
     configurationModel->setData(configurationModel->index(0, 0), beginDate->date(), Qt::EditRole);
@@ -359,29 +379,37 @@ void SummaryTab::updateFromWeb() {
     UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB,
                         configurationModel->index(0, 4).data(Qt::EditRole).toDate(),
                         webUpdateUrl->text());
-    dialog.exec();
+
+    /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
+    if(dialog.exec() == QDialog::Accepted) emit updated();
 }
 
-/* Aktualizace z internetu */
+/* Aktualizace z internetu (tichá) */
 void SummaryTab::updateFromWebSilent() {
     UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB|UpdateDialog::CHECK_DATE_SILENT,
                         configurationModel->index(0, 4).data(Qt::EditRole).toDate(),
                         webUpdateUrl->text());
-    dialog.exec();
+
+    /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
+    if(dialog.exec() == QDialog::Accepted) emit updated();
 }
 
 /* Aktualizace ze souboru */
 void SummaryTab::updateFromFile() {
     UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_FILE,
                         configurationModel->index(0, 4).data(Qt::EditRole).toDate());
-    dialog.exec();
+
+    /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
+    if(dialog.exec() == QDialog::Accepted) emit updated();
 }
 
 /* Načtení zálohy */
 void SummaryTab::loadDump() {
     UpdateDialog dialog(UpdateDialog::LOAD_DUMP|UpdateDialog::FROM_FILE,
                         configurationModel->index(0, 4).data(Qt::EditRole).toDate());
-    dialog.exec();
+
+    /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
+    if(dialog.exec() == QDialog::Accepted) emit updated();
 }
 
 }

@@ -14,6 +14,13 @@ namespace Absencoid {
 
 /* Konstruktor */
 TeachersModel::TeachersModel(QObject* parent): QAbstractTableModel(parent) {
+    reload();
+}
+
+/* Načtení databáze */
+void TeachersModel::reload() {
+    teachers.clear();
+
     /* Výběr všech učitelů */
     QSqlQuery query("SELECT id, name, flags FROM teachers ORDER BY name;");
 
@@ -25,6 +32,8 @@ TeachersModel::TeachersModel(QObject* parent): QAbstractTableModel(parent) {
         t.flags = query.value(2).toInt();
         teachers.append(t);
     }
+
+    reset();
 }
 
 /* Počet řádků */

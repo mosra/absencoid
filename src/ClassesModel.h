@@ -24,6 +24,8 @@ class TeachersModel;
  * <tt>classId</tt> je rovno konstantě Absencoid::ClassesModel::WHATEVER.
  */
 class ClassesModel: public QAbstractTableModel {
+    Q_OBJECT
+
     public:
 
         /**
@@ -99,6 +101,14 @@ class ClassesModel: public QAbstractTableModel {
          * @brief Získání ID předmětu z indexu
          */
         int idFromIndex(int index);
+
+    public slots:
+        /**
+         * @brief (Znovu)načtení dat z databáze
+         *
+         * Pokud nejde o první načtení, vyšle také resetovací signál.
+         */
+        void reload();
 
     private:
         /** @brief Struktura pro předmět */

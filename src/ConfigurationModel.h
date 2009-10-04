@@ -28,6 +28,8 @@ class TimetableModel;
  * hodnoty jako boolean.
  */
 class ConfigurationModel: public QAbstractTableModel {
+    Q_OBJECT
+
     public:
         /** @brief Flags */
         enum Flags {
@@ -72,6 +74,14 @@ class ConfigurationModel: public QAbstractTableModel {
          * @brief Zápisový přístup k datům
          */
         virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole);
+
+    public slots:
+        /**
+        * @brief (Znovu)načtení dat z databáze
+        *
+        * Pokud nejde o první načtení, vyšle také resetovací signál.
+        */
+        void reload();
 
     private:
         TimetableModel* timetableModel; /** @brief Ukazatel na model rozvrhů */

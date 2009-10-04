@@ -73,6 +73,14 @@ class AbsencesModel: public QAbstractTableModel {
          */
         virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
+    public slots:
+        /**
+        * @brief (Znovu)načtení dat z databáze
+        *
+        * Pokud nejde o první načtení, vyšle také resetovací signál.
+        */
+        void reload();
+
     private slots:
         /**
          * @brief Zkontrolování změn v rozvrzích a aplikování jich sem

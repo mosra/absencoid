@@ -24,6 +24,13 @@ class SummaryTab: public QWidget {
          */
         SummaryTab(TimetableTab* _timetableTab, QWidget* parent = 0);
 
+        /** @brief Získání modelu konfigurace */
+        ConfigurationModel* getConfigurationModel() { return configurationModel; }
+
+    signals:
+        /** @brief Databáze byla aktualizována */
+        void updated();
+
     private slots:
         /** @brief Vytvoření zálohy */
         void createDump();
@@ -33,6 +40,9 @@ class SummaryTab: public QWidget {
 
         /** @brief Ověření správnosti URL */
         void validateUrlEdit();
+
+        /** @brief Načtení dat do políček */
+        void loadData();
 
         /** @brief Nastavení data začátku pololetí */
         void setBeginDate();

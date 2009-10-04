@@ -11,6 +11,8 @@ namespace Absencoid {
  * Obousměrný přístup k datům učitelů.
  */
 class TeachersModel: public QAbstractTableModel {
+    Q_OBJECT
+
     public:
         /** @brief Flags */
         enum Flags {
@@ -86,6 +88,14 @@ class TeachersModel: public QAbstractTableModel {
          * @brief Získání ID učitele z předaného indexu či čísla řádku
          */
         int idFromIndex(int row) const;
+
+    public slots:
+        /**
+         * @brief (Znovu)načtení dat z databáze
+         *
+         * Pokud nejde o první načtení, vyšle také resetovací signál.
+         */
+        void reload();
 
     private:
         /** @brief Struktura pro data učitele */

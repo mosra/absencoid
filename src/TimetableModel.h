@@ -253,6 +253,13 @@ class TimetableModel: public QAbstractItemModel {
 
     public slots:
         /**
+         * @brief (Znovu)načtení dat z databáze
+         *
+         * Pokud nejde o první načtení, vyšle také resetovací signál.
+         */
+        void reload();
+
+        /**
          * @brief Slot pro nastavení aktuálního rozvrhu
          */
         void setActualTimetable(int index);

@@ -14,6 +14,12 @@ namespace Absencoid {
 /* Konstruktor */
 TimetableModel::TimetableModel(ClassesModel* _classesModel, QObject* parent):
 QAbstractItemModel(parent), classesModel(_classesModel) {
+    reload();
+}
+
+/* (Znovu)načtení dat z databáze */
+void TimetableModel::reload() {
+    timetables.clear();
 
     /* Načtení seznamu rozvrhů (kořenové položky) */
     QSqlQuery query("SELECT id, description, validFrom, followedBy FROM timetables ORDER BY description, validFrom;");
@@ -45,6 +51,8 @@ QAbstractItemModel(parent), classesModel(_classesModel) {
 
         timetables.append(t);
     }
+
+    reset();
 }
 
 /* Vytvoření indexu příslušné položky */

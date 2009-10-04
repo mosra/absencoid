@@ -16,6 +16,12 @@ const int AbsencesModel::SCHOOL_ACTION = 0x8000;
 
 /* Konstruktor */
 AbsencesModel::AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, ChangesModel* _changesModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel), changesModel(_changesModel) {
+    reload();
+}
+
+/* (Znovu)načtení dat z databáze */
+void AbsencesModel::reload() {
+    absences.clear();
 
     /* SQL dotaz */
     QSqlQuery query;
@@ -49,6 +55,8 @@ AbsencesModel::AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timet
     /* Propojení signálu o odebrání rozvrhu s resetovací fcí */
     connect(timetableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
             this, SLOT(reloadAllClassIds()));
+
+    reset();
 }
 
 /* Počet sloupců */

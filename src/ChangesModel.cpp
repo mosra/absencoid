@@ -13,6 +13,14 @@ namespace Absencoid {
 
 /* Konstruktor */
 ChangesModel::ChangesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel) {
+    reload();
+}
+
+/* (Znovu)načtení dat z databáze */
+void ChangesModel::reload() {
+    changes.clear();
+
+    /* Načtení seznamu změn */
     QSqlQuery query("SELECT id, date, hour, fromClassId, toClassId FROM changes ORDER BY date;");
 
     /* Procházení vüsledků dotazu */
@@ -25,6 +33,8 @@ ChangesModel::ChangesModel(ClassesModel* _classesModel, TimetableModel* _timetab
         c.toClassId = query.value(4).toInt();
         changes.append(c);
     }
+
+    reset();
 }
 
 /* Počet sloupců */

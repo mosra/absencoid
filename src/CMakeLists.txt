@@ -8,14 +8,18 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/configure.h.cmake ${CMAKE_CURRENT_BIN
 
 qt4_wrap_cpp(AbsencoidMOC
     MainWindow.h
+    ConfigurationModel.h
     SummaryTab.h
     Update.h
     CreateUpdateDialog.h
     UpdateDialog.h
+    TeachersModel.h
     TeachersTab.h
+    ClassesModel.h
     ClassesTab.h
     TimetableModel.h
     TimetableTab.h
+    ChangesModel.h
     ChangesTab.h
     AbsencesModel.h
     AbsencesTab.h
