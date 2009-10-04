@@ -138,6 +138,9 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
 void TimetableTab::loadTimetable(int index) {
     /* Pokud je index záporný (tj. neexistuje žádný rozvrh), zašednutí políček */
     if(index == -1) {
+        /* Přepnutí tabulky na první možný index */
+        timetableView->setRootIndex(timetableModel->index(0, 0));
+
         timetableView->setDisabled(true);
         removeTimetableButton->setDisabled(true);
         descriptionLabel->setDisabled(true);
@@ -151,6 +154,9 @@ void TimetableTab::loadTimetable(int index) {
 
     /* Jinak odšednutí */
     } else {
+        /* Přepnutí tabulky na daný index */
+        timetableView->setRootIndex(timetableModel->index(index, 0));
+
         timetableView->setDisabled(false);
         #ifdef ADMIN_VERSION
         removeTimetableButton->setDisabled(false);
@@ -166,9 +172,6 @@ void TimetableTab::loadTimetable(int index) {
 
     /* Přepnutí comboboxu na daný index */
     timetableCombo->setCurrentIndex(index);
-
-    /* Přepnutí tabulky na daný index */
-    timetableView->setRootIndex(timetableModel->index(index, 0));
 
     /* Nastavení popisku */
     description->setText(timetableModel->index(index, 1).data().toString());

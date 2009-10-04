@@ -95,11 +95,9 @@ QModelIndex TimetableModel::parent(const QModelIndex& child) const {
 
 /* Počet sloupců */
 int TimetableModel::columnCount(const QModelIndex& parent) const {
-    /* Neplatný index, vracíme počet sloupců kořenového seznamu rozvrhů */
-    if(!parent.isValid()) return 4;
-
-    /* Rodič je položka v seznamu rozvrhů => vracíme počet sloupců (dnů) v rozvrhu */
-    if(parent.internalId() == NO_PARENT)
+    /* Pro kořenový seznam rozvrhů (4 sloupce) i položku rozvrhu (počet dnů)
+        vracíme stejně (kvůli hlavičkám Po - Pá, pokud není žádný rozvrh v tabulce) */
+    if(!parent.isValid() || parent.internalId() == NO_PARENT)
         return 5;
 
     /* Rodič je nejspíše položka v datech rozvrhu, ta už nemá žádné potomky */
