@@ -185,6 +185,9 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
 
     setLayout(layout);
 
+    /* Zkontrolování validity URL */
+    validateUrlEdit();
+
     /* Načtení dat */
     loadData();
 
