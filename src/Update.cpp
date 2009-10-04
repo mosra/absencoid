@@ -273,7 +273,7 @@ void Update::run() {
         /* Nastavení ID aktuálního rozvrhu (ne pokud jenom aktualizujeme) */
         if(!isUpdate) {
             /* pokud parametr neexistuje (např. žádné rozvrhy nejsou), nebudeme nadávat */
-            int actualTimetableId = timetables.attribute("activeId", "1").toInt();
+            int actualTimetableId = timetables.attribute("activeId", "1").mid(1).toInt();
 
             query.prepare("UPDATE configuration SET activeTimetableId = :activeTimetableId;");
             query.bindValue(":activeTimetableId", actualTimetableId);
@@ -284,7 +284,7 @@ void Update::run() {
         if(!query.exec("DELETE FROM timetables;"))
             throw SqlException(tr("Nepodařilo se smazat staré rozvrhy!"), query);
         int timetablesCount = -query.numRowsAffected();
-        int timetableDataCount;
+        int timetableDataCount = 0;
 
         /* Resetování AUTOINCREMENT */
         if(!query.exec("DELETE FROM sqlite_sequence WHERE name = \"timetables\";"))
@@ -483,12 +483,12 @@ void Update::run() {
 
             /* Smazání starých absencí, uložení jejich počtu pro statistiku */
             if(!query.exec("DELETE FROM absences;"))
-                throw SqlException(tr("Nelze smazat staré změny!"), query);
+                throw SqlException(tr("Nelze smazat staré absence!"), query);
             int absencesCount = -query.numRowsAffected();
 
             /* Reset AUTOINCREMENT */
-            if(!query.exec("DELETE FROM sqlite_sequence WHERE name = \"sqlite_sequence\";"))
-                throw SqlException(tr("Nelze resetovat tabulku změn!"), query);
+            if(!query.exec("DELETE FROM sqlite_sequence WHERE name = \"absences\";"))
+                throw SqlException(tr("Nelze resetovat tabulku absencí!"), query);
 
             /* Připravení dotazu pro vkládání absencí */
             query.prepare("INSERT INTO absences (gradeId, id, date, hours) "
@@ -501,7 +501,7 @@ void Update::run() {
 
                 /* ID absence (odseknutí 'x' a převod na int) */
                 if(!absence.hasAttribute("id")) throw tr("Nenalezeno ID absence!");
-                int id = absence.attribute("id").mid(0).toInt();
+                int id = absence.attribute("id").mid(1).toInt();
 
                 /* <date> */
                 QDomElement _date = absence.firstChildElement("date");
@@ -510,7 +510,7 @@ void Update::run() {
 
                 /* <allHours> */
                 QDomElement allHours = absence.firstChildElement("allHours");
-                int hours;
+                int hours = 0;
                 if(!allHours.isNull()) hours = ChangesModel::ALL_HOURS;
 
                 /* <hour> */
