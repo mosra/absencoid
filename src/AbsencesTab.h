@@ -22,6 +22,9 @@ class AbsencesTab: public QWidget {
          */
         AbsencesTab(ClassesModel* classesModel, TimetableModel* timetablesModel, ChangesModel* changesModel, QWidget* parent = 0);
 
+        /** @brief Získání modelu absencí */
+        AbsencesModel* getAbsencesModel() { return absencesModel; }
+
     private:
         AbsencesModel* absencesModel;       /** @brief Model absencí */
         QTableView* absencesView;           /** @brief Tabulka absencí */
