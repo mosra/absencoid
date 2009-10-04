@@ -62,7 +62,7 @@ ChangesTab::ChangesTab(TimetableModel* timetableModel, ClassesModel* classesMode
             this, SLOT(updateRemoveButton()));
 
     #ifndef ADMIN_VERSION
-    addChangedLessonButton->setDisabled(true);
+    addChangeButton->setDisabled(true);
     #endif
 
     setLayout(layout);

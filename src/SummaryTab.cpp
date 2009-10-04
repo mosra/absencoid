@@ -178,8 +178,8 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     layout->setColumnStretch(1, 0);
 
     #ifndef ADMIN_VERSION
-    begin->setDisabled(true);
-    end->setDisabled(true);
+    beginDate->setDisabled(true);
+    endDate->setDisabled(true);
     createUpdateButton->setDisabled(true);
     #endif
 
