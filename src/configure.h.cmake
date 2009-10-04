@@ -6,11 +6,11 @@
 #cmakedefine ADMIN_VERSION
 
 #ifdef ADMIN_VERSION
-#define APP_VERSION         "0.90"
+#define APP_VERSION         "0.91"
 #else
-#define APP_VERSION         "0.90bfu"
+#define APP_VERSION         "0.91bfu"
 #endif
 
-#define APP_VERSION_LONG    "1.0 alpha"
+#define APP_VERSION_LONG    "1.0 alpha 2"
 
 #endif
