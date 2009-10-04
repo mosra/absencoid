@@ -28,10 +28,22 @@ QAbstractItemModel(parent), classesModel(_classesModel) {
         t.followedBy = query.value(3).toInt() == 0 ? t.id : query.value(3).toInt();
         t.flags = 0;
 
-        timetables.append(t);
+        /* Načtení dat rozvrhu */
+        QSqlQuery dataQuery;
+        dataQuery.prepare("SELECT dayHour, classId FROM timetableData WHERE timetableId = :id;");
+        dataQuery.bindValue(":id", t.id);
+        if(!dataQuery.exec()) {
+            qDebug() << tr("Nepodařilo se načíst data rozvrhu!") << query.lastError()
+            << dataQuery.lastQuery();
+            return;
+        }
 
-        /* Rovnou načtení všech rozvrhů */
-        fetchMore(index(timetables.size()-1, 0));
+        /* Naplnění dat */
+        while(dataQuery.next()) {
+            t.data.insert(dataQuery.value(0).toInt(), dataQuery.value(1).toInt());
+        }
+
+        timetables.append(t);
     }
 }
 
@@ -91,13 +103,11 @@ int TimetableModel::rowCount(const QModelIndex& parent) const {
     /* Neplatný index, vracíme počet řádků kořenového seznamu rozvrhů */
     if(!parent.isValid()) return timetables.count();
 
-    /* Rodič je položka v seznamu rozvrhů => vracíme počet řádků (hodin) v rozvrhu
-        (pokud je rozvrh načtený) */
-    if(parent.internalId() == NO_PARENT && (timetables[parent.row()].flags & LOADED))
+    /* Rodič je položka v seznamu rozvrhů => vracíme počet řádků (hodin) v rozvrhu */
+    if(parent.internalId() == NO_PARENT)
         return 10;
 
-    /* Rodič je nejspíče položka v datech rozvrhu, ta už nemá žádné potomky,
-        nebo rozvrh ještě není načtený */
+    /* Rodič je nejspíče položka v datech rozvrhu, ta už nemá žádné potomky */
     return 0;
 }
 
@@ -387,7 +397,7 @@ bool TimetableModel::insertRow(int row, const QModelIndex& parent) {
     Timetable t;
     t.description = tr("Nový rozvrh");
     t.validFrom = QDate::currentDate();
-    t.flags = LOADED;
+    t.flags = 0;
 
     /* SQL dotaz */
     QSqlQuery query;
@@ -446,47 +456,6 @@ bool TimetableModel::removeRow(int row, const QModelIndex& parent) {
 
     endRemoveRows();
     return true;
-}
-
-/* Zda lze načíst potomky daného indexu */
-bool TimetableModel::canFetchMore(const QModelIndex& parent) const {
-    /* Pokud jsme v nějakém kořenovém indexu a data ještě nebyla načtena, lze */
-    if(parent.isValid() && parent.internalId() == NO_PARENT &&
-     !(timetables[parent.row()].flags & LOADED))
-        return true;
-
-    /* Jinak nelze */
-    return false;
-}
-
-/* Načtení potomků daného indexu */
-void TimetableModel::fetchMore(const QModelIndex& parent) {
-    /* Pokud je index neplatný či nejsme v kořenovém indexu anebo jsou data již
-        načtena, konec */
-    if(!parent.isValid() || parent.internalId() != NO_PARENT || (timetables[parent.row()].flags & LOADED))
-        return;
-
-    /* SQL dotaz */
-    QSqlQuery query;
-    query.prepare("SELECT dayHour, classId FROM timetableData WHERE timetableId = :id;");
-    query.bindValue(":id", timetables[parent.row()].id);
-    if(!query.exec()) {
-        qDebug() << tr("Nepodařilo se načíst data rozvrhu!") << query.lastError()
-                 << query.lastQuery();
-        return;
-    }
-
-    beginInsertRows(parent, 0, 9);
-
-    /* Naplnění dat */
-    while(query.next()) {
-        timetables[parent.row()].data.insert(query.value(0).toInt(), query.value(1).toInt());
-    }
-
-    /* Označení rozvrhu jako načteného */
-    timetables[parent.row()].flags |= LOADED;
-
-    endInsertRows();
 }
 
 /* Zjištění ID rozvrhu z indexu */

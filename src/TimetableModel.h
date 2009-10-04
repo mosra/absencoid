@@ -142,27 +142,11 @@ class TimetableModel: public QAbstractItemModel {
         virtual bool removeRow(int row, const QModelIndex& parent = QModelIndex());
 
         /**
-        * @brief Zda lze načíst další podpoložky daného indexu
-        *
-        * @return Vrací true, pokud je <tt>parent</tt> položka v seznamu
-        * rozvrhů a data příslušného rozvrhu nebyla ještě načtena.
-        */
-        virtual bool canFetchMore(const QModelIndex& parent) const;
-
-        /**
-        * @brief Načtení dalších podpoložek daného indexu
-        *
-        * Tímto způsobem lze načíst data rozvrhu, který je potomkem indexu
-        * <tt>parent</tt> a to všechna najednou.
-        */
-        virtual void fetchMore(const QModelIndex& parent);
-
-        /**
          * @brief Zjištění ID rozvrhu z indexu
          *
+         * @note Komplexnost funkce: konstatní
          * @param   index       Index rozvrhu (číslo řádku)
          * @return  ID rozvrhu
-         * @note Komplexnost funkce: konstatní
          */
         int idFromIndex(int index) const;
 
@@ -180,7 +164,6 @@ class TimetableModel: public QAbstractItemModel {
          *
          * Pokud nejsou parametry v povoleném rozsahu, vrací nulu (tj.
          * nultá hodina v pondělí).
-         * @todo Udělat privátní, nikdo to nemá právo používat!
          * @param   day         Číslo dne (0-4, 0 = pondělí)
          * @param   hour        Hodina (0-9, 0 = nultá hodina)
          * @return  Den/hodina
@@ -246,7 +229,7 @@ class TimetableModel: public QAbstractItemModel {
         /**
          * @brief Zjištění, zda je rozvrh aktivní
          *
-         * S flagem ACTIVE
+         * Tj. s flagem ACTIVE
          */
         bool isActive(int index) {
             if(index < 0 || index > timetables.count()) return false;
@@ -285,8 +268,7 @@ class TimetableModel: public QAbstractItemModel {
 
         /** @brief Flags pro rozvrh */
         enum Flags {
-            LOADED = 0x01,
-            ACTIVE = 0x02
+            ACTIVE = 0x02           /** @brief Zda je rozvrh aktivní */
         };
 
         /** @brief Struktura rozvrhu */
