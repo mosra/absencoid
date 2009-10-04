@@ -134,7 +134,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     /* Stavový řádek */
     setStatusBar(new QStatusBar(this));
     statusBar()->addWidget(new QLabel(tr("Absencoid k vašim službám.")), 1);
-    statusBar()->addWidget(new QLabel(tr("%1 (%2-%3)").arg(APP_VERSION_LONG).arg(APP_VERSION).arg(SVN_VERSION)));
+    statusBar()->addWidget(new QLabel(tr("%1").arg(APP_VERSION_LONG)));
 
     /* Změna velikosti na nejmenší možnou v poměru 16:10 */
     resize(sizeHint().height()*8/5, sizeHint().height());
