@@ -7,7 +7,6 @@
 #include "Dump.h"
 #include "TimetableModel.h"
 #include "TeachersModel.h"
-#include "ConfigurationModel.h"
 #include "ChangesModel.h"
 #include "ClassesModel.h"
 
