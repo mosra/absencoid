@@ -56,6 +56,18 @@ void AbsencesModel::reload() {
     connect(timetableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
             this, SLOT(reloadAllClassIds()));
 
+    /* Propojení signálu o změnách a odebírání změn s ověřovací funkcí.
+        Signál o přidaných změnách nás nezajímá, protože čerstvě přidaná změna
+        nemá ještě vyplněné předměty. Až ty budou vyplněny, dozvíme se o tom
+        signálem dataChanged() */
+    connect(changesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(checkChangesChanges(QModelIndex,QModelIndex)));
+
+    /* Toto je trochu kladivo na vrabce, ale nebudu dělat funkci pro každou
+        blbost. Změny se neodstraňují moc často, takže OK. */
+    connect(changesModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+            this, SLOT(reloadAllClassIds()));
+
     reset();
 }
 
@@ -301,6 +313,19 @@ void AbsencesModel::checkTimetableChanges(QModelIndex topLeft, QModelIndex botto
     if(affects) reloadAllClassIds();
 }
 
+/* Zjištění změn ve změnách a aplikování jich sem */
+void AbsencesModel::checkChangesChanges(QModelIndex topLeft, QModelIndex bottomRight) {
+    /* Porhcázení změněných řádků */
+    for(int changeIndex = topLeft.row(); changeIndex <= bottomRight.row(); ++changeIndex) {
+        /* Procházení jednotlivých absencí a zjišťování, zda některá nemá stejné
+            datum, pokud ano, znovunačtení předmětů */
+        for(int absenceIndex = 0; absenceIndex != absences.count(); ++absenceIndex) {
+            if(changesModel->index(changeIndex, ChangesModel::DATE).data(Qt::EditRole).toDate() ==
+                absences[absenceIndex].date) loadClassIds(absenceIndex);
+        }
+    }
+}
+
 /* Znovunačtení všech ID tříd */
 void AbsencesModel::reloadAllClassIds() {
     for(int i = 0; i != absences.count(); ++i)
@@ -308,31 +333,31 @@ void AbsencesModel::reloadAllClassIds() {
 }
 
 /* Zjištění předmětů v jednotlivých hodinách pro daný index */
-void AbsencesModel::loadClassIds(int index) {
+void AbsencesModel::loadClassIds(int absenceIndex) {
     /* Pročištění */
-    absences[index].changes = 0;
-    absences[index].classIndexes.clear();
+    absences[absenceIndex].changes = 0;
+    absences[absenceIndex].classIndexes.clear();
 
     /* Aktivní rozvrh platný ten den */
-    QList<int> timetableIndex = timetableModel->validTimetables(absences[index].date, true);
+    QList<int> timetableIndex = timetableModel->validTimetables(absences[absenceIndex].date, true);
 
     /* Den v týdnu pro toto datum */
-    int day = absences[index].date.dayOfWeek()-1;
+    int day = absences[absenceIndex].date.dayOfWeek()-1;
 
     /* Žádný rozvrh ten den neplatil, nebo ten den je víkend
         => naplnění prázdnými hodinami */
     if(timetableIndex.count() == 0 || day > 4) {
         for(int hour = 0; hour != 10; ++hour)
-            absences[index].classIndexes.append(0);
+            absences[absenceIndex].classIndexes.append(0);
         return;
     }
 
     /* Zjištění indexů všech souvisejících změn daný den */
-    QList<int> changeIndexesList = changesModel->relatedChanges(absences[index].date);
+    QList<int> changeIndexesList = changesModel->relatedChanges(absences[absenceIndex].date);
 
     /* Zjištění jednotlivých hodin z rozvrhu */
     for(int hour = 0; hour != 10; ++hour) {
-        absences[index].classIndexes.append(
+        absences[absenceIndex].classIndexes.append(
             timetableModel->index(timetableIndex[0], 0).child(hour, day).data(Qt::EditRole).toInt());
     }
 
@@ -353,11 +378,11 @@ void AbsencesModel::loadClassIds(int index) {
             for(int hour = 0; hour != 10; ++hour) {
                 /* Pokud měníme z jakéhokoli předmětu a nebo předmět odpovídá, změníme jej */
                 if(fromHour == classesModel->indexFromId(ClassesModel::WHATEVER) ||
-                   absences[index].classIndexes[hour] == fromHour) {
-                    absences[index].classIndexes[hour] = toHour;
+                   absences[absenceIndex].classIndexes[hour] == fromHour) {
+                    absences[absenceIndex].classIndexes[hour] = toHour;
 
                     /* Označení dané hodiny jako změněné */
-                    absences[index].changes |= 1 << hour;
+                    absences[absenceIndex].changes |= 1 << hour;
                 }
             }
 
@@ -368,14 +393,17 @@ void AbsencesModel::loadClassIds(int index) {
         } else {
             /* Pokud měníme z jakéhokoli předmětu a nebo předmět odpovídá, změníme jej */
             if(fromHour == classesModel->indexFromId(ClassesModel::WHATEVER) ||
-               absences[index].classIndexes[hourNumber] == fromHour) {
-                absences[index].classIndexes[hourNumber] = toHour;
+               absences[absenceIndex].classIndexes[hourNumber] == fromHour) {
+                absences[absenceIndex].classIndexes[hourNumber] = toHour;
 
                 /* Označení dané hodiny jako změněné */
-                absences[index].changes |= 1 << hourNumber;
+                absences[absenceIndex].changes |= 1 << hourNumber;
             }
         }
     }
+
+    /* Vyslání signálu o změně dat */
+    emit dataChanged(index(absenceIndex, 2), index(absenceIndex, 11));
 }
 
 /* Uložení řádku do databáze */

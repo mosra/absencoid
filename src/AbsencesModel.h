@@ -88,6 +88,11 @@ class AbsencesModel: public QAbstractTableModel {
         void checkTimetableChanges(QModelIndex topLeft, QModelIndex bottomRight);
 
         /**
+         * @brief Zkontrolování změn ve změnách a aplikování jich sem
+         */
+        void checkChangesChanges(QModelIndex topLeft, QModelIndex bottomRight);
+
+        /**
          * @brief Znovunačtení všech ID předmětů
          */
         void reloadAllClassIds();
@@ -135,7 +140,7 @@ class AbsencesModel: public QAbstractTableModel {
          * Naplní list s předměty pro daný index.
          * @param       index       Index, který se má naplnit
          */
-        void loadClassIds(int index);
+        void loadClassIds(int absenceIndex);
 
         /**
          * @brief Uložení řádku
