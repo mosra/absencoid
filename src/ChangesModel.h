@@ -31,6 +31,15 @@ class ChangesModel: public QAbstractTableModel {
             ALL_HOURS = -1      /** @brief Změna platí pro všechny hodiny */
         };
 
+        /** @brief Pojmenování jednotlivých sloupců v modelu */
+        enum Rows {
+            DATE = 0,           /** @brief Datum změny */
+            HOUR = 1,           /** @brief Hodina změny */
+            FROM_CLASS = 2,     /** @brief Předmět, ze kterého se mění */
+            TO_CLASS = 3,       /** @brief Předmět, na který se mění */
+            AFFECTED_TIMETABLES = 4 /** @brief Počet ovlivněných rozvrhů */
+        };
+
         /**
          * @brief Konstruktor
          */
@@ -126,7 +135,12 @@ class ChangesModel: public QAbstractTableModel {
 
         ClassesModel* classesModel;     /** @brief Model předmětů */
         TimetableModel* timetableModel; /** @brief Model rozvrhů */
-        /** @todo Předělat změny na multihash, abychom měli rychlejší hledání podle data! */
+
+        /**
+         * @todo Předělat změny na multihash, abychom měli rychlejší hledání
+         *      podle data! Ale potřebujeme také hledat sekvenčně, takže ani
+         *      hovno.
+         */
         QList<Change> changes;          /** @brief List se změnami */
 
         /**
