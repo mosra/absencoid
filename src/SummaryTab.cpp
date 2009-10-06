@@ -331,6 +331,10 @@ void SummaryTab::reload() {
     beginDate->setDate(query.value(0).toDate());
     endDate->setDate(query.value(1).toDate());
 
+    /* Nastavení data začátku a konce pololetí */
+    timetableTab->getTimetableModel()->setBeginDate(beginDate->date());
+    timetableTab->getTimetableModel()->setEndDate(endDate->date());
+
     /* Aktivní rozvrh */
     activeTimetable->setCurrentIndex(
         timetableTab->getTimetableModel()->indexFromId(query.value(2).toInt()));
@@ -373,6 +377,9 @@ void SummaryTab::setBeginDate() {
         qDebug() << tr("Nepodařilo se nastavit datum začátku pololetí!")
                  << query.lastError() << query.lastQuery();
     }
+
+    /* Nastavení začátku pololetí do modelu rozvrhů */
+    timetableTab->getTimetableModel()->setBeginDate(beginDate->date());
 }
 
 /* Nastavení konce pololetí */
@@ -385,8 +392,11 @@ void SummaryTab::setEndDate() {
     /* Provedení dotazu */
     if(!query.exec()) {
         qDebug() << tr("Nepodařilo se nastavit datum konce pololetí!")
-        << query.lastError() << query.lastQuery();
+                 << query.lastError() << query.lastQuery();
     }
+
+    /* Nastavení konce pololetí do modelu rozvrhů */
+    timetableTab->getTimetableModel()->setEndDate(endDate->date());
 }
 
 /* Nastavení aktuálního rozvrhu */

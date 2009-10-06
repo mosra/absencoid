@@ -485,6 +485,11 @@ int TimetableModel::indexFromId(int id) const {
 /* Rozvrhy platné v daný datum */
 QList<int> TimetableModel::validTimetables(QDate date, bool activeOnly) {
     QList<int> valid;
+
+    /* Pokud je datum mimo rozsah pololetí, nevarcíme nic */
+    if(date <= beginDate || date > endDate) return valid;
+
+    /* Procházení rozvrhů */
     for(int i = 0; i != timetables.count(); ++i) {
         /* Pokud je rozvrh platný... */
         if(timetables[i].validFrom <= date &&
@@ -620,6 +625,16 @@ void TimetableModel::setActualTimetable(int _index) {
 
     /* Emitování signálu o změně všech popisků (co já to budu počítat) */
     emit dataChanged(index(0, 0), index(timetables.count()-1, 0));
+}
+
+/* Nastavení data začátku pololetí */
+void TimetableModel::setBeginDate(QDate date) {
+    beginDate = date;
+}
+
+/* Nastavení data konce pololetí */
+void TimetableModel::setEndDate(QDate date) {
+    endDate = date;
 }
 
 }

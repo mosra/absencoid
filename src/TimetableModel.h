@@ -259,10 +259,14 @@ class TimetableModel: public QAbstractItemModel {
          */
         void reload();
 
-        /**
-         * @brief Slot pro nastavení aktuálního rozvrhu
-         */
+        /** @brief Nastavení aktivního rozvrhu */
         void setActualTimetable(int index);
+
+        /** @brief Nastavení začátku pololetí */
+        void setBeginDate(QDate date);
+
+        /** @brief Nastavení konce pololetí */
+        void setEndDate(QDate date);
 
     private:
         /**
@@ -299,6 +303,8 @@ class TimetableModel: public QAbstractItemModel {
         };
 
         QList<Timetable> timetables;    /** @brief Pole s rozvrhy */
+        QDate beginDate;                /** @brief Datum začátku pololetí */
+        QDate endDate;                  /** @brief Datum konce pololetí */
         ClassesModel* classesModel;     /** @brief Ukazatel na model předmětů */
 };
 
