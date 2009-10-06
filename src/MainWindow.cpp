@@ -109,15 +109,15 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
         new ChangesTab(timetableTab->getTimetableModel(), classesTab->getClassesModel());
     tabWidget->addTab(changesTab, tr("Změny"));
 
+    /* Absence */
+    AbsencesTab* absencesTab = new AbsencesTab(classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
+    tabWidget->addTab(absencesTab, tr("Absence"));
+
     /* Souhrn - potřebuje data rozvrhu, ale absence potřebují jeho aktuální
         rozvrh, proto je zde */
     SummaryTab* summaryTab = new SummaryTab(timetableTab);
     tabWidget->insertTab(0, summaryTab, tr("Souhrn"));
     tabWidget->setCurrentIndex(0);
-
-    /* Absence */
-    AbsencesTab* absencesTab = new AbsencesTab(classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
-    tabWidget->addTab(absencesTab, tr("Absence"));
 
     /* Propojení signálu o aktualizaci databáze s reload funkcemi modelů.
         Bacha, pořadí je důležité! ConfigurationModel potřebuje aktualizovaná
