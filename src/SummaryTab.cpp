@@ -26,11 +26,12 @@
 #include "TimetableTab.h"
 #include "TimetableModel.h"
 #include "UpdateDialog.h"
+#include "AbsencesModel.h"
 
 namespace Absencoid {
 
 /* Konstruktor */
-SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(parent), timetableTab(_timetableTab) {
+SummaryTab::SummaryTab(TimetableTab* _timetableTab, AbsencesModel* _absencesModel, QWidget* parent): QWidget(parent), timetableTab(_timetableTab), absencesModel(_absencesModel) {
 
     /* Políčka pro editaci data */
     beginDate = new QDateEdit;
@@ -84,19 +85,26 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     connect(createDumpButton, SIGNAL(clicked(bool)), this, SLOT(createDump()));
     connect(loadDumpButton, SIGNAL(clicked(bool)), this, SLOT(loadDump()));
 
+    /* Inicializace políček pro statistiku */
+    statsAllAbsences = new QLabel("0");
+
+    /* Propojení změn v absencích s obnovením statistiky */
+    connect(absencesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(reloadStatistics()));
+
     /* LEVÝ VRCHNÍ GROUPBOX (STATISTIKA) */
     QGroupBox* statisticsGroup = new QGroupBox(tr("Statistika"));
     QGridLayout* statisticsLayout = new QGridLayout;
     statisticsLayout->addWidget(new QLabel(tr("Počet absencí:")), 0, 0);
-    statisticsLayout->addWidget(new QLabel("0 (0%)"), 0, 1);
+    statisticsLayout->addWidget(statsAllAbsences, 0, 1);
     statisticsLayout->addWidget(new QLabel(tr("Počet hodin dosud:")), 1, 0);
-    statisticsLayout->addWidget(new QLabel("123"), 1, 1);
+    statisticsLayout->addWidget(new QLabel("0"), 1, 1);
     statisticsLayout->addWidget(new QLabel(tr("Počet přidaných hodin:")), 2, 0);
-    statisticsLayout->addWidget(new QLabel("4"), 2, 1);
+    statisticsLayout->addWidget(new QLabel("0"), 2, 1);
     statisticsLayout->addWidget(new QLabel(tr("Počet odebraných hodin:")), 3, 0);
-    statisticsLayout->addWidget(new QLabel("15"), 3, 1);
+    statisticsLayout->addWidget(new QLabel("0"), 3, 1);
     statisticsLayout->addWidget(new QLabel(tr("Odebrané / přidané hodiny:")), 4, 0, Qt::AlignTop);
-    statisticsLayout->addWidget(new QLabel("+ 11"), 4, 1, Qt::AlignTop);
+    statisticsLayout->addWidget(new QLabel("0"), 4, 1, Qt::AlignTop);
     statisticsLayout->setColumnStretch(0, 1);
     statisticsLayout->setRowStretch(4, 1);
     statisticsGroup->setLayout(statisticsLayout);
@@ -355,6 +363,9 @@ void SummaryTab::reload() {
     updateOnStart->setChecked(query.value(5).toInt() & Dump::UPDATE_ON_START);
     dumpOnExit->setChecked(query.value(5).toInt() & Dump::DUMP_ON_EXIT);
 
+    /* Aktualizace statistik */
+    reloadStatistics();
+
     /* Propojení změn v políčkách s ukládacími akcemi. Propojíme je až po
         načtení dat, aby nedošlo ke zpětnému ukládání načtených dat. */
     connect(beginDate, SIGNAL(editingFinished()), this, SLOT(setBeginDate()));
@@ -486,6 +497,11 @@ void SummaryTab::loadDump() {
 
     /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
     if(dialog.exec() == QDialog::Accepted) emit updated();
+}
+
+/* Aktualizace statistik */
+void SummaryTab::reloadStatistics() {
+    statsAllAbsences->setText(tr("%1").arg(absencesModel->absencesCount()));
 }
 
 }

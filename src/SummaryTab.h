@@ -9,10 +9,11 @@ class QCheckBox;
 class QComboBox;
 class QLineEdit;
 class QDateEdit;
+class QLabel;
 
 namespace Absencoid {
 
-class TimetableModel;
+class AbsencesModel;
 class TimetableTab;
 
 class SummaryTab: public QWidget {
@@ -22,7 +23,7 @@ class SummaryTab: public QWidget {
         /**
          * @brief Konstruktor
          */
-        SummaryTab(TimetableTab* _timetableTab, QWidget* parent = 0);
+        SummaryTab(TimetableTab* _timetableTab, AbsencesModel* _absencesModel, QWidget* parent = 0);
 
     signals:
         /** @brief Databáze byla aktualizována */
@@ -72,6 +73,9 @@ class SummaryTab: public QWidget {
         /** @brief Obnovení zálohy */
         void loadDump();
 
+        /** @brief Statistika */
+        void reloadStatistics();
+
     private:
         QDateEdit* beginDate;       /** @brief Začátek pololetí */
         QDateEdit* endDate;         /** @brief Konec pololetí */
@@ -83,7 +87,10 @@ class SummaryTab: public QWidget {
         QLineEdit* webUpdateUrl;    /** @brief Políčko s URL pro aktualizaci z internetu */
         QAction* updateFromWebAction; /** @brief Akce menu pro aktualizaci z internetu */
 
+        QLabel* statsAllAbsences;   /** @brief Celkový počet absencí */
+
         TimetableTab* timetableTab; /** @brief Tab s rozvrhy */
+        AbsencesModel* absencesModel;   /** @brief Model změn */
 };
 
 }
