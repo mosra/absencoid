@@ -73,6 +73,18 @@ class AbsencesModel: public QAbstractTableModel {
          */
         virtual bool removeRows(int row, int count, const QModelIndex& parent = QModelIndex());
 
+        /**
+         * @brief Celkový počet absencí
+         *
+         * Vrátí celkový počet platných absencí (absencí v neprázdných hodinách)
+         * v daném pololetí pro daný předmět.
+         *
+         * @param   classId     ID předmětu, pokud uvedeno 0, vrátí celkový
+         *                      počet absencí.
+         * @return  Počet absencí
+         */
+        int absencesCount(int classId = 0);
+
     public slots:
         /**
         * @brief (Znovu)načtení dat z databáze

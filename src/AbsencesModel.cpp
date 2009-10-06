@@ -56,6 +56,10 @@ void AbsencesModel::reload() {
     connect(timetableModel, SIGNAL(rowsRemoved(QModelIndex,int,int)),
             this, SLOT(reloadAllClassIds()));
 
+    /* Propojení signálu o změně rozsahu pololetí s resetovací fcí */
+    connect(timetableModel, SIGNAL(dateRangeChanged()),
+            this, SLOT(reloadAllClassIds()));
+
     /* Propojení signálu o změnách a odebírání změn s ověřovací funkcí.
         Signál o přidaných změnách nás nezajímá, protože čerstvě přidaná změna
         nemá ještě vyplněné předměty. Až ty budou vyplněny, dozvíme se o tom
@@ -287,6 +291,34 @@ bool AbsencesModel::removeRows(int row, int count, const QModelIndex& parent) {
 
     endRemoveRows();
     return true;
+}
+
+/* Počet absencí */
+int AbsencesModel::absencesCount(int classId) {
+    int count = 0;
+
+    int classIndex = classesModel->indexFromId(classId);
+
+    /* Procházení všech absencí */
+    for(int i = 0; i != absences.count(); ++i) {
+        /* Datum mimo rozsah */
+        if(absences[i].date < timetableModel->beginDate() || absences[i].date > timetableModel->endDate())
+            continue;
+
+        /* Jednotlivé hodiny */
+        for(int hour = 0; hour != 10; ++hour) {
+            /* Pokud je tuto hodinu absence ... */
+            if(absences[i].hours & (1 << hour) &&
+              /* ... a je tuto hodinu daný předmět ... */
+              ((classId != 0 && classIndex == absences[i].classIndexes[hour]) ||
+              /* ... nebo je tuto hodinu alespoň nějaký předmět ... */
+              (classId == 0 && classesModel->idFromIndex(absences[i].classIndexes[hour]) != 0))) {
+                count++;
+            }
+        }
+    }
+
+    return count;
 }
 
 /* Zkontrolování změn v rozvrzích a aplikování jich sem */
