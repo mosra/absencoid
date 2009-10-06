@@ -16,12 +16,21 @@ class Dump: public QObject {
     private:
         /** @brief Flags pro vytváření dumpu */
         enum Flags {
-            DUMP = 0x01,
-            UPDATE = 0x02,
-            INDENT = 0x04
+            DUMP = 0x01,                        /** @brief Vytvořit zálohu */
+            UPDATE = 0x02,                      /** @brief Vytvořit aktualizaci */
+            INDENT = 0x04                       /** @brief Odsazovat XML */
         };
 
     public:
+        /**
+         * @brief Flags pro konfiguraci
+         * @todo Najít pro to lepší místo!
+         */
+        enum ConfigurationFlags {
+            UPDATE_ON_START = 1,                /** @brief Aktualizovat při startu */
+            DUMP_ON_EXIT = 2                    /** @brief Zálohovat při ukončení */
+        };
+
         static const int DUMP_VERSION = 1;      /** @brief Verze dumpů */
         static const int UPDATE_VERSION = 1;    /** @brief Verze aktualizací */
 

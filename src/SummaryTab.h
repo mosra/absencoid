@@ -2,6 +2,7 @@
 #define ABSENCOID_SUMMARYTAB_H
 
 #include <QWidget>
+#include <QDate>
 
 class QGroupBox;
 class QCheckBox;
@@ -13,7 +14,6 @@ namespace Absencoid {
 
 class TimetableModel;
 class TimetableTab;
-class ConfigurationModel;
 
 class SummaryTab: public QWidget {
     Q_OBJECT
@@ -23,9 +23,6 @@ class SummaryTab: public QWidget {
          * @brief Konstruktor
          */
         SummaryTab(TimetableTab* _timetableTab, QWidget* parent = 0);
-
-        /** @brief Získání modelu konfigurace */
-        ConfigurationModel* getConfigurationModel() { return configurationModel; }
 
     signals:
         /** @brief Databáze byla aktualizována */
@@ -38,11 +35,15 @@ class SummaryTab: public QWidget {
         /** @brief Vytvoření aktualizačního souboru */
         void createUpdate();
 
-        /** @brief Ověření správnosti URL */
+        /**
+         * @brief Ověření správnosti URL v editovacím políčku
+         *
+         * Pokud má URL nesprávný formát, je políčko zobrazeno s červeným pozadím
+         */
         void validateUrlEdit();
 
         /** @brief Načtení dat do políček */
-        void loadData();
+        void reload();
 
         /** @brief Nastavení data začátku pololetí */
         void setBeginDate();
@@ -56,11 +57,8 @@ class SummaryTab: public QWidget {
         /** @brief Nastavení URL pro aktualizaci z internetu */
         void setWebUpdateUrl();
 
-        /** @brief Nastavení aktualizace po startu */
-        void setUpdateOnStart();
-
-        /** @brief Nastavení zálohování při ukončení */
-        void setDumpOnExit();
+        /** @brief Nastavení aktualizace po startu / zálohování při ukončení */
+        void setBooleans();
 
         /** @brief Aktualizace z internetu */
         void updateFromWeb();
@@ -79,16 +77,13 @@ class SummaryTab: public QWidget {
         QDateEdit* endDate;         /** @brief Konec pololetí */
         QComboBox* activeTimetable; /** @brief Aktuální rozvrh */
         QGroupBox* updateGroup;     /** @brief Groupbox s aktualizací */
+        QDate      lastUpdate;      /** @brief Datum poslední aktualizace */
         QCheckBox* updateOnStart;   /** @brief Aktualizovat po startu */
         QCheckBox* dumpOnExit;      /** @brief Zálohovat při ukončení */
         QLineEdit* webUpdateUrl;    /** @brief Políčko s URL pro aktualizaci z internetu */
         QAction* updateFromWebAction; /** @brief Akce menu pro aktualizaci z internetu */
 
-        /** @brief Model pro konfiguraci */
-        ConfigurationModel* configurationModel;
-
-        /** @brief Tab s rozvrhy */
-        TimetableTab* timetableTab;
+        TimetableTab* timetableTab; /** @brief Tab s rozvrhy */
 };
 
 }

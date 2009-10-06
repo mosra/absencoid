@@ -16,11 +16,13 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTimer>
+#include <QSqlQuery>
+#include <QSqlError>
+#include <QDebug>
 
 #include "configure.h"
 #include "Dump.h"
 #include "CreateUpdateDialog.h"
-#include "ConfigurationModel.h"
 #include "TimetableTab.h"
 #include "TimetableModel.h"
 #include "UpdateDialog.h"
@@ -29,9 +31,6 @@ namespace Absencoid {
 
 /* Konstruktor */
 SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(parent), timetableTab(_timetableTab) {
-    /* Inicializace konfiguračního modelu, propojení aktualizace DB s jeho reloadem */
-    configurationModel = new ConfigurationModel(timetableTab->getTimetableModel(), this);
-    connect(configurationModel, SIGNAL(modelReset()), this, SLOT(loadData()));
 
     /* Políčka pro editaci data */
     beginDate = new QDateEdit;
@@ -54,13 +53,9 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     activeTimetable->setModel(timetableTab->getTimetableModel());
     activeTimetable->setModelColumn(1);
 
-    /* Nastavení aktuálního indexu do modelu rozvrhů, načtení aktuálního rozvrhu */
-    timetableTab->getTimetableModel()->setActualTimetable(activeTimetable->currentIndex());
-    timetableTab->loadTimetable(activeTimetable->currentIndex());
-
     /* Checkboxy */
-    updateOnStart = new QCheckBox(configurationModel->headerData(5, Qt::Horizontal).toString());
-    dumpOnExit = new QCheckBox(configurationModel->headerData(6, Qt::Horizontal).toString());
+    updateOnStart = new QCheckBox(tr("Zjišťovat aktualizace při startu"));
+    dumpOnExit = new QCheckBox(tr("Automaticky zálohovat při ukončení programu"));
 
     /* Tlačítko pro aktualizaci s popup menu */
     QPushButton* updateButton = new QPushButton(tr("Aktualizovat"));
@@ -89,14 +84,6 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     connect(createDumpButton, SIGNAL(clicked(bool)), this, SLOT(createDump()));
     connect(loadDumpButton, SIGNAL(clicked(bool)), this, SLOT(loadDump()));
 
-    /* Propojení změn v políčkách s ukládacími akcemi */
-    connect(beginDate, SIGNAL(editingFinished()), this, SLOT(setBeginDate()));
-    connect(endDate, SIGNAL(editingFinished()), this, SLOT(setEndDate()));
-    connect(activeTimetable, SIGNAL(currentIndexChanged(int)), this, SLOT(setActiveTimetable()));
-    connect(webUpdateUrl, SIGNAL(editingFinished()), this, SLOT(setWebUpdateUrl()));
-    connect(updateOnStart, SIGNAL(toggled(bool)), this, SLOT(setUpdateOnStart()));
-    connect(dumpOnExit, SIGNAL(toggled(bool)), this, SLOT(setDumpOnExit()));
-
     /* LEVÝ VRCHNÍ GROUPBOX (STATISTIKA) */
     QGroupBox* statisticsGroup = new QGroupBox(tr("Statistika"));
     QGridLayout* statisticsLayout = new QGridLayout;
@@ -123,11 +110,11 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     /* PRAVÝ VRCHNÍ GROUPBOX (NASTAVENÍ) */
     QGroupBox* settingsGroup = new QGroupBox(tr("Nastavení"));
     QGridLayout* settingsLayout = new QGridLayout;
-    settingsLayout->addWidget(new QLabel(configurationModel->headerData(0, Qt::Horizontal).toString()+":"), 0, 0);
+    settingsLayout->addWidget(new QLabel(tr("Začátek pololetí:")), 0, 0);
     settingsLayout->addWidget(beginDate, 0, 1);
-    settingsLayout->addWidget(new QLabel(configurationModel->headerData(1, Qt::Horizontal).toString()+":"), 1, 0);
+    settingsLayout->addWidget(new QLabel(tr("Konec pololetí:")), 1, 0);
     settingsLayout->addWidget(endDate, 1, 1);
-    settingsLayout->addWidget(new QLabel(configurationModel->headerData(2, Qt::Horizontal).toString()+":"), 2, 0);
+    settingsLayout->addWidget(new QLabel(tr("Použitý rozvrh:")), 2, 0);
     settingsLayout->addWidget(activeTimetable, 2, 1);
     settingsLayout->addWidget(new QWidget, 3, 0);
     settingsLayout->setRowStretch(3, 1);
@@ -143,7 +130,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
 
     /* Celkový layout */
     QVBoxLayout* updateLayout = new QVBoxLayout;
-    updateLayout->addWidget(new QLabel(configurationModel->headerData(3, Qt::Horizontal).toString()+":"));
+    updateLayout->addWidget(new QLabel(tr("Adresa pro aktualizace z internetu:")));
     updateLayout->addWidget(webUpdateUrl);
     updateLayout->addWidget(updateOnStart);
     updateLayout->addLayout(updateButtonLayout, 1);
@@ -189,7 +176,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, QWidget* parent): QWidget(pa
     validateUrlEdit();
 
     /* Načtení dat */
-    loadData();
+    reload();
 
     /* Aktualizace z internetu po startu (jen když je platná adresa) */
     if(updateOnStart->isChecked() && webUpdateUrl->hasAcceptableInput())
@@ -318,39 +305,103 @@ void SummaryTab::validateUrlEdit() {
 }
 
 /* (Znovu)načtení dat do políček */
-void SummaryTab::loadData() {
+void SummaryTab::reload() {
+    /* Odpojíme sloty, které by vedly k ukládání právě načtených hodnot zpět do
+        databáze. */
+    disconnect(beginDate, SIGNAL(editingFinished()), this, SLOT(setBeginDate()));
+    disconnect(endDate, SIGNAL(editingFinished()), this, SLOT(setEndDate()));
+    disconnect(activeTimetable, SIGNAL(currentIndexChanged(int)), this, SLOT(setActiveTimetable()));
+    disconnect(webUpdateUrl, SIGNAL(editingFinished()), this, SLOT(setWebUpdateUrl()));
+    disconnect(updateOnStart, SIGNAL(toggled(bool)), this, SLOT(setBooleans()));
+    disconnect(dumpOnExit, SIGNAL(toggled(bool)), this, SLOT(setBooleans()));
+
+    /* SQL dotaz na data do databáze */
+    QSqlQuery query(
+        "SELECT beginDate, endDate, activeTimetableId, webUpdateUrl, lastUpdate, flags "
+        "FROM configuration LIMIT 1;");
+
+    /* Pokud není dostupný řádek, chyba */
+    if(!query.next()) {
+        qDebug() << tr("Nelze načíst konfiguraci!") << query.lastError()
+        << query.lastQuery();
+        return;
+    }
+
     /* Datum začátku a konce pololetí */
-    beginDate->setDate(configurationModel->index(0, 0).data(Qt::EditRole).toDate());
-    endDate->setDate(configurationModel->index(0, 1).data(Qt::EditRole).toDate());
+    beginDate->setDate(query.value(0).toDate());
+    endDate->setDate(query.value(1).toDate());
 
     /* Aktivní rozvrh */
-    activeTimetable->setCurrentIndex(configurationModel->index(0, 2).data(Qt::EditRole).toInt());
+    activeTimetable->setCurrentIndex(
+        timetableTab->getTimetableModel()->indexFromId(query.value(2).toInt()));
 
-    /* Zda aktualizovat po startu, zálohovat při ukončení */
-    updateOnStart->setChecked(configurationModel->index(0, 5).data(Qt::EditRole).toBool());
-    dumpOnExit->setChecked(configurationModel->index(0, 6).data(Qt::EditRole).toBool());
-
-    /* Datum poslední aktualizace v nadpisku */
-    QString lastUpdate = configurationModel->index(0, 4).data().toString();
-    updateGroup->setTitle(tr("Aktualizace") + (!lastUpdate.isEmpty() ? tr(" (naposledy %1)").arg(lastUpdate) : ""));
+    /* Nastavení rozvrhu jako aktuálního, načtení jej v tabu */
+    timetableTab->getTimetableModel()->setActualTimetable(activeTimetable->currentIndex());
+    timetableTab->loadTimetable(activeTimetable->currentIndex());
 
     /* URL pro aktualizace po internetu */
-    webUpdateUrl->setText(configurationModel->index(0, 3).data().toString());
+    webUpdateUrl->setText(query.value(3).toString());
+
+    /* Datum poslední aktualizace v nadpisku */
+    lastUpdate = query.value(4).toDate();
+    updateGroup->setTitle(tr("Aktualizace") +
+        (lastUpdate.isValid() ? tr(" (naposledy %1)").arg(lastUpdate.toString("ddd dd.MM.yyyy")) : ""));
+
+    /* Zda aktualizovat po startu, zálohovat při ukončení */
+    updateOnStart->setChecked(query.value(5).toInt() & Dump::UPDATE_ON_START);
+    dumpOnExit->setChecked(query.value(5).toInt() & Dump::DUMP_ON_EXIT);
+
+    /* Propojení změn v políčkách s ukládacími akcemi. Propojíme je až po
+        načtení dat, aby nedošlo ke zpětnému ukládání načtených dat. */
+    connect(beginDate, SIGNAL(editingFinished()), this, SLOT(setBeginDate()));
+    connect(endDate, SIGNAL(editingFinished()), this, SLOT(setEndDate()));
+    connect(activeTimetable, SIGNAL(currentIndexChanged(int)), this, SLOT(setActiveTimetable()));
+    connect(webUpdateUrl, SIGNAL(editingFinished()), this, SLOT(setWebUpdateUrl()));
+    connect(updateOnStart, SIGNAL(toggled(bool)), this, SLOT(setBooleans()));
+    connect(dumpOnExit, SIGNAL(toggled(bool)), this, SLOT(setBooleans()));
 }
 
 /* Nastavení začátku pololetí */
 void SummaryTab::setBeginDate() {
-    configurationModel->setData(configurationModel->index(0, 0), beginDate->date(), Qt::EditRole);
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("UPDATE configuration SET beginDate = :beginDate;");
+    query.bindValue(":beginDate", beginDate->date().toString(Qt::ISODate));
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se nastavit datum začátku pololetí!")
+                 << query.lastError() << query.lastQuery();
+    }
 }
 
 /* Nastavení konce pololetí */
 void SummaryTab::setEndDate() {
-    configurationModel->setData(configurationModel->index(0, 1), endDate->date(), Qt::EditRole);
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("UPDATE configuration SET endDate = :endDate;");
+    query.bindValue(":endDate", endDate->date().toString(Qt::ISODate));
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se nastavit datum konce pololetí!")
+        << query.lastError() << query.lastQuery();
+    }
 }
 
 /* Nastavení aktuálního rozvrhu */
 void SummaryTab::setActiveTimetable() {
-    configurationModel->setData(configurationModel->index(0, 2), activeTimetable->currentIndex(), Qt::EditRole);
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("UPDATE configuration SET activeTimetableId = :activeTimetableId;");
+    query.bindValue(":activeTimetableId",
+        timetableTab->getTimetableModel()->idFromIndex(activeTimetable->currentIndex()));
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se nastavit použitý rozvrh!")
+        << query.lastError() << query.lastQuery();
+    }
 
     /* Nastavení rozvrhu jako aktuálního */
     timetableTab->getTimetableModel()->setActualTimetable(activeTimetable->currentIndex());
@@ -364,24 +415,37 @@ void SummaryTab::setWebUpdateUrl() {
     /* Jen pokud je URL správně formátovaná */
     if(!webUpdateUrl->hasAcceptableInput()) return;
 
-    configurationModel->setData(configurationModel->index(0, 3), webUpdateUrl->text(), Qt::EditRole);
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("UPDATE configuration SET webUpdateUrl = :webUpdateUrl;");
+    query.bindValue(":webUpdateUrl", webUpdateUrl->text());
+
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se nastavit adresu pro aktualizace z internetu!")
+                 << query.lastError() << query.lastQuery();
+    }
 }
 
 /* Nastavení aktualizace po startu */
-void SummaryTab::setUpdateOnStart() {
-    configurationModel->setData(configurationModel->index(0, 5), updateOnStart->checkState(), Qt::CheckStateRole);
-}
+void SummaryTab::setBooleans() {
+    /* SQL dotaz */
+    QSqlQuery query;
+    query.prepare("UPDATE configuration SET booleans = :booleans;");
+    query.bindValue(":booleans",
+        ((int) updateOnStart->isChecked()) | ((int) dumpOnExit->isChecked() << 1));
 
-/* Nastavení zálohování při ukončení */
-void SummaryTab::setDumpOnExit() {
-    configurationModel->setData(configurationModel->index(0, 6), dumpOnExit->checkState(), Qt::CheckStateRole);
+    /* Provedení dotazu */
+    if(!query.exec()) {
+        qDebug() << tr("Nepodařilo se nastavit, zda aktualizovat po startu / zálohovat při ukončení!")
+                 << query.lastError() << query.lastQuery();
+    }
 }
 
 /* Aktualizace z internetu */
 void SummaryTab::updateFromWeb() {
     UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB,
-                        configurationModel->index(0, 4).data(Qt::EditRole).toDate(),
-                        webUpdateUrl->text());
+                        lastUpdate, webUpdateUrl->text());
 
     /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
     if(dialog.exec() == QDialog::Accepted) emit updated();
@@ -390,8 +454,7 @@ void SummaryTab::updateFromWeb() {
 /* Aktualizace z internetu (tichá) */
 void SummaryTab::updateFromWebSilent() {
     UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_WEB|UpdateDialog::CHECK_DATE_SILENT,
-                        configurationModel->index(0, 4).data(Qt::EditRole).toDate(),
-                        webUpdateUrl->text());
+                        lastUpdate, webUpdateUrl->text());
 
     /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
     if(dialog.exec() == QDialog::Accepted) emit updated();
@@ -400,7 +463,7 @@ void SummaryTab::updateFromWebSilent() {
 /* Aktualizace ze souboru */
 void SummaryTab::updateFromFile() {
     UpdateDialog dialog(UpdateDialog::DO_UPDATE|UpdateDialog::FROM_FILE,
-                        configurationModel->index(0, 4).data(Qt::EditRole).toDate());
+                        lastUpdate);
 
     /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
     if(dialog.exec() == QDialog::Accepted) emit updated();
@@ -409,7 +472,7 @@ void SummaryTab::updateFromFile() {
 /* Načtení zálohy */
 void SummaryTab::loadDump() {
     UpdateDialog dialog(UpdateDialog::LOAD_DUMP|UpdateDialog::FROM_FILE,
-                        configurationModel->index(0, 4).data(Qt::EditRole).toDate());
+                        lastUpdate);
 
     /* Pokud úspěšně proběhla aktualizace, vyslání signálu o změně dat v DB */
     if(dialog.exec() == QDialog::Accepted) emit updated();

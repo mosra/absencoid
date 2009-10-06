@@ -17,7 +17,6 @@
 #include <QApplication>
 
 #include "configure.h"
-#include "ConfigurationModel.h"
 #include "SummaryTab.h"
 #include "TeachersModel.h"
 #include "TeachersTab.h"
@@ -127,7 +126,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     connect(summaryTab, SIGNAL(updated()), timetableTab->getTimetableModel(), SLOT(reload()));
     connect(summaryTab, SIGNAL(updated()), changesTab->getChangesModel(), SLOT(reload()));
     connect(summaryTab, SIGNAL(updated()), absencesTab->getAbsencesModel(), SLOT(reload()));
-    connect(summaryTab, SIGNAL(updated()), summaryTab->getConfigurationModel(), SLOT(reload()));
+    connect(summaryTab, SIGNAL(updated()), summaryTab, SLOT(reload()));
 
     setCentralWidget(tabWidget);
 

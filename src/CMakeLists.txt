@@ -8,7 +8,6 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/configure.h.cmake ${CMAKE_CURRENT_BIN
 
 qt4_wrap_cpp(AbsencoidMOC
     MainWindow.h
-    ConfigurationModel.h
     SummaryTab.h
     Update.h
     CreateUpdateDialog.h
@@ -36,7 +35,7 @@ add_executable(absencoid
     main.cpp MainWindow.cpp AboutDialog.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
     SummaryTab.cpp CreateUpdateDialog.cpp UpdateDialog.cpp
-    Dump.cpp Update.cpp ConfigurationModel.cpp
+    Dump.cpp Update.cpp
     TeachersModel.cpp TeachersTab.cpp
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp

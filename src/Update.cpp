@@ -155,13 +155,13 @@ void Update::run() {
             QDomElement _updateOnStart = configuration.firstChildElement("updateOnStart");
             if(_updateOnStart.isNull()) throw tr("Nenalezena volba, zda aktualizovat po startu!");
             if(!_updateOnStart.hasAttribute("value")) throw tr("Nenalezena hodnota volby, zda aktualizovat po startu!");
-            flags |= _updateOnStart.attribute("value", "true") == "true" ? ConfigurationModel::UPDATE_ON_START : 0;
+            flags |= _updateOnStart.attribute("value", "true") == "true" ? Dump::UPDATE_ON_START : 0;
 
             /* <dumpOnExit> */
             QDomElement _dumpOnExit = configuration.firstChildElement("dumpOnExit");
             if(_dumpOnExit.isNull()) throw tr("Nenalezena volba, zda zálohovat při ukončení!");
             if(!_dumpOnExit.hasAttribute("value")) throw tr("Nenalezena hodnota volby, zda zálohovat při ukončení!");
-            flags |= _dumpOnExit.attribute("value", "false") == "true" ? ConfigurationModel::DUMP_ON_EXIT : 0;
+            flags |= _dumpOnExit.attribute("value", "false") == "true" ? Dump::DUMP_ON_EXIT : 0;
 
             query.prepare("UPDATE configuration SET "
                 "lastUpdate = :lastUpdate, flags = :flags;");
