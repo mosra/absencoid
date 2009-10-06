@@ -487,7 +487,7 @@ QList<int> TimetableModel::validTimetables(QDate date, bool activeOnly) {
     QList<int> valid;
 
     /* Pokud je datum mimo rozsah pololetí, nevarcíme nic */
-    if(date <= beginDate || date > endDate) return valid;
+    if(date < _beginDate || date > _endDate) return valid;
 
     /* Procházení rozvrhů */
     for(int i = 0; i != timetables.count(); ++i) {
@@ -629,12 +629,14 @@ void TimetableModel::setActualTimetable(int _index) {
 
 /* Nastavení data začátku pololetí */
 void TimetableModel::setBeginDate(QDate date) {
-    beginDate = date;
+    _beginDate = date;
+    emit dateRangeChanged();
 }
 
 /* Nastavení data konce pololetí */
 void TimetableModel::setEndDate(QDate date) {
-    endDate = date;
+    _endDate = date;
+    emit dateRangeChanged();
 }
 
 }

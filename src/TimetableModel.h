@@ -245,11 +245,22 @@ class TimetableModel: public QAbstractItemModel {
          */
         int previousTimetable(int index);
 
+        /** @brief Datum začátku pololetí */
+        inline QDate beginDate() const { return _beginDate; }
+
+        /** @brief Datum konce pololetí */
+        inline QDate endDate() const { return _endDate; }
+
     signals:
         /**
          * @brief Signál o změně aktuálního rozvrhu
          */
         void actualTimetableChanged();
+
+        /**
+         * @brief Signál o změně data začátku a konce pololetí
+         */
+        void dateRangeChanged();
 
     public slots:
         /**
@@ -303,8 +314,8 @@ class TimetableModel: public QAbstractItemModel {
         };
 
         QList<Timetable> timetables;    /** @brief Pole s rozvrhy */
-        QDate beginDate;                /** @brief Datum začátku pololetí */
-        QDate endDate;                  /** @brief Datum konce pololetí */
+        QDate _beginDate;               /** @brief Datum začátku pololetí */
+        QDate _endDate;                 /** @brief Datum konce pololetí */
         ClassesModel* classesModel;     /** @brief Ukazatel na model předmětů */
 };
 
