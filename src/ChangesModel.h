@@ -32,7 +32,7 @@ class ChangesModel: public QAbstractTableModel {
         };
 
         /** @brief Pojmenování jednotlivých sloupců v modelu */
-        enum Rows {
+        enum Columns {
             DATE = 0,           /** @brief Datum změny */
             HOUR = 1,           /** @brief Hodina změny */
             FROM_CLASS = 2,     /** @brief Předmět, ze kterého se mění */
