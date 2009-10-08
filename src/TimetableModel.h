@@ -251,6 +251,30 @@ class TimetableModel: public QAbstractItemModel {
         /** @brief Datum konce pololetí */
         inline QDate endDate() const { return _endDate; }
 
+        /**
+         * @brief Počet hodin daného předmětu v pololetí
+         *
+         * Vrátí počet hodin v platném rozvrhu daný den.
+         * @param   date    Datum
+         * @return  Počet hodin
+         */
+        int lessonCount(QDate date);
+
+        /**
+         * @brief Celkový počet hodin v daný den
+         *
+         * Vrátí celkový počet hodin daného předmětu v celém pololetí, případně
+         * jen do aktuálního data (včetně), pokud je nastaveno tillNow na true.
+         * @param   classId     ID předmětu. Pokud je uvedena nula, počítá
+         *                      všechny předměty.
+         * @param   tillNow     Počítat jen do dnešního data (včetně).
+         * @return  Počet hodin
+         * @warning Pokud v první den pololetí není platný žádný rozvrh, vrací
+         *          nulu! Tedy datum platnosti prvního rozvrhu musí být stejné
+         *          nebo starší než datum začátku pololetí.
+         */
+        int lessonCount(int classId = 0, bool tillNow = false);
+
     signals:
         /**
          * @brief Signál o změně aktuálního rozvrhu

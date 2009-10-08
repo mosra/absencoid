@@ -87,6 +87,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, AbsencesModel* _absencesMode
 
     /* Inicializace políček pro statistiku */
     statsAllAbsences = new QLabel("0");
+    statsAllHours = new QLabel("0");
 
     /* Propojení změn v absencích s obnovením statistiky */
     connect(absencesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -95,10 +96,10 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, AbsencesModel* _absencesMode
     /* LEVÝ VRCHNÍ GROUPBOX (STATISTIKA) */
     QGroupBox* statisticsGroup = new QGroupBox(tr("Statistika"));
     QGridLayout* statisticsLayout = new QGridLayout;
-    statisticsLayout->addWidget(new QLabel(tr("Počet absencí:")), 0, 0);
+    statisticsLayout->addWidget(new QLabel(tr("Počet hodin absencí (procent dosud):")), 0, 0);
     statisticsLayout->addWidget(statsAllAbsences, 0, 1);
-    statisticsLayout->addWidget(new QLabel(tr("Počet hodin dosud:")), 1, 0);
-    statisticsLayout->addWidget(new QLabel("0"), 1, 1);
+    statisticsLayout->addWidget(new QLabel(tr("Počet hodin dosud (odhad celkem):")), 1, 0);
+    statisticsLayout->addWidget(statsAllHours, 1, 1);
     statisticsLayout->addWidget(new QLabel(tr("Počet přidaných hodin:")), 2, 0);
     statisticsLayout->addWidget(new QLabel("0"), 2, 1);
     statisticsLayout->addWidget(new QLabel(tr("Počet odebraných hodin:")), 3, 0);
@@ -501,7 +502,11 @@ void SummaryTab::loadDump() {
 
 /* Aktualizace statistik */
 void SummaryTab::reloadStatistics() {
-    statsAllAbsences->setText(tr("%1").arg(absencesModel->absencesCount()));
+    int absencesCount = absencesModel->absencesCount();
+    int lessonCount = timetableTab->getTimetableModel()->lessonCount(0, true);
+    int lessonCountForecast = timetableTab->getTimetableModel()->lessonCount();
+    statsAllAbsences->setText(tr("%1 (%2%)").arg(absencesCount).arg(absencesCount*100/lessonCount));
+    statsAllHours->setText(tr("%1 (%2)").arg(lessonCount).arg(lessonCountForecast));
 }
 
 }

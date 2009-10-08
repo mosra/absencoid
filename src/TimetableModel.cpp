@@ -185,7 +185,9 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
     } else if(index.parent().internalId() == NO_PARENT) {
 
         /* ID předmětu pod tímto číslem dne/hodiny */
-        int id = timetables[index.parent().row()].data[dayHour(index.column(), index.row())];
+        int id;
+        if(!timetables[index.parent().row()].data.contains(dayHour(index.column(), index.row()))) id = 0;
+        else id = timetables[index.parent().row()].data[dayHour(index.column(), index.row())];
 
         /* Zda je položka zamknutá */
         if(role == Qt::UserRole) return id == 0 ? FIXED : id & FIXED;
@@ -231,7 +233,8 @@ Qt::ItemFlags TimetableModel::flags(const QModelIndex& index) const {
     } else if(index.parent().internalId() == NO_PARENT) {
         #ifndef ADMIN_VERSION
         /* Zamknuté položky jsou editovatelné jen správcem */
-        if(timetables[index.parent().row()].data[dayHour(index.column(), index.row())] & FIXED)
+        if(timetables[index.parent().row()].data.contains(dayHour(index.column(), index.row())) &&
+           timetables[index.parent().row()].data[dayHour(index.column(), index.row())] & FIXED)
             return 0;
         #endif
 
@@ -538,8 +541,8 @@ int TimetableModel::timetablesWithThisLesson(QDate date, int hour, int classId, 
             int _dayHour = dayHour(day, _hour);
 
             /* Pokud je předmět jakýkoli, musí daná hodina alespoň existovat */
-            if((classId == ClassesModel::WHATEVER && timetables[timetableIndex].data[_dayHour] != 0) ||
-               (timetables[timetableIndex].data[_dayHour] & ~FIXED) == classId) {
+            if(timetables[timetableIndex].data.contains(_dayHour) && (classId == ClassesModel::WHATEVER ||
+               (timetables[timetableIndex].data[_dayHour] & ~FIXED) == classId)) {
                 count++;
                 break;
             }
@@ -549,8 +552,8 @@ int TimetableModel::timetablesWithThisLesson(QDate date, int hour, int classId, 
             int _dayHour = dayHour(day, hour);
 
             /* Pokud je předmět jakýkoli, musí daná hodina alespoň existovat */
-            if((classId == ClassesModel::WHATEVER && timetables[timetableIndex].data[_dayHour] != 0) ||
-                (timetables[timetableIndex].data[_dayHour] & ~FIXED) == classId)
+            if(timetables[timetableIndex].data.contains(_dayHour) && (classId == ClassesModel::WHATEVER ||
+                (timetables[timetableIndex].data[_dayHour] & ~FIXED) == classId))
                 count++;
 
         /* Hledáme v celém rozvrhu */
@@ -589,6 +592,90 @@ int TimetableModel::previousTimetable(int index) {
 
     /* Žádný předek nenalezen */
     return -1;
+}
+
+/* Počet hodin v daný den */
+int TimetableModel::lessonCount(QDate date) {
+    /* Platný rozvrh v ten den */
+    QList<int> timetableIndexes = validTimetables(date, true);
+
+    /* Žádný rozvrh v ten den neplatil */
+    if(timetableIndexes.isEmpty()) return 0;
+
+    int count = 0;
+    int day = date.dayOfWeek()-1;
+
+    /* Jednotlivé hodiny. Zde by stačilo najít všechny záznamy s klíčem
+        >= 16*day && < 16*(day+1). Leč bohužel tak to nende. */
+    for(int i = 0; i != 10; ++i)
+        if(timetables[timetableIndexes[0]].data.contains(dayHour(day, i))) count++;
+
+    return count;
+}
+
+/* Počet hodin v daný den / v celém období */
+int TimetableModel::lessonCount(int classId, bool tillNow) {
+    int count = 0;
+    int classIndex = classesModel->indexFromId(classId);
+
+    /* Platný rozvrh v první den */
+    QList<int> timetableIndexes = validTimetables(_beginDate, true);
+    if(timetableIndexes.isEmpty()) return 0;
+
+    /* Koncové datum buď dnešek, nebo konec pololetí */
+    QDate __endDate = tillNow ? QDate::currentDate() : _endDate;
+
+    /* Procházíme rozvrhy, dokud jsme v rozsahu pololetí */
+    int timetableIndex = timetableIndexes[0];
+    QDate date = _beginDate;
+    while(date <= __endDate) {
+        /* Index dalšího rozvrhu */
+        int next = indexFromId(timetables[timetableIndexes[0]].followedBy);
+
+        /* Datum konce platnosti aktuálního rozvrhu */
+        QDate end = timetables[next].validFrom.addDays(-1);
+
+        /* Pokud je tento rozvrh poslední v řadě (následován sebou samým),
+            nebo je datum konce platnosti za koncem pololetí, nastavíme
+            konec platnosti na konec pololetí */
+        if(next == timetableIndex || end > __endDate) end = __endDate;
+
+        /* Počet dnů, po které je daný rozvrh platný (včetně koncového, tedy +1) */
+        int days = date.daysTo(end)+1;
+
+        /* Počet hodin v celých týdnech (počet hodin v týdnu = počet položek
+            pole data) */
+        count += timetables[timetableIndex].data.count()*(days/7);
+
+        /* Číslo prvního dne ze zbývajících = číslo prvního dne pololetí */
+        int firstDay = date.dayOfWeek()-1;
+
+        /* Projití dnů z posledního necelého týdne */
+        for(int i = 0; i != days%7; ++i) {
+
+            /* Číslo dne nesmí být větší než 6 => tedy zbytek po dělení 7 */
+            int day = (firstDay+i)%7;
+
+            /* Procházení hodin a hledání předmětů */
+            for(int hour = 0; hour != 10; ++hour) {
+                /* Pokud danouhodinu předmět existuje a (pokud hledáme konkrétní
+                    předmět) je ten správný, přičteme */
+                if(timetables[timetableIndex].data.contains(dayHour(day, hour)) &&
+                  (classId == 0 || timetables[timetableIndex].data[dayHour(day, hour)] == classIndex))
+                    count++;
+            }
+        }
+
+        /* Přeskočení na další den - buď to bude den začátku platnosti
+            dalšího rozvrhu, nebo první den mimo rozsah pololetí, oboje
+            je správně */
+        date = end.addDays(1);
+
+        /* ID dalšího rozvrhu */
+        timetableIndex = next;
+    }
+
+    return count;
 }
 
 /* Nastavení rozvrhu jako aktuálního */

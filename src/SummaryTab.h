@@ -88,6 +88,7 @@ class SummaryTab: public QWidget {
         QAction* updateFromWebAction; /** @brief Akce menu pro aktualizaci z internetu */
 
         QLabel* statsAllAbsences;   /** @brief Celkový počet absencí */
+        QLabel* statsAllHours;      /** @brief Celkový počet hodin */
 
         TimetableTab* timetableTab; /** @brief Tab s rozvrhy */
         AbsencesModel* absencesModel;   /** @brief Model změn */
