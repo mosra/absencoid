@@ -14,6 +14,7 @@ class QLabel;
 namespace Absencoid {
 
 class AbsencesModel;
+class ChangesModel;
 class TimetableTab;
 
 class SummaryTab: public QWidget {
@@ -23,7 +24,7 @@ class SummaryTab: public QWidget {
         /**
          * @brief Konstruktor
          */
-        SummaryTab(TimetableTab* _timetableTab, AbsencesModel* _absencesModel, QWidget* parent = 0);
+        SummaryTab(TimetableTab* _timetableTab, ChangesModel* _changesModel, AbsencesModel* _absencesModel, QWidget* parent = 0);
 
     signals:
         /** @brief Databáze byla aktualizována */
@@ -89,9 +90,13 @@ class SummaryTab: public QWidget {
 
         QLabel* statsAllAbsences;   /** @brief Celkový počet absencí */
         QLabel* statsAllHours;      /** @brief Celkový počet hodin */
+        QLabel* statsAddedHours;    /** @brief Počet přidaných hodin */
+        QLabel* statsRemovedHours;  /** @brief Počet ubraných hodin */
+        QLabel* statsDeltaHours;    /** @brief Počet přidaných / odebraných hodin */
 
         TimetableTab* timetableTab; /** @brief Tab s rozvrhy */
-        AbsencesModel* absencesModel;   /** @brief Model změn */
+        ChangesModel* changesModel; /** @brief Model změn */
+        AbsencesModel* absencesModel;   /** @brief Model absencí */
 };
 
 }

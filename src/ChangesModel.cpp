@@ -351,6 +351,48 @@ QList<int> ChangesModel::relatedChanges(QDate date) const {
     return list;
 }
 
+/* Počet přidaných / odebraných hodin daného předmětu v pololetí */
+int ChangesModel::deltaHours(int classId, bool tillNow, int direction) {
+    int delta = 0;
+
+    QDate endDate = tillNow ? QDate::currentDate() : timetableModel->endDate();
+
+    /* Procházení jednotlivých změn */
+    for(int i = 0; i != changes.size(); ++i) {
+        /* Datum mimo rozsah */
+        if(changes[i].date < timetableModel->beginDate() || changes[i].date > endDate) continue;
+
+        /* Mění se z prázdné hodiny, tj. přibývá hodina */
+        if(changes[i].fromClassId == 0 && direction >= 0) {
+
+            /* Pokud aktivní rozvrh obsahuje _kdekoli_ předmět, na který měníme
+                (společný postup i pokud nehledáme konkrétní hodiny) */
+            if(timetableModel->timetablesWithThisLesson(changes[i].date, 0x0F, changes[i].toClassId, true) != 0)
+                delta++;
+
+        /* Měníme z hodiny na hodinu, tj. ubývá hodina */
+        } else if(changes[i].fromClassId != 0 && direction <= 0) {
+
+            /* Pokud aktivní rozvrh obsahuje v daný den/hodinu předmět, ze kterého měníme */
+            if(timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, changes[i].fromClassId, true) != 0) {
+                /* Pokud nehledáme konkrétní předmět, zjistíme jen jestli hodina odpadla */
+                if(classId == 0 && changes[i].toClassId == 0) {
+                    /* Měníme z jakékoli hodiny, odečteme všechny hodiny, které ten den jsou */
+                    if(changes[i].hour == ALL_HOURS)
+                        delta -= timetableModel->lessonCount(changes[i].date);
+
+                    /* Měníme z určené hodiny, odečteme jen jednu */
+                    else delta--;
+
+                /* Jinak odečteme (pokud se neměnilo na stejnou) */
+                } else if(classId != 0 && changes[i].fromClassId != changes[i].toClassId) delta--;
+            }
+        }
+    }
+
+    return delta;
+}
+
 /* Uložení nového záznamu do DB */
 bool ChangesModel::saveRow(int row) {
     /* Špatný index */

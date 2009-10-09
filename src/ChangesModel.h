@@ -102,6 +102,22 @@ class ChangesModel: public QAbstractTableModel {
          */
         QList<int> relatedChanges(QDate date) const;
 
+        /**
+         * @brief Počet přidaných / ubraných hodin pro daný předmět
+         *
+         * Projde všechny změny související s rozvrhem platným v daný datum.
+         * @param   classId     ID předmětu, pokud je nula, hledají se jen
+         *                      přidané / odpadnuté předměty.
+         * @param   tillNow     Počítat jen do dneška.
+         * @param   direction   Pokud je uvedena nula, počítají se přidané i
+         *                      ubrané hodiny, pokud je uvedeno kladné, počítají
+         *                      se jen přidané hodiny, pokud je uvedeno záporné
+         *                      číslo, počítají se jen ubrané hodiny.
+         * @return  Počet přidaných hodin, tedy záporné číslo značí, že hodiny
+         *          byly ubrány.
+         */
+        int deltaHours(int classId = 0, bool tillNow = false, int direction = 0);
+
     public slots:
         /**
         * @brief (Znovu)načtení dat z databáze
