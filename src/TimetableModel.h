@@ -252,16 +252,17 @@ class TimetableModel: public QAbstractItemModel {
         inline QDate endDate() const { return _endDate; }
 
         /**
-         * @brief Počet hodin daného předmětu v pololetí
+         * @brief Počet hodin daného předmětu v daný den
          *
-         * Vrátí počet hodin v platném rozvrhu daný den.
+         * Vrátí počet daného předmětu v daný den
          * @param   date    Datum
+         * @param   classId ID předmětu
          * @return  Počet hodin
          */
-        int lessonCount(QDate date);
+        int lessonCount(QDate date, int classId = 0);
 
         /**
-         * @brief Celkový počet hodin v daný den
+         * @brief Celkový počet hodin daného předmětu
          *
          * Vrátí celkový počet hodin daného předmětu v celém pololetí, případně
          * jen do aktuálního data (včetně), pokud je nastaveno tillNow na true.

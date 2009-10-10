@@ -10,6 +10,7 @@ qt4_wrap_cpp(AbsencoidMOC
     MainWindow.h
     SummaryTab.h
     Update.h
+    HottestModel.h
     CreateUpdateDialog.h
     UpdateDialog.h
     TeachersModel.h
@@ -35,7 +36,7 @@ add_executable(absencoid
     main.cpp MainWindow.cpp AboutDialog.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
     SummaryTab.cpp CreateUpdateDialog.cpp UpdateDialog.cpp
-    Dump.cpp Update.cpp
+    Dump.cpp Update.cpp HottestModel.cpp
     TeachersModel.cpp TeachersTab.cpp
     ClassesModel.cpp ClassesTab.cpp
     TimetableModel.cpp TimetableTab.cpp

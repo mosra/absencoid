@@ -114,7 +114,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Souhrn - potřebuje data rozvrhu, ale absence potřebují jeho aktuální
         rozvrh, proto je zde */
-    SummaryTab* summaryTab = new SummaryTab(timetableTab, changesTab->getChangesModel(), absencesTab->getAbsencesModel());
+    SummaryTab* summaryTab = new SummaryTab(teachersTab->getTeachersModel(), classesTab->getClassesModel(), timetableTab, changesTab->getChangesModel(), absencesTab->getAbsencesModel());
     tabWidget->insertTab(0, summaryTab, tr("Souhrn"));
     tabWidget->setCurrentIndex(0);
 

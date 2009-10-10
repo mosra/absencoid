@@ -365,27 +365,83 @@ int ChangesModel::deltaHours(int classId, bool tillNow, int direction) {
         /* Mění se z prázdné hodiny, tj. přibývá hodina */
         if(changes[i].fromClassId == 0 && direction >= 0) {
 
-            /* Pokud aktivní rozvrh obsahuje _kdekoli_ předmět, na který měníme
-                (společný postup i pokud nehledáme konkrétní hodiny) */
+            /* Měníme na nějaký jiný předmět, než který hledáme */
+            if(classId != 0 && changes[i].toClassId != classId) continue;
+
+            /* Pokud aktivní rozvrh obsahuje _kdekoli_ předmět, na který měníme */
             if(timetableModel->timetablesWithThisLesson(changes[i].date, 0x0F, changes[i].toClassId, true) != 0)
                 delta++;
 
-        /* Měníme z hodiny na hodinu, tj. ubývá hodina */
+        /* Měníme z hodiny na hodinu, možná přibývá, možná ubývá hodina */
         } else if(changes[i].fromClassId != 0 && direction <= 0) {
 
-            /* Pokud aktivní rozvrh obsahuje v daný den/hodinu předmět, ze kterého měníme */
-            if(timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, changes[i].fromClassId, true) != 0) {
-                /* Pokud nehledáme konkrétní předmět, zjistíme jen jestli hodina odpadla */
-                if(classId == 0 && changes[i].toClassId == 0) {
+            /* Měníme z jakéhokoli předmětu */
+            if(changes[i].fromClassId == ClassesModel::WHATEVER) {
+                /* Měníme ze všech hodin */
+                if(changes[i].hour == ALL_HOURS) {
+
+                    /* Hledáme konkrétní předmět - musíme prohledat každou hodinu */
+                    if(classId != 0) for(int hour = 0; hour != 10; ++hour) {
+                        /* Pokud se mění z hledaného předmětu na jiný, odečteme */
+                        if(timetableModel->timetablesWithThisLesson(changes[i].date, hour, classId, true) == 1 && classId != changes[i].toClassId)
+                            delta--;
+
+                        /* Pokud v danou dobu je nějaký předmět a měníme na hledaný, přičteme */
+                        else if(changes[i].toClassId == classId && timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, ClassesModel::WHATEVER, true) == 1)
+                            delta++;
+
+                    /* Nehledáme konkrétní předmět, pokud měníme na prázdnou
+                        hodinu, jen spočítáme kolik hodin odpadlo */
+                    } else if(changes[i].toClassId == 0)
+                        delta -= timetableModel->lessonCount(changes[i].date);
+
+                /* Měníme z konkrétní hodiny */
+                } else {
+                    /* Pokud se mění z hledaného předmětu na jiný, odečteme */
+                    if(timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, classId, true) == 1 && classId != changes[i].toClassId)
+                        delta--;
+
+                    /* Pokud v danou dobu je nějaký předmět a měníme na hledaný, přičteme */
+                    else if(changes[i].toClassId == classId && timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, ClassesModel::WHATEVER, true) == 1)
+                        delta++;
+                }
+
+
+            /* Měníme z konkrétního předmětu na jiný, ověříme zda jej rozvrh obsahuje */
+            } else if(changes[i].toClassId != changes[i].fromClassId && timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, changes[i].fromClassId, true) == 1) {
+                /* Hledáme konkrétní předmět */
+                if(classId != 0) {
+                    /* Měníme ze všech hodin */
+                    if(changes[i].hour == ALL_HOURS) {
+                        /* Pokud z něj měníme na jiný, odečteme všechny hodiny,
+                            ve kterých předmět byl */
+                        if(changes[i].fromClassId == classId)
+                            delta -= timetableModel->lessonCount(changes[i].date, changes[i].fromClassId);
+
+                        /* Pokud měníme z jiného na hledaný, přičteme všechny hodiny
+                            daný den (ve kterých již není hledaný předmět) */
+                        else if(changes[i].toClassId == classId)
+                            delta += timetableModel->lessonCount(changes[i].date)
+                                -timetableModel->lessonCount(changes[i].date, changes[i].toClassId);
+
+                    /* Měníme z konkrétní hodiny */
+                    } else {
+                        /* Pokud z něj měníme, odečteme */
+                        if(changes[i].fromClassId == classId) delta--;
+
+                        /* Pokud měníme z jiného na hledaný, přičteme */
+                        else if(changes[i].toClassId == classId)   delta++;
+                    }
+
+                /* Hledáme jakýkoli předmět, odečítáme jen pokud se mění na prázdnou hodinu */
+                } else if(changes[i].toClassId == 0) {
                     /* Měníme z jakékoli hodiny, odečteme všechny hodiny, které ten den jsou */
                     if(changes[i].hour == ALL_HOURS)
                         delta -= timetableModel->lessonCount(changes[i].date);
 
                     /* Měníme z určené hodiny, odečteme jen jednu */
                     else delta--;
-
-                /* Jinak odečteme (pokud se neměnilo na stejnou) */
-                } else if(classId != 0 && changes[i].fromClassId != changes[i].toClassId) delta--;
+                }
             }
         }
     }

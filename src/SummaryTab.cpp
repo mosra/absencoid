@@ -12,6 +12,7 @@
 #include <QGridLayout>
 #include <QBoxLayout>
 #include <QTableView>
+#include <QHeaderView>
 #include <QFile>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -28,11 +29,12 @@
 #include "UpdateDialog.h"
 #include "AbsencesModel.h"
 #include "ChangesModel.h"
+#include "HottestModel.h"
 
 namespace Absencoid {
 
 /* Konstruktor */
-SummaryTab::SummaryTab(TimetableTab* _timetableTab, ChangesModel* _changesModel, AbsencesModel* _absencesModel, QWidget* parent): QWidget(parent), timetableTab(_timetableTab), changesModel(_changesModel), absencesModel(_absencesModel) {
+SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel, TimetableTab* _timetableTab, ChangesModel* _changesModel, AbsencesModel* _absencesModel, QWidget* parent): QWidget(parent), timetableTab(_timetableTab), changesModel(_changesModel), absencesModel(_absencesModel) {
 
     /* Políčka pro editaci data */
     beginDate = new QDateEdit;
@@ -54,6 +56,9 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, ChangesModel* _changesModel,
     activeTimetable = new QComboBox;
     activeTimetable->setModel(timetableTab->getTimetableModel());
     activeTimetable->setModelColumn(1);
+
+    /* Tabulka nejžhavějších absencí (aplikovat model můžu ale až níž) */
+    QTableView* hottestView = new QTableView;
 
     /* Checkboxy */
     updateOnStart = new QCheckBox(tr("Zjišťovat aktualizace při startu"));
@@ -117,7 +122,7 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, ChangesModel* _changesModel,
     /* LEVÝ SPODNÍ GROUPBOX (NEJŽHAVĚJŠÍ ABSENCE) */
     QGroupBox* hottestGroup = new QGroupBox(tr("Nejžhavější absence"));
     QHBoxLayout* hottestLayout = new QHBoxLayout;
-    hottestLayout->addWidget(new QTableView, 0, Qt::AlignCenter);
+    hottestLayout->addWidget(hottestView);
     hottestGroup->setLayout(hottestLayout);
 
     /* PRAVÝ VRCHNÍ GROUPBOX (NASTAVENÍ) */
@@ -190,6 +195,19 @@ SummaryTab::SummaryTab(TimetableTab* _timetableTab, ChangesModel* _changesModel,
 
     /* Načtení dat */
     reload();
+
+    /* Model nejžhavějších absencí */
+    hottestModel = new HottestModel(teachersModel, classesModel, timetableTab->getTimetableModel(), changesModel, absencesModel);
+    hottestView->setModel(hottestModel);
+    hottestView->resizeRowsToContents();
+    hottestView->verticalHeader()->setHidden(true);
+    hottestView->setColumnWidth(0, 60);
+    hottestView->setColumnWidth(1, 110);
+    hottestView->setColumnWidth(2, 110);
+
+    /* Propojení změn v absencích se znovunačtením modelu */
+    connect(absencesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            hottestModel, SLOT(reload()));
 
     /* Aktualizace z internetu po startu (jen když je platná adresa) */
     if(updateOnStart->isChecked() && webUpdateUrl->hasAcceptableInput())

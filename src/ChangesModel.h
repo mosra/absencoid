@@ -106,6 +106,9 @@ class ChangesModel: public QAbstractTableModel {
          * @brief Počet přidaných / ubraných hodin pro daný předmět
          *
          * Projde všechny změny související s rozvrhem platným v daný datum.
+         * @bug     Počet přidaných / ubraných hodin nemusí souhlasit se součtem
+         *          přidaných / ubraných hodin v jednotlivých předmětech, pokud
+         *          existují změny měnící na předmět, který není v rozvrhu!
          * @param   classId     ID předmětu, pokud je nula, hledají se jen
          *                      přidané / odpadnuté předměty.
          * @param   tillNow     Počítat jen do dneška.

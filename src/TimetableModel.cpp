@@ -594,8 +594,8 @@ int TimetableModel::previousTimetable(int index) {
     return -1;
 }
 
-/* Počet hodin v daný den */
-int TimetableModel::lessonCount(QDate date) {
+/* Počet hodin daného předmětu v daný den */
+int TimetableModel::lessonCount(QDate date, int classId) {
     /* Platný rozvrh v ten den */
     QList<int> timetableIndexes = validTimetables(date, true);
 
@@ -605,18 +605,18 @@ int TimetableModel::lessonCount(QDate date) {
     int count = 0;
     int day = date.dayOfWeek()-1;
 
-    /* Jednotlivé hodiny. Zde by stačilo najít všechny záznamy s klíčem
-        >= 16*day && < 16*(day+1). Leč bohužel tak to nende. */
+    /* Jednotlivé hodiny */
     for(int i = 0; i != 10; ++i)
-        if(timetables[timetableIndexes[0]].data.contains(dayHour(day, i))) count++;
+        if(timetables[timetableIndexes[0]].data.contains(dayHour(day, i)) &&
+          (classId == 0 || (classId == 1 && (timetables[timetableIndexes[0]].data[dayHour(day, i)] & ~FIXED) == classId)))
+            count++;
 
     return count;
 }
 
-/* Počet hodin v daný den / v celém období */
+/* Počet hodin daného předmětu */
 int TimetableModel::lessonCount(int classId, bool tillNow) {
     int count = 0;
-    int classIndex = classesModel->indexFromId(classId);
 
     /* Platný rozvrh v první den */
     QList<int> timetableIndexes = validTimetables(_beginDate, true);
@@ -643,9 +643,12 @@ int TimetableModel::lessonCount(int classId, bool tillNow) {
         /* Počet dnů, po které je daný rozvrh platný (včetně koncového, tedy +1) */
         int days = date.daysTo(end)+1;
 
-        /* Počet hodin v celých týdnech (počet hodin v týdnu = počet položek
-            pole data) */
-        count += timetables[timetableIndex].data.count()*(days/7);
+        /* Počet všech hodin v celých týdnech */
+        if(classId == 0) count += timetables[timetableIndex].data.count()*(days/7);
+
+        /* Počet konkrétních hodin v celých týdnech (musíme počítat i s FIXED hodinami) */
+        else count += (timetables[timetableIndex].data.keys(classId).count()
+                +timetables[timetableIndex].data.keys(classId | FIXED).count())*(days/7);
 
         /* Číslo prvního dne ze zbývajících = číslo prvního dne pololetí */
         int firstDay = date.dayOfWeek()-1;
@@ -658,10 +661,10 @@ int TimetableModel::lessonCount(int classId, bool tillNow) {
 
             /* Procházení hodin a hledání předmětů */
             for(int hour = 0; hour != 10; ++hour) {
-                /* Pokud danouhodinu předmět existuje a (pokud hledáme konkrétní
+                /* Pokud danou hodinu předmět existuje a (pokud hledáme konkrétní
                     předmět) je ten správný, přičteme */
                 if(timetables[timetableIndex].data.contains(dayHour(day, hour)) &&
-                  (classId == 0 || timetables[timetableIndex].data[dayHour(day, hour)] == classIndex))
+                  (classId == 0 || (timetables[timetableIndex].data[dayHour(day, hour)] & ~FIXED) == classId))
                     count++;
             }
         }
