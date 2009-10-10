@@ -36,8 +36,8 @@ AbsencesTab::AbsencesTab(ClassesModel* classesModel, TimetableModel* timetableMo
     absencesView->setColumnWidth(11, 66);
 
     /* Tlačítka nahoře */
-    QPushButton* addAbsenceButton = new QPushButton(tr("Přidat absenci"));
-    removeSelectedButton = new QPushButton(tr("Odstranit vybrané"));
+    QPushButton* addAbsenceButton = new QPushButton(QIcon(":/plus.png"), tr("Přidat absenci"));
+    removeSelectedButton = new QPushButton(QIcon(":/minus.png"), tr("Odstranit vybrané"));
     removeSelectedButton->setDisabled(true);
 
     /* Horní layout */

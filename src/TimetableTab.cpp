@@ -33,12 +33,12 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
     timetableView->setItemDelegate(new ComboBoxDelegate(classesModel, this));
 
     /* Tlačítka atd. vpravo */
-    QPushButton* addTimetableButton = new QPushButton(tr("Nový rozvrh"));
-    removeTimetableButton = new QPushButton(tr("Odstranit rozvrh"));
-    removeLessonsButton = new QPushButton(tr("Odstranit vybrané"));
+    QPushButton* addTimetableButton = new QPushButton(QIcon(":/plus.png"), tr("Nový rozvrh"));
+    removeTimetableButton = new QPushButton(QIcon(":/minus.png"), tr("Odstranit rozvrh"));
+    removeLessonsButton = new QPushButton(QIcon(":/minus.png"), tr("Odstranit vybrané"));
 
     /* Zamáčknutelné tlačítko pro zamykání hodin */
-    fixLessonsButton = new QPushButton(tr("Zamknout vybrané"));
+    fixLessonsButton = new QPushButton(QIcon(":/lock.png"), tr("Zamknout vybrané"));
     fixLessonsButton->setCheckable(true);
 
     descriptionLabel = new QLabel(tr("Popisek:"));

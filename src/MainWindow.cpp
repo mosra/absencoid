@@ -81,41 +81,41 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     helpAction->setDisabled(true);
     QAction* aboutAction = helpMenu->addAction(tr("O programu"));
     helpMenu->addSeparator();
-    QAction* aboutQtAction = helpMenu->addAction(tr("O Qt"));
+    QAction* aboutQtAction = helpMenu->addAction(QIcon(":/qt.png"), tr("O Qt"));
     connect(aboutAction, SIGNAL(triggered(bool)), this, SLOT(about()));
     connect(aboutQtAction, SIGNAL(triggered(bool)), qApp, SLOT(aboutQt()));
 
     setMenuBar(menu);
 
     /* Taby */
-    tabWidget->setTabPosition(QTabWidget::West);
+    tabWidget->setTabPosition(QTabWidget::South);
     tabWidget->setUsesScrollButtons(false);
 
     /* Učitelé */
     TeachersTab* teachersTab = new TeachersTab(tabWidget);
-    tabWidget->addTab(teachersTab, tr("Učitelé"));
+    tabWidget->addTab(teachersTab, QIcon(":/teachers.png"), tr("Učitelé"));
 
     /* Předměty */
     ClassesTab* classesTab = new ClassesTab(teachersTab->getTeachersModel(), tabWidget);
-    tabWidget->addTab(classesTab, tr("Předměty"));
+    tabWidget->addTab(classesTab, QIcon(":/classes.png"), tr("Předměty"));
 
     /* Rozvrh hodin */
     TimetableTab* timetableTab = new TimetableTab(classesTab->getClassesModel(), tabWidget);
-    tabWidget->addTab(timetableTab, tr("Rozvrhy hodin"));
+    tabWidget->addTab(timetableTab, QIcon(":/timetables.png"), tr("Rozvrhy hodin"));
 
     /* Změny */
     ChangesTab* changesTab =
         new ChangesTab(timetableTab->getTimetableModel(), classesTab->getClassesModel());
-    tabWidget->addTab(changesTab, tr("Změny"));
+    tabWidget->addTab(changesTab, QIcon(":/changes.png"), tr("Změny"));
 
     /* Absence */
     AbsencesTab* absencesTab = new AbsencesTab(classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
-    tabWidget->addTab(absencesTab, tr("Absence"));
+    tabWidget->addTab(absencesTab, QIcon(":/absences.png"), tr("Absence"));
 
     /* Souhrn - potřebuje data rozvrhu, ale absence potřebují jeho aktuální
         rozvrh, proto je zde */
     SummaryTab* summaryTab = new SummaryTab(teachersTab->getTeachersModel(), classesTab->getClassesModel(), timetableTab, changesTab->getChangesModel(), absencesTab->getAbsencesModel());
-    tabWidget->insertTab(0, summaryTab, tr("Souhrn"));
+    tabWidget->insertTab(0, summaryTab, QIcon(":/summary.png"), tr("Souhrn"));
     tabWidget->setCurrentIndex(0);
 
     /* Propojení signálu o aktualizaci databáze s reload funkcemi modelů.
@@ -136,7 +136,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     statusBar()->addWidget(new QLabel(tr("%1").arg(APP_VERSION_LONG)));
 
     /* Změna velikosti na nejmenší možnou v poměru 16:10 */
-    resize(sizeHint().height()*8/5, sizeHint().height());
+    resize(480*8/5, 480);
 }
 
 /* Dialog O programu */

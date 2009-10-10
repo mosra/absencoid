@@ -65,7 +65,7 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     dumpOnExit = new QCheckBox(tr("Automaticky zálohovat při ukončení programu"));
 
     /* Tlačítko pro aktualizaci s popup menu */
-    QPushButton* updateButton = new QPushButton(tr("Aktualizovat"));
+    QPushButton* updateButton = new QPushButton(QIcon(":/update.png"), tr("Aktualizovat"));
     QMenu* updateButtonMenu = new QMenu(updateButton);
     updateButton->setMenu(updateButtonMenu);
 
@@ -84,9 +84,9 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     connect(webUpdateUrl, SIGNAL(textChanged(QString)), this, SLOT(validateUrlEdit()));
 
     /* Tlačítko pro vytvoření aktualizace, zálohy, obnovení ze zálohy */
-    QPushButton* createUpdateButton = new QPushButton(tr("Vytvořit aktualizaci"));
-    QPushButton* createDumpButton = new QPushButton(tr("Zálohovat"));
-    QPushButton* loadDumpButton = new QPushButton(tr("Obnovit ze zálohy"));
+    QPushButton* createUpdateButton = new QPushButton(QIcon(":/createUpdate.png"), tr("Vytvořit aktualizaci"));
+    QPushButton* createDumpButton = new QPushButton(QIcon(":/dump.png"), tr("Zálohovat"));
+    QPushButton* loadDumpButton = new QPushButton(QIcon(":/loadDump.png"), tr("Obnovit ze zálohy"));
     connect(createUpdateButton, SIGNAL(clicked(bool)), this, SLOT(createUpdate()));
     connect(createDumpButton, SIGNAL(clicked(bool)), this, SLOT(createDump()));
     connect(loadDumpButton, SIGNAL(clicked(bool)), this, SLOT(loadDump()));
@@ -191,7 +191,6 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     layout->addLayout(bottomRightLayout, 1, 1);
     layout->setColumnStretch(0, 0);
     layout->setColumnStretch(1, 0);
-    layout->setRowStretch(1, 1);
 
     #ifndef ADMIN_VERSION
     beginDate->setDisabled(true);

@@ -1,0 +1,20 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>summary.png</file>
+    <file>teachers.png</file>
+    <file>classes.png</file>
+    <file>timetables.png</file>
+    <file>changes.png</file>
+    <file>absences.png</file>
+
+    <file>update.png</file>
+    <file>createUpdate.png</file>
+    <file>dump.png</file>
+    <file>loadDump.png</file>
+
+    <file>plus.png</file>
+    <file>minus.png</file>
+
+    <file>qt.png</file>
+</qresource>
+</RCC>
