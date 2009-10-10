@@ -93,10 +93,15 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
 
     /* Inicializace políček pro statistiku */
     statsAllAbsences = new QLabel("0");
+    statsAllAbsencesPercent = new QLabel("(0)");
     statsAllHours = new QLabel("0");
+    statsAllHoursForecast = new QLabel("(0)");
     statsAddedHours = new QLabel("0");
+    statsAddedHoursForecast = new QLabel("(0)");
     statsRemovedHours = new QLabel("0");
+    statsRemovedHoursForecast = new QLabel("(0)");
     statsDeltaHours = new QLabel("0");
+    statsDeltaHoursForecast = new QLabel("(0)");
 
     /* Propojení změn v absencích s obnovením statistiky */
     connect(absencesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -107,14 +112,19 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     QGridLayout* statisticsLayout = new QGridLayout;
     statisticsLayout->addWidget(new QLabel(tr("Počet hodin absencí (procent dosud):")), 0, 0);
     statisticsLayout->addWidget(statsAllAbsences, 0, 1);
+    statisticsLayout->addWidget(statsAllAbsencesPercent, 0, 2);
     statisticsLayout->addWidget(new QLabel(tr("Počet hodin dosud (odhad celkem):")), 1, 0);
     statisticsLayout->addWidget(statsAllHours, 1, 1);
+    statisticsLayout->addWidget(statsAllHoursForecast, 1, 2);
     statisticsLayout->addWidget(new QLabel(tr("Počet přidaných hodin (odhad):")), 2, 0);
     statisticsLayout->addWidget(statsAddedHours, 2, 1);
+    statisticsLayout->addWidget(statsAddedHoursForecast, 2, 2);
     statisticsLayout->addWidget(new QLabel(tr("Počet odebraných hodin (odhad):")), 3, 0);
     statisticsLayout->addWidget(statsRemovedHours, 3, 1);
+    statisticsLayout->addWidget(statsRemovedHoursForecast, 3, 2);
     statisticsLayout->addWidget(new QLabel(tr("Odebrané / přidané hodiny (odhad):")), 4, 0, Qt::AlignTop);
     statisticsLayout->addWidget(statsDeltaHours, 4, 1, Qt::AlignTop);
+    statisticsLayout->addWidget(statsDeltaHoursForecast, 4, 2, Qt::AlignTop);
     statisticsLayout->setColumnStretch(0, 1);
     statisticsLayout->setRowStretch(4, 1);
     statisticsGroup->setLayout(statisticsLayout);
@@ -181,6 +191,7 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     layout->addLayout(bottomRightLayout, 1, 1);
     layout->setColumnStretch(0, 0);
     layout->setColumnStretch(1, 0);
+    layout->setRowStretch(1, 1);
 
     #ifndef ADMIN_VERSION
     beginDate->setDisabled(true);
@@ -534,24 +545,28 @@ void SummaryTab::reloadStatistics() {
     int lessonCountForecast = timetableTab->getTimetableModel()->lessonCount()
         +addedHoursForecast+removedHoursForecast;
 
-    statsAllAbsences->setText(tr("%1 (%2%)").arg(absencesCount).arg(absencesCount*100/lessonCount));
-    statsAllHours->setText(tr("%1 (%2)").arg(lessonCount).arg(lessonCountForecast));
+    statsAllAbsences->setText(QString::number(absencesCount));
+    statsAllAbsencesPercent->setText(tr("(%1%)").arg(absencesCount*100/lessonCount));
+    statsAllHours->setText(QString::number(lessonCount));
+    statsAllHoursForecast->setText(tr("(%1)").arg(lessonCountForecast));
 
-    statsAddedHours->setText(tr("%1 (%2)").arg(addedHours).arg(addedHoursForecast));
-    statsRemovedHours->setText(tr("%1 (%2)").arg(-removedHours).arg(-removedHoursForecast));
+    statsAddedHours->setText(QString::number(addedHours));
+    statsAddedHoursForecast->setText(tr("(%1)").arg(addedHoursForecast));
+    statsRemovedHours->setText(QString::number(-removedHours));
+    statsRemovedHoursForecast->setText(tr("(%1)").arg(-removedHoursForecast));
 
     /* Zobrazení přidaných / odebraných hodin: číslo (číslo), číslo je buď s
         + před, - před nebo samotná nula */
     QString delta;
-    if(addedHours+removedHours > 0) delta = tr("+%1 (%2)");
-    else                            delta = tr("%1 (%2)");
+    if(addedHours+removedHours > 0) delta = tr("+%1");
+    else                            delta = tr("%1");
 
     QString deltaForecast;
-    if(addedHoursForecast+removedHoursForecast > 0) deltaForecast = tr("+%1");
-    else                                            deltaForecast = tr("%1");
+    if(addedHoursForecast+removedHoursForecast > 0) deltaForecast = tr("(+%1)");
+    else                                            deltaForecast = tr("(%1)");
 
-    statsDeltaHours->setText(delta.arg(addedHours+removedHours).
-        arg(deltaForecast).arg(addedHoursForecast+removedHoursForecast));
+    statsDeltaHours->setText(delta.arg(addedHours+removedHours));
+    statsDeltaHoursForecast->setText(deltaForecast.arg(addedHoursForecast+removedHoursForecast));
 }
 
 }

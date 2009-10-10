@@ -91,11 +91,16 @@ class SummaryTab: public QWidget {
         QLineEdit* webUpdateUrl;    /** @brief Políčko s URL pro aktualizaci z internetu */
         QAction* updateFromWebAction; /** @brief Akce menu pro aktualizaci z internetu */
 
-        QLabel* statsAllAbsences;   /** @brief Celkový počet absencí */
-        QLabel* statsAllHours;      /** @brief Celkový počet hodin */
+        QLabel* statsAllAbsences;   /** @brief Počet absencí */
+        QLabel* statsAllAbsencesPercent;    /** @brief Absence v procentech */
+        QLabel* statsAllHours;      /** @brief Počet hodin */
+        QLabel* statsAllHoursForecast;  /** @brief Počet hodin do konce pololetí */
         QLabel* statsAddedHours;    /** @brief Počet přidaných hodin */
+        QLabel* statsAddedHoursForecast;    /** @brief Počet přidaných hodin do konce pololetí */
         QLabel* statsRemovedHours;  /** @brief Počet ubraných hodin */
+        QLabel* statsRemovedHoursForecast;  /** @brief Počet odebraných hodin do konce pololetí */
         QLabel* statsDeltaHours;    /** @brief Počet přidaných / odebraných hodin */
+        QLabel* statsDeltaHoursForecast;    /** @brief Počet přidaných / odebraných hodin do konce pololetí */
 
         TimetableTab* timetableTab; /** @brief Tab s rozvrhy */
         ChangesModel* changesModel; /** @brief Model změn */
