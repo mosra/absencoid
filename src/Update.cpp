@@ -178,7 +178,7 @@ void Update::run() {
         if(teachers.isNull()) throw tr("Nenalezena sekce s učiteli!");
 
         /* Smazání dosavadních učitelů, zapsání jejich počtu do proměnné (pro statistiku) */
-        if(!query.exec("DELETE FROM teachers;"))
+        if(!query.exec("DELETE FROM teachers WHERE id > 0;"))
             throw SqlException(tr("Nelpodařilo se smazat staré učitele!"), query);
         int teachersCount = -query.numRowsAffected();
 
@@ -225,7 +225,7 @@ void Update::run() {
         if(classes.isNull()) throw tr("Nenalezena sekce s předměty!");
 
         /* Smazání dosavadních předmětů, zapsání jejich počtu do proměnné (statistika) */
-        if(!query.exec("DELETE FROM classes;"))
+        if(!query.exec("DELETE FROM classes WHERE id > 0;"))
             throw SqlException(tr("Nepodařilo se smazat staré předměty!"), query);
         int classesCount = -query.numRowsAffected();
 
@@ -280,7 +280,7 @@ void Update::run() {
         }
 
         /* Smazání dosavadních rozvrhů, zapsání jejich počtu pro statistiku */
-        if(!query.exec("DELETE FROM timetables;"))
+        if(!query.exec("DELETE FROM timetables WHERE id > 0;"))
             throw SqlException(tr("Nepodařilo se smazat staré rozvrhy!"), query);
         int timetablesCount = -query.numRowsAffected();
         int timetableDataCount = 0;
@@ -392,7 +392,7 @@ void Update::run() {
         if(changes.isNull()) throw tr("Nenalezena sekce se změnami!");
 
         /* Smazání dosavadních změn, zapsání jejich počtu pro statistiku */
-        if(!query.exec("DELETE FROM changes;"))
+        if(!query.exec("DELETE FROM changes WHERE id > 0;"))
             throw SqlException(tr("Nelze smazat staré změny!"), query);
         int changesCount = -query.numRowsAffected();
 
@@ -481,7 +481,7 @@ void Update::run() {
             if(absences.isNull()) throw tr("Nebyla nalezena sekce s absencemi!");
 
             /* Smazání starých absencí, uložení jejich počtu pro statistiku */
-            if(!query.exec("DELETE FROM absences;"))
+            if(!query.exec("DELETE FROM absences WHERE id > 0;"))
                 throw SqlException(tr("Nelze smazat staré absence!"), query);
             int absencesCount = -query.numRowsAffected();
 

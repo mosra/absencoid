@@ -34,9 +34,6 @@ class Update: public QThread {
 
         /**
          * @brief Načtení aktualizace / zálohy
-         * @bug Windowsové buildy (i Qt 4.5.3) neumějí funkci pro zjištění počtu
-         *      ovlivněných řádků po posledním QSqlQuery. Zdá se, že umí jen
-         *      ty, které mají klauzuli WHERE.
          */
         virtual void run();
 
