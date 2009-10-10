@@ -21,8 +21,13 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
     #else
     "Uživatelská edice"
     #endif
-    "<br />Verze: %1 (%2-%3)<br />")
+    ", verze: %1 (%2-%3)<br />"
+    "<br />"
+    "Autor: <em>Mosra</em>, ikonky: <em>Pili</em>. Dotazy a nalezené chyby "
+    "pište na <a href=\"mailto:mosra@centrum.cz\">mosra@centrum.cz</a> (mail) "
+    "nebo mosra@jabbim.cz (jabber).<br />")
     .arg(APP_VERSION_LONG).arg(APP_VERSION).arg(SVN_VERSION));
+    name->setWordWrap(true);
 
     /* Disclaimer */
     QLabel* disclaimerLabel = new QLabel(tr("Zřeknutí se odpovědnosti:"));
@@ -65,7 +70,7 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
     buttons->setFocus();
 
     /* Velikost okna */
-    setFixedSize(400, 300);
+    setFixedSize(400, 360);
 }
 
 }
