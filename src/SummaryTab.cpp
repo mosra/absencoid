@@ -541,11 +541,12 @@ void SummaryTab::reloadStatistics() {
     int removedHoursForecast = changesModel->deltaHours(0, false, -1);
     int lessonCount = timetableTab->getTimetableModel()->lessonCount(0, true)
         +addedHours+removedHours;
+    int absencesPercent = lessonCount == 0 ? 0 : absencesCount*100/lessonCount;
     int lessonCountForecast = timetableTab->getTimetableModel()->lessonCount()
         +addedHoursForecast+removedHoursForecast;
 
     statsAllAbsences->setText(QString::number(absencesCount));
-    statsAllAbsencesPercent->setText(tr("(%1%)").arg(absencesCount*100/lessonCount));
+    statsAllAbsencesPercent->setText(tr("(%1%)").arg(absencesPercent));
     statsAllHours->setText(QString::number(lessonCount));
     statsAllHoursForecast->setText(tr("(%1)").arg(lessonCountForecast));
 
