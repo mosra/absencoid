@@ -355,6 +355,11 @@ QList<int> ChangesModel::relatedChanges(QDate date) const {
 int ChangesModel::deltaHours(int classId, bool tillNow, int direction) {
     int delta = 0;
 
+    /* Všechny předměty se stejným názvem, včetně předaného. Použité pro
+        porovnávání s předměty, na které se mění (protože ty nemusí být v
+        rozvrhu a pak by utíkaly hodiny). */
+    QList<int> classIds = classesModel->similar(classId);
+
     QDate endDate = tillNow ? QDate::currentDate() : timetableModel->endDate();
 
     /* Procházení jednotlivých změn */
@@ -365,8 +370,9 @@ int ChangesModel::deltaHours(int classId, bool tillNow, int direction) {
         /* Mění se z prázdné hodiny, tj. přibývá hodina */
         if(changes[i].fromClassId == 0 && direction >= 0) {
 
-            /* Měníme na nějaký jiný předmět, než který hledáme */
-            if(classId != 0 && changes[i].toClassId != classId) continue;
+            /* Měníme na nějaký jiný předmět, než který hledáme => konec.
+                Další postup platí tedy pro hledání konkrétního předmětu i všech */
+            if(classId != 0 && !classIds.contains(changes[i].toClassId)) continue;
 
             /* Pokud aktivní rozvrh obsahuje _kdekoli_ předmět, na který měníme */
             if(timetableModel->timetablesWithThisLesson(changes[i].date, 0x0F, changes[i].toClassId, true) != 0)
@@ -383,11 +389,11 @@ int ChangesModel::deltaHours(int classId, bool tillNow, int direction) {
                     /* Hledáme konkrétní předmět - musíme prohledat každou hodinu */
                     if(classId != 0) for(int hour = 0; hour != 10; ++hour) {
                         /* Pokud se mění z hledaného předmětu na jiný, odečteme */
-                        if(timetableModel->timetablesWithThisLesson(changes[i].date, hour, classId, true) == 1 && classId != changes[i].toClassId)
+                        if(timetableModel->timetablesWithThisLesson(changes[i].date, hour, classId, true) == 1 && !classIds.contains(changes[i].toClassId))
                             delta--;
 
                         /* Pokud v danou dobu je nějaký předmět a měníme na hledaný, přičteme */
-                        else if(changes[i].toClassId == classId && timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, ClassesModel::WHATEVER, true) == 1)
+                        else if(classIds.contains(changes[i].toClassId) && timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, ClassesModel::WHATEVER, true) == 1)
                             delta++;
 
                     /* Nehledáme konkrétní předmět, pokud měníme na prázdnou
@@ -398,11 +404,11 @@ int ChangesModel::deltaHours(int classId, bool tillNow, int direction) {
                 /* Měníme z konkrétní hodiny */
                 } else {
                     /* Pokud se mění z hledaného předmětu na jiný, odečteme */
-                    if(timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, classId, true) == 1 && classId != changes[i].toClassId)
+                    if(timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, classId, true) == 1 && !classIds.contains(changes[i].toClassId))
                         delta--;
 
                     /* Pokud v danou dobu je nějaký předmět a měníme na hledaný, přičteme */
-                    else if(changes[i].toClassId == classId && timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, ClassesModel::WHATEVER, true) == 1)
+                    else if(classIds.contains(changes[i].toClassId) && timetableModel->timetablesWithThisLesson(changes[i].date, changes[i].hour, ClassesModel::WHATEVER, true) == 1)
                         delta++;
                 }
 
@@ -420,17 +426,21 @@ int ChangesModel::deltaHours(int classId, bool tillNow, int direction) {
 
                         /* Pokud měníme z jiného na hledaný, přičteme všechny hodiny
                             daný den (ve kterých již není hledaný předmět) */
-                        else if(changes[i].toClassId == classId)
+                        /** @bug Možná :-) Předpokládá se, že uživatel nemá v rozvrhu
+                            více předmětů se stejným názvem, ale jiným učitelem */
+                        else if(classIds.contains(changes[i].toClassId))
                             delta += timetableModel->lessonCount(changes[i].date)
                                 -timetableModel->lessonCount(changes[i].date, changes[i].toClassId);
 
                     /* Měníme z konkrétní hodiny */
                     } else {
-                        /* Pokud z něj měníme, odečteme */
-                        if(changes[i].fromClassId == classId) delta--;
+                        /* Pokud měníme z hledaného na jiný, odečteme */
+                        if(changes[i].fromClassId == classId && !classIds.contains(changes[i].toClassId))
+                            delta--;
 
                         /* Pokud měníme z jiného na hledaný, přičteme */
-                        else if(changes[i].toClassId == classId)   delta++;
+                        else if(changes[i].fromClassId != classId && classIds.contains(changes[i].toClassId))
+                            delta++;
                     }
 
                 /* Hledáme jakýkoli předmět, odečítáme jen pokud se mění na prázdnou hodinu */

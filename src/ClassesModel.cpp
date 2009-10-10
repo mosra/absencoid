@@ -292,6 +292,24 @@ int ClassesModel::idFromIndex(int index) {
     return classes[index-2].id;
 }
 
+/* Předměty se stejným názvem jako tento */
+QList<int> ClassesModel::similar(int classId) {
+    QList<int> list;
+
+    int classIndex = indexFromId(classId);
+
+    /* Špatný index, vracíme prázdný seznam */
+    if(classIndex == -1) return list;
+
+    /* Hledáme předměty se stejným názvem */
+    QString name = classes[classIndex-2].name;
+
+    for(int i = 0; i != classes.count(); ++i)
+        if(classes[i].name == name) list.append(classes[i].id);
+
+    return list;
+}
+
 /* Uložení nového ředmětu do DB */
 bool ClassesModel::saveRow(int row) {
     /* Špatný index */

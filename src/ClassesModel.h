@@ -102,6 +102,15 @@ class ClassesModel: public QAbstractTableModel {
          */
         int idFromIndex(int index);
 
+        /**
+         * @brief Předměty se stejným názvem jako tento
+         *
+         * Vrací seznam ID předmětů se stejným názvem jako předaný
+         * @param   classId  ID předmětu
+         * @return  Seznam ID předmětů s podobným názvem
+         */
+        QList<int> similar(int classId);
+
     public slots:
         /**
          * @brief (Znovu)načtení dat z databáze
