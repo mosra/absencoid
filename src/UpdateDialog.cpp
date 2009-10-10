@@ -228,7 +228,7 @@ void UpdateDialog::updateStart(const QString& data, bool doUpdate) {
 void UpdateDialog::updateStatus(const QString& what, int count) {
     QString text;
     if(count == 0) text = what;
-    if(count < 0) text = tr("%1 (odebráno %2 položek)").arg(what).arg(count);
+    if(count < 0) text = tr("%1 (odebráno %2 položek)").arg(what).arg(-count);
     if(count > 0) text = tr("%1 (přidáno %2 položek)").arg(what).arg(count);
 
     addLogMessage(text, INFORMATION);
