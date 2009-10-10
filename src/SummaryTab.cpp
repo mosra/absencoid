@@ -219,6 +219,10 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     connect(absencesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             hottestModel, SLOT(reload()));
 
+    /* Propojení změn v modelu se změnou výšky řádků v tabulce */
+    connect(hottestModel, SIGNAL(modelReset()),
+            hottestView, SLOT(resizeRowsToContents()));
+
     /* Aktualizace z internetu po startu (jen když je platná adresa) */
     if(updateOnStart->isChecked() && webUpdateUrl->hasAcceptableInput())
         QTimer::singleShot(0, this, SLOT(updateFromWebSilent()));
