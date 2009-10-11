@@ -1,0 +1,51 @@
++------------------------------------------------------------------------------+
+| Verze 0.91 (1.0 beta)                                             11.10.2009 |
++------------------------------------------------------------------------------+
+Obsahuje všechno, co obsahovat má.
+
+Novinky:
+- Betaverze ikonek od Piliho. Dík!
+- Ručně malované logo a ikonka programu (v dialogu O programu). Malá ikonka
+  okna vypadá jako hovno, ale měnit to nebudu.
+- Statistika:
+    - zobrazení dosud odučených hodin, odhad hodin do konce pololetí
+    - celkový počet absencí ze všech předmětů, procentuálně
+    - počet přidaných a odebraných hodin, jejich odhad do konce pololetí
+- Tabulka nejžhavějších absencí:
+    - Ukazuje všechny předměty s nenulovou absencí, seřazené od největší
+      absence, je zde i odhad absencí do konce pololetí. Absence nad 25% jsou
+      označeny tučně. Ostatní předměty s nulovou absencí jsou shrnuty do položky
+      "Ostatní". Součet všech hodin by měl být stejný jako ten ve statistice.
+      Pokud není, objevili jste další chybu.
+
+Vylepšení / změny:
+- V absencích jsou použitá data začátku a konce pololetí, takže absence mimo
+  tento rozsah nebudou započítávány
+- Ouška panelů přesunuta kvůli úspoře místa na spodek okna
+- Po přidání nového učitele / předmětu / změny / absence se tabulka posune
+  na nový záznam
+
+Opravy chyb:
+- Ve verzích pro Windows se při aktualizaci / obnovení ze zálohy špatně
+  zobrazoval počet přidaných dat
+- Nezobrazování mínusu u počtu odebraných položek při aktualizaci / obnovení
+  ze zálohy
+- Doufám již definitivně odstraněny problémy se zobrazujícím se konzolovým
+  oknem ve windowsových verzích
+
++------------------------------------------------------------------------------+
+| Verze 0.91 (1.0 alpha 2)                                          04.10.2009 |
++------------------------------------------------------------------------------+
+První veřejná verze.
+
+Opravy chyb:
+- Začervenání políčka pro adresu aktualizace z internetu, pokud tam po startu
+  není platná adresa
+- Pokud nemá uživatel nastavený žádný aktivní rozvrh, nezobrazování "divné
+  tabulky" místo rozvrhu
+- Opraveny chyby neumožňující kompilaci uživatelské edice.
+
++------------------------------------------------------------------------------+
+| Verze 0.90 (1.0 alpha)                                            04.10.2009 |
++------------------------------------------------------------------------------+
+První číslovaná verze.
