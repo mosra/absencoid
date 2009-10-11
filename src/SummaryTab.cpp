@@ -60,9 +60,10 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     /* Tabulka nejžhavějších absencí (aplikovat model můžu ale až níž) */
     QTableView* hottestView = new QTableView;
 
-    /* Checkboxy */
+    /* Checkboxy, záloha při ukončení ještě není implementovaná (a asi nebude) */
     updateOnStart = new QCheckBox(tr("Zjišťovat aktualizace při startu"));
     dumpOnExit = new QCheckBox(tr("Automaticky zálohovat při ukončení programu"));
+    dumpOnExit->setDisabled(true);
 
     /* Tlačítko pro aktualizaci s popup menu */
     QPushButton* updateButton = new QPushButton(QIcon(":/update.png"), tr("Aktualizovat"));
