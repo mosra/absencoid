@@ -15,6 +15,8 @@ namespace Absencoid {
 
 /* Konstruktor */
 CreateUpdateDialog::CreateUpdateDialog(QString& _file, QString& _note, QWidget* parent): QDialog(parent), file(_file), note(_note), filenameEdit(new QLineEdit), noteEdit(new QTextEdit) {
+    setWindowIcon(QIcon(":/icon.png"));
+    setWindowTitle(tr("Vytvořit aktualizaci"));
 
     /* Linka (jen pro čtení) s tlačítkem pro výběr souboru */
     filenameEdit->setReadOnly(true);
@@ -47,8 +49,6 @@ CreateUpdateDialog::CreateUpdateDialog(QString& _file, QString& _note, QWidget* 
 
     setLayout(layout);
 
-    /* Titulek a velikost okna */
-    setWindowTitle(tr("Vytvořit aktualizaci"));
     setFixedSize(480, 360);
 }
 

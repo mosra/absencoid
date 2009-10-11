@@ -4,6 +4,7 @@
 #include <QDialogButtonBox>
 #include <QBoxLayout>
 #include <QScrollArea>
+#include <QIcon>
 
 #include "configure.h"
 
@@ -11,7 +12,11 @@ namespace Absencoid {
 
 /* Kontruktor */
 AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
+    setWindowIcon(QIcon(":/icon.png"));
     setWindowTitle(tr("O programu"));
+
+    QLabel* logo = new QLabel;
+    logo->setPixmap(QPixmap(":/logo.png"));
 
     QLabel* name = new QLabel(tr(
     "<big><strong>Absencoid %1</strong></big><br />"
@@ -21,11 +26,10 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
     #else
     "Uživatelská edice"
     #endif
-    ", verze: %1 (%2-%3)<br />"
-    "<br />"
-    "Autor: <em>Mosra</em>, ikonky: <em>Pili</em>. Dotazy a nalezené chyby "
-    "pište na <a href=\"mailto:mosra@centrum.cz\">mosra@centrum.cz</a> (mail) "
-    "nebo mosra@jabbim.cz (jabber).<br />")
+    "<br />Verze: %1 (%2-%3)<br /><br />"
+    "Autor: <em>Mosra</em>, ikonky: <em>Pili</em>.<br />"
+    "Dotazy a nalezené chyby pište na <a href=\"mailto:mosra@centrum.cz\">"
+    "mosra@centrum.cz</a> (mail) nebo mosra@jabbim.cz (jabber).")
     .arg(APP_VERSION_LONG).arg(APP_VERSION).arg(SVN_VERSION));
     name->setWordWrap(true);
 
@@ -58,9 +62,14 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
     QDialogButtonBox* buttons = new QDialogButtonBox(QDialogButtonBox::Ok);
     connect(buttons, SIGNAL(accepted()), this, SLOT(accept()));
 
+    /* Layout loga a jména */
+    QHBoxLayout* logoLayout = new QHBoxLayout;
+    logoLayout->addWidget(logo);
+    logoLayout->addWidget(name);
+
     /* Layout */
     QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->addWidget(name);
+    layout->addLayout(logoLayout);
     layout->addWidget(disclaimerLabel);
     layout->addWidget(area);
     layout->addWidget(buttons);

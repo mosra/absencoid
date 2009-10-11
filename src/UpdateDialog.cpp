@@ -19,6 +19,8 @@ namespace Absencoid {
 
 /* Aktualizace ze souboru */
 UpdateDialog::UpdateDialog(int _flags, const QDate& _lastUpdate, const QString& _file, QWidget* parent): QDialog(parent), flags(_flags), lastUpdate(_lastUpdate), file(_file), progressItem(0), manager(0), reply(0), thread(0) {
+    setWindowIcon(QIcon(":/icon.png"));
+
     if(flags & DO_UPDATE && flags & FROM_WEB)
         setWindowTitle(tr("Aktualizace z internetu"));
     else if(flags & DO_UPDATE && flags &FROM_FILE)

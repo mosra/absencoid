@@ -34,6 +34,8 @@ namespace Absencoid {
 
 /* Konstruktor */
 MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
+    setWindowIcon(QIcon(":/icon.png"));
+
     #ifdef ADMIN_VERSION
     setWindowTitle(tr("Absencoid %1 [správce]").arg(APP_VERSION_LONG));
     #else
@@ -79,7 +81,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     QMenu* helpMenu = menu->addMenu(tr("Nápověda"));
     QAction* helpAction = helpMenu->addAction(tr("Nápověda"));
     helpAction->setDisabled(true);
-    QAction* aboutAction = helpMenu->addAction(tr("O programu"));
+    QAction* aboutAction = helpMenu->addAction(QIcon(":/icon.png"), tr("O programu"));
     helpMenu->addSeparator();
     QAction* aboutQtAction = helpMenu->addAction(QIcon(":/qt.png"), tr("O Qt"));
     connect(aboutAction, SIGNAL(triggered(bool)), this, SLOT(about()));
