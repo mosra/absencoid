@@ -58,6 +58,7 @@ classesView(new QTableView(this)) {
 /* Přidání předmětu */
 void ClassesTab::addClass() {
     classesModel->insertRow(classesModel->rowCount());
+    classesView->scrollToBottom();
 }
 
 /* Odebrání předmětů */

@@ -51,6 +51,7 @@ teachersModel(new TeachersModel(this)), teachersView(new QTableView(this)) {
 /* Přidání učitele */
 void TeachersTab::addTeacher() {
     teachersModel->insertRow(teachersModel->rowCount());
+    teachersView->scrollToBottom();
 }
 
 /* Odebrání vybraných učitelů */

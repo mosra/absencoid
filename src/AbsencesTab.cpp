@@ -62,6 +62,7 @@ AbsencesTab::AbsencesTab(ClassesModel* classesModel, TimetableModel* timetableMo
 /* Přidání absence */
 void AbsencesTab::addAbsence() {
     absencesModel->insertRow(absencesModel->rowCount());
+    absencesView->scrollToBottom();
 }
 
 /* Odstranění absencí */

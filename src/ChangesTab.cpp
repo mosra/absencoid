@@ -71,6 +71,7 @@ ChangesTab::ChangesTab(TimetableModel* timetableModel, ClassesModel* classesMode
 /* Přidání změny */
 void ChangesTab::addChange() {
     changesModel->insertRow(changesModel->rowCount());
+    changesView->scrollToBottom();
 }
 
 /* Odstranění vybraných změn */
