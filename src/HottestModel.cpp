@@ -58,6 +58,9 @@ void HottestModel::reload() {
     /* Přidání ostatních předmětů na konec */
     classes.append(other);
 
+    /* Seřazení od největších absencí k nejmenším */
+    qSort(classes.begin(), classes.end(), qGreater<Class>());
+
     reset();
 }
 
@@ -137,5 +140,18 @@ QVariant HottestModel::data(const QModelIndex& index, int role) const {
 
     return QVariant();
 }
+
+/* Porovnávací operátor pro absence */
+bool HottestModel::Class::operator<(const Absencoid::HottestModel::Class& c) const {
+    int percent1, percent2;
+    if(hours == 0)  percent1 = 0;
+    else            percent1 = absences*100/hours;
+
+    if(c.hours == 0)    percent2 = 0;
+    else                percent2 = c.absences*100/c.hours;
+
+    return percent1 < percent2;
+}
+
 
 }

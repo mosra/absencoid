@@ -46,6 +46,9 @@ class HottestModel: public QAbstractTableModel {
             int hours;          /**< @brief Počet hodin dosud */
             int absences;       /**< @brief Počet absencí dosud */
             int hoursForecast;  /**< @brief Předpověď počtu hodin */
+
+            /** @brief Porovnávací operátor pro řazení */
+            bool operator<(const Class& c) const;
         };
 
         QList<Class> classes;   /**< @brief Seznam souhrnů */
