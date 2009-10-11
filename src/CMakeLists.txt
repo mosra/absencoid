@@ -35,7 +35,7 @@ qt4_wrap_cpp(AbsencoidMOC
 # asi nedokumentované.
 
 # Resources (textová data, proto komprese)
-qt4_add_resources(AbsencoidRCC data.qrc OPTIONS -compress 9 -threshold 0)
+qt4_add_resources(AbsencoidRCC ../data/data.qrc OPTIONS -compress 9 -threshold 0)
 
 # Grafika (tu nekomprimovat)
 qt4_add_resources(GraphicsRCC ../graphics/graphics.qrc)
