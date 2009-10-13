@@ -74,12 +74,12 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Menu Soubor */
     QMenu* fileMenu = menu->addMenu(tr("Soubor"));
-    QAction* quitAction = fileMenu->addAction(tr("Ukončit"));
+    QAction* quitAction = fileMenu->addAction(QIcon(":/exit.png"), tr("Ukončit"));
     connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
 
     /* Menu Nápověda */
     QMenu* helpMenu = menu->addMenu(tr("Nápověda"));
-    QAction* helpAction = helpMenu->addAction(tr("Nápověda"));
+    QAction* helpAction = helpMenu->addAction(QIcon(":/help.png"), tr("Nápověda"));
     helpAction->setDisabled(true);
     QAction* aboutAction = helpMenu->addAction(QIcon(":/icon.png"), tr("O programu"));
     helpMenu->addSeparator();

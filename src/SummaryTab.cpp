@@ -71,8 +71,8 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     updateButton->setMenu(updateButtonMenu);
 
     /* Položky v menu */
-    updateFromWebAction =           updateButtonMenu->addAction("Z internetu");
-    QAction* updateFromFileAction = updateButtonMenu->addAction("Ze souboru");
+    updateFromWebAction =           updateButtonMenu->addAction(QIcon(":/updateFromWeb.png"), "Z internetu");
+    QAction* updateFromFileAction = updateButtonMenu->addAction(QIcon(":/updateFromFile.png"), "Ze souboru");
     connect(updateFromWebAction,    SIGNAL(triggered(bool)), this, SLOT(updateFromWeb()));
     connect(updateFromFileAction,   SIGNAL(triggered(bool)), this, SLOT(updateFromFile()));
 

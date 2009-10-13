@@ -8,13 +8,18 @@
     <file>absences.png</file>
 
     <file>update.png</file>
+    <file>updateFromWeb.png</file>
+    <file>updateFromFile.png</file>
     <file>createUpdate.png</file>
     <file>dump.png</file>
     <file>loadDump.png</file>
 
     <file>plus.png</file>
     <file>minus.png</file>
+    <file>lock.png</file>
 
+    <file>exit.png</file>
+    <file>help.png</file>
     <file>icon.png</file>
     <file>logo.png</file>
     <file>qt.png</file>
