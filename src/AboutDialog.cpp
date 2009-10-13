@@ -27,7 +27,7 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
     "Uživatelská edice"
     #endif
     "<br />Verze: %1 (%2-%3)<br /><br />"
-    "Autor: <em>Mosra</em>, ikonky: <em>Pili</em>.<br />"
+    "Program, logo, ikonky: © <em>Mosra</em>.<br />"
     "Dotazy a nalezené chyby pište na <a href=\"mailto:mosra@centrum.cz\">"
     "mosra@centrum.cz</a> (mail) nebo mosra@jabbim.cz (jabber).")
     .arg(APP_VERSION_LONG).arg(APP_VERSION).arg(SVN_VERSION));
