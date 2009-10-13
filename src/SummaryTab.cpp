@@ -490,7 +490,7 @@ void SummaryTab::setWebUpdateUrl() {
 void SummaryTab::setBooleans() {
     /* SQL dotaz */
     QSqlQuery query;
-    query.prepare("UPDATE configuration SET booleans = :booleans;");
+    query.prepare("UPDATE configuration SET flags = :booleans;");
     query.bindValue(":booleans",
         ((int) updateOnStart->isChecked()) | ((int) dumpOnExit->isChecked() << 1));
 
