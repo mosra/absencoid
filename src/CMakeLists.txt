@@ -42,7 +42,7 @@ qt4_add_resources(GraphicsRCC ../graphics/graphics.qrc)
 
 # Zdrojáky
 set(AbsencoidSRC
-    main.cpp MainWindow.cpp AboutDialog.cpp
+    main.cpp MainWindow.cpp AboutDialog.cpp Style.cpp
     ComboBoxDelegate.cpp DateEditDelegate.cpp SpinBoxDelegate.cpp
     SummaryTab.cpp CreateUpdateDialog.cpp UpdateDialog.cpp
     Dump.cpp Update.cpp HottestModel.cpp

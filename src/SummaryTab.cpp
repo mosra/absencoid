@@ -30,6 +30,7 @@
 #include "AbsencesModel.h"
 #include "ChangesModel.h"
 #include "HottestModel.h"
+#include "Style.h"
 
 namespace Absencoid {
 
@@ -66,13 +67,15 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     dumpOnExit->setDisabled(true);
 
     /* Tlačítko pro aktualizaci s popup menu */
-    QPushButton* updateButton = new QPushButton(QIcon(":/update.png"), tr("Aktualizovat"));
+    QPushButton* updateButton = new QPushButton(Style::style()->icon(Style::UpdateIcon), tr("Aktualizovat"));
     QMenu* updateButtonMenu = new QMenu(updateButton);
     updateButton->setMenu(updateButtonMenu);
 
     /* Položky v menu */
-    updateFromWebAction =           updateButtonMenu->addAction(QIcon(":/updateFromWeb.png"), "Z internetu");
-    QAction* updateFromFileAction = updateButtonMenu->addAction(QIcon(":/updateFromFile.png"), "Ze souboru");
+    updateFromWebAction =
+        updateButtonMenu->addAction(Style::style()->icon(Style::UpdateFromWebIcon), "Z internetu");
+    QAction* updateFromFileAction =
+        updateButtonMenu->addAction(Style::style()->icon(Style::UpdateFromFileIcon), "Ze souboru");
     connect(updateFromWebAction,    SIGNAL(triggered(bool)), this, SLOT(updateFromWeb()));
     connect(updateFromFileAction,   SIGNAL(triggered(bool)), this, SLOT(updateFromFile()));
 
@@ -85,9 +88,12 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     connect(webUpdateUrl, SIGNAL(textChanged(QString)), this, SLOT(validateUrlEdit()));
 
     /* Tlačítko pro vytvoření aktualizace, zálohy, obnovení ze zálohy */
-    QPushButton* createUpdateButton = new QPushButton(QIcon(":/createUpdate.png"), tr("Vytvořit aktualizaci"));
-    QPushButton* createDumpButton = new QPushButton(QIcon(":/dump.png"), tr("Zálohovat"));
-    QPushButton* loadDumpButton = new QPushButton(QIcon(":/loadDump.png"), tr("Obnovit ze zálohy"));
+    QPushButton* createUpdateButton =
+        new QPushButton(Style::style()->icon(Style::CreateUpdateIcon), tr("Vytvořit aktualizaci"));
+    QPushButton* createDumpButton =
+        new QPushButton(Style::style()->icon(Style::DumpIcon), tr("Zálohovat"));
+    QPushButton* loadDumpButton =
+        new QPushButton(Style::style()->icon(Style::LoadDumpIcon), tr("Obnovit ze zálohy"));
     connect(createUpdateButton, SIGNAL(clicked(bool)), this, SLOT(createUpdate()));
     connect(createDumpButton, SIGNAL(clicked(bool)), this, SLOT(createDump()));
     connect(loadDumpButton, SIGNAL(clicked(bool)), this, SLOT(loadDump()));

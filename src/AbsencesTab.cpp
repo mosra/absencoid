@@ -10,6 +10,7 @@
 #include "ChangesModel.h"
 #include "AbsencesModel.h"
 #include "DateEditDelegate.h"
+#include "Style.h"
 
 namespace Absencoid {
 
@@ -36,8 +37,8 @@ AbsencesTab::AbsencesTab(ClassesModel* classesModel, TimetableModel* timetableMo
     absencesView->setColumnWidth(11, 66);
 
     /* Tlačítka nahoře */
-    QPushButton* addAbsenceButton = new QPushButton(QIcon(":/plus.png"), tr("Přidat absenci"));
-    removeSelectedButton = new QPushButton(QIcon(":/minus.png"), tr("Odstranit vybrané"));
+    QPushButton* addAbsenceButton = new QPushButton(Style::style()->icon(Style::PlusIcon), tr("Přidat absenci"));
+    removeSelectedButton = new QPushButton(Style::style()->icon(Style::MinusIcon), tr("Odstranit vybrané"));
     removeSelectedButton->setDisabled(true);
 
     /* Horní layout */

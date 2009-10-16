@@ -14,6 +14,7 @@
 #include <QTimer>
 
 #include "Update.h"
+#include "Style.h"
 
 namespace Absencoid {
 
@@ -281,22 +282,23 @@ void UpdateDialog::reject() {
 
 /* Přidání zprávy do logu */
 QListWidgetItem* UpdateDialog::addLogMessage(const QString& text, UpdateDialog::LogMessageType type) {
-    QListWidgetItem* item = new QListWidgetItem(type == INFORMATION ? "  " + text : text);
+    QListWidgetItem* item;
 
     /* Akce */
-    if(type == ACTION) {
-        QFont font;
-        font.setBold(true);
-        item->setFont(font);
+    if(type == ACTION)
+        item = new QListWidgetItem(Style::style()->icon(Style::Action), text);
 
     /* Chyba */
-    } else if(type == ERROR) {
-        item->setForeground(QBrush(QColor("#ff0000")));
+    else if(type == ERROR)
+        item = new QListWidgetItem(Style::style()->icon(Style::Error), text);
 
     /* Dokončení akce */
-    } else if(type == DONE) {
-        item->setForeground(QBrush(QColor("#009900")));
-    }
+    else if(type == DONE)
+        item = new QListWidgetItem(Style::style()->icon(Style::Done), text);
+
+    /* Informace */
+    else /* if(type == INFORMATION) */
+        item = new QListWidgetItem(Style::style()->icon(Style::Information), text);
 
     log->addItem(item);
     log->scrollToBottom();

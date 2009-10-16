@@ -29,12 +29,15 @@
 #include "AbsencesModel.h"
 #include "AbsencesTab.h"
 #include "AboutDialog.h"
+#include "Style.h"
 
 namespace Absencoid {
 
 /* Konstruktor */
 MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     setWindowIcon(QIcon(":/icon.png"));
+
+    new Style(":/icons.png", this);
 
     #ifdef ADMIN_VERSION
     setWindowTitle(tr("Absencoid %1 [správce]").arg(APP_VERSION_LONG));
@@ -74,12 +77,12 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Menu Soubor */
     QMenu* fileMenu = menu->addMenu(tr("Soubor"));
-    QAction* quitAction = fileMenu->addAction(QIcon(":/exit.png"), tr("Ukončit"));
+    QAction* quitAction = fileMenu->addAction(Style::style()->icon(Style::ExitIcon), tr("Ukončit"));
     connect(quitAction, SIGNAL(triggered(bool)), this, SLOT(close()));
 
     /* Menu Nápověda */
     QMenu* helpMenu = menu->addMenu(tr("Nápověda"));
-    QAction* helpAction = helpMenu->addAction(QIcon(":/help.png"), tr("Nápověda"));
+    QAction* helpAction = helpMenu->addAction(Style::style()->icon(Style::HelpIcon), tr("Nápověda"));
     helpAction->setDisabled(true);
     QAction* aboutAction = helpMenu->addAction(QIcon(":/icon.png"), tr("O programu"));
     helpMenu->addSeparator();
@@ -95,29 +98,29 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
 
     /* Učitelé */
     TeachersTab* teachersTab = new TeachersTab(tabWidget);
-    tabWidget->addTab(teachersTab, QIcon(":/teachers.png"), tr("Učitelé"));
+    tabWidget->addTab(teachersTab, Style::style()->icon(Style::TeachersTab), tr("Učitelé"));
 
     /* Předměty */
     ClassesTab* classesTab = new ClassesTab(teachersTab->getTeachersModel(), tabWidget);
-    tabWidget->addTab(classesTab, QIcon(":/classes.png"), tr("Předměty"));
+    tabWidget->addTab(classesTab, Style::style()->icon(Style::ClassesTab), tr("Předměty"));
 
     /* Rozvrh hodin */
     TimetableTab* timetableTab = new TimetableTab(classesTab->getClassesModel(), tabWidget);
-    tabWidget->addTab(timetableTab, QIcon(":/timetables.png"), tr("Rozvrhy hodin"));
+    tabWidget->addTab(timetableTab, Style::style()->icon(Style::TimetableTab), tr("Rozvrhy hodin"));
 
     /* Změny */
     ChangesTab* changesTab =
         new ChangesTab(timetableTab->getTimetableModel(), classesTab->getClassesModel());
-    tabWidget->addTab(changesTab, QIcon(":/changes.png"), tr("Změny"));
+    tabWidget->addTab(changesTab, Style::style()->icon(Style::ChangesTab), tr("Změny"));
 
     /* Absence */
     AbsencesTab* absencesTab = new AbsencesTab(classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
-    tabWidget->addTab(absencesTab, QIcon(":/absences.png"), tr("Absence"));
+    tabWidget->addTab(absencesTab, Style::style()->icon(Style::AbsencesTab), tr("Absence"));
 
     /* Souhrn - potřebuje data rozvrhu, ale absence potřebují jeho aktuální
         rozvrh, proto je zde */
     SummaryTab* summaryTab = new SummaryTab(teachersTab->getTeachersModel(), classesTab->getClassesModel(), timetableTab, changesTab->getChangesModel(), absencesTab->getAbsencesModel());
-    tabWidget->insertTab(0, summaryTab, QIcon(":/summary.png"), tr("Souhrn"));
+    tabWidget->insertTab(0, summaryTab, Style::style()->icon(Style::SummaryTab), tr("Souhrn"));
     tabWidget->setCurrentIndex(0);
 
     /* Propojení signálu o aktualizaci databáze s reload funkcemi modelů.

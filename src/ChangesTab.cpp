@@ -12,6 +12,7 @@
 #include "ComboBoxDelegate.h"
 #include "DateEditDelegate.h"
 #include "SpinBoxDelegate.h"
+#include "Style.h"
 
 namespace Absencoid {
 
@@ -39,8 +40,8 @@ ChangesTab::ChangesTab(TimetableModel* timetableModel, ClassesModel* classesMode
     changesView->setItemDelegateForColumn(3, comboBoxDelegate);
 
     /* Tlačítka vpravo */
-    QPushButton* addChangeButton = new QPushButton(QIcon(":/plus.png"), tr("Přidat změnu"));
-    removeChangesButton = new QPushButton(QIcon(":/minus.png"), tr("Odstranit vybrané"));
+    QPushButton* addChangeButton = new QPushButton(Style::style()->icon(Style::PlusIcon), tr("Přidat změnu"));
+    removeChangesButton = new QPushButton(Style::style()->icon(Style::MinusIcon), tr("Odstranit vybrané"));
     removeChangesButton->setDisabled(true);
 
     /* Layout pro tlačítka vpravo */

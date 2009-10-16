@@ -7,6 +7,7 @@
 
 #include "configure.h"
 #include "TeachersModel.h"
+#include "Style.h"
 
 namespace Absencoid {
 
@@ -21,8 +22,8 @@ teachersModel(new TeachersModel(this)), teachersView(new QTableView(this)) {
     teachersView->setColumnWidth(2, 130);
 
     /* Tlačítka pro přidání / odebrání učitele */
-    QPushButton* addTeacher = new QPushButton(QIcon(":/plus.png"), tr("Přidat učitele"));
-    removeTeachersButton = new QPushButton(QIcon(":/minus.png"), tr("Odstranit vybrané"));
+    QPushButton* addTeacher = new QPushButton(Style::style()->icon(Style::PlusIcon), tr("Přidat učitele"));
+    removeTeachersButton = new QPushButton(Style::style()->icon(Style::MinusIcon), tr("Odstranit vybrané"));
 
     /* Propojení tlačítek s funkcemi */
     connect(addTeacher, SIGNAL(clicked(bool)), this, SLOT(addTeacher()));

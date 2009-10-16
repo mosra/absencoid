@@ -9,6 +9,7 @@
 #include "ComboBoxDelegate.h"
 #include "TeachersModel.h"
 #include "ClassesModel.h"
+#include "Style.h"
 
 namespace Absencoid {
 
@@ -28,8 +29,8 @@ classesView(new QTableView(this)) {
     classesView->setRowHidden(1, true);
 
     /* Tlačítka pro přidání / odebrání třídy */
-    QPushButton* addClass = new QPushButton(QIcon(":/plus.png"), tr("Přidat předmět"));
-    removeClassesButton = new QPushButton(QIcon(":/minus.png"), tr("Odstranit vybrané"));
+    QPushButton* addClass = new QPushButton(Style::style()->icon(Style::PlusIcon), tr("Přidat předmět"));
+    removeClassesButton = new QPushButton(Style::style()->icon(Style::MinusIcon), tr("Odstranit vybrané"));
 
     /* Propojení tlačítek s jejich funkcemi */
     connect(addClass, SIGNAL(clicked(bool)), this, SLOT(addClass()));
