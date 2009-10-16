@@ -90,7 +90,6 @@ validFrom(new QDateEdit), followedBy(new QComboBox) {
         tlačítka */
     followedBy->setModel(timetableModel);
     followedBy->setModelColumn(1);
-    followedBy->setMaximumWidth(removeLessonsButton->sizeHint().width());
 
     /* Při změně rozvrhu načíst nový */
     connect(timetableCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(loadTimetable(int)));
@@ -262,9 +261,12 @@ void TimetableTab::toggleFixedLessons(bool setFixed) {
     foreach(QModelIndex index, selected) {
         timetableModel->setData(index, setFixed ? 1 : 0, Qt::UserRole);
     }
+
+    /* Nastavení správného textu */
+    updateRemoveFixedButtons();
 }
 
-/* Povolení / zašednutí mazacího a fixovacího tlačítka */
+/* Povolení / zašednutí mazacího a fixovacího tlačítka, změna textu */
 void TimetableTab::updateRemoveFixedButtons() {
     /* Něco je vybráno */
     if(timetableView->selectionModel()->hasSelection()) {
@@ -293,10 +295,19 @@ void TimetableTab::updateRemoveFixedButtons() {
             }
         }
 
-        /* Je blbost mít zašedlé a zamáčklé tlačítko u vybrané prázdné hodiny */
         #ifdef ADMIN_VERSION
+        /* Je blbost mít zašedlé a zamáčklé tlačítko u vybrané prázdné hodiny */
         if(!fixLessonsButton->isEnabled() && fixLessonsButton->isChecked())
             fixLessonsButton->setChecked(false);
+
+        /* Upravení textu a ikony, podle toho, zda je zamáčklé tlačítko */
+        if(fixLessonsButton->isChecked()) {
+            fixLessonsButton->setIcon(Style::style()->icon(Style::UnlockIcon));
+            fixLessonsButton->setText(tr("Odemk. vybrané"));
+        } else {
+            fixLessonsButton->setIcon(Style::style()->icon(Style::LockIcon));
+            fixLessonsButton->setText(tr("Zamknout vybrané"));
+        }
         #endif
 
     /* Není nic vybráno */
