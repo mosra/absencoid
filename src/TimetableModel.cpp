@@ -8,6 +8,7 @@
 #include "configure.h"
 #include "ClassesModel.h"
 #include "ChangesModel.h"
+#include "Style.h"
 
 namespace Absencoid {
 
@@ -147,25 +148,41 @@ QVariant TimetableModel::data(const QModelIndex& index, int role) const {
     /* Kořenový index - seznam rozvrhů */
     if(index.internalId() == NO_PARENT) {
         /* Popisek: Rozvrh (platný od 01.09.2009) */
-        if((index.column() == 0 && role == Qt::DisplayRole) ||
+        if((index.column() == 0 && (role == Qt::DisplayRole || role == Qt::DecorationRole)) ||
            (index.column() == 1 && role == Qt::ToolTipRole)) {
 
-            QString prefix, validTo;
-
             /* Aktivní rozvrh - před popisek dáme hvězdičku */
-            if(timetables[index.row()].flags & ACTIVE)
-                prefix = "* ";
+            if(role == Qt::DecorationRole) {
+                /* Aktivní rozvrh */
+                if(timetables[index.row()].flags & ACTIVE) {
+                    /* Pokud je rozvrh platný... */
+                    if(timetables[index.row()].validFrom <= QDate::currentDate() &&
+                    /* ...a nemá následovníka... */
+                    (timetables[index.row()].id == timetables[index.row()].followedBy ||
+                    /* ...nebo jeho následovník ještě nezačal platit */
+                    timetables[indexFromId(timetables[index.row()].followedBy)].validFrom > QDate::currentDate())) {
+                        return Style::style()->icon(Style::ValidTimetable);
+                    }
+
+                    return Style::style()->icon(Style::ActiveTimetable);
+                }
+
+                /* Neaktivní rozvrh */
+                return Style::style()->icon(Style::Blank);
+            }
+
+            QString validTo;
 
             /* Pokud není rozvrh následován sebou samým, má nějaký konec platnosti */
             if(timetables[index.row()].followedBy != idFromIndex(index.row())) {
                 int _index = indexFromId(timetables[index.row()].followedBy);
 
                 /* Jen pokud následující rozvrh existuje */
-                if(_index != -1) validTo = tr(" do %1")
+                if(_index != -1) validTo = tr(" do %4")
                     .arg(timetables[_index].validFrom.addDays(-1).toString("ddd dd.MM.yyyy"));
             }
 
-            return tr("%1%2 (platný od %3%4)").arg(prefix)
+            return tr("%1 (platný od %2%3)")
                 .arg(timetables[index.row()].description)
                 .arg(timetables[index.row()].validFrom.toString("ddd dd.MM.yyyy")).arg(validTo);
 

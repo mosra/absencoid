@@ -42,7 +42,12 @@ class Style: public QObject {
             Action              = 0x30, /**< @brief Spuštění akce */
             Information         = 0x31, /**< @brief Poznámka */
             Done                = 0x32, /**< @brief Akce dokončena */
-            Error               = 0x33  /**< @brief Nastala chyba */
+            Error               = 0x33, /**< @brief Nastala chyba */
+
+            ValidTimetable      = 0x32, /**< @brief Právě platný rozvrh */
+            ActiveTimetable     = 0x31, /**< @brief Aktivní rozvrh */
+
+            Blank               = 0xFF  /**< @brief Prázdná ikonka */
         };
 
         /**
