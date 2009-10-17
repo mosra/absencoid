@@ -8,15 +8,8 @@
 #include <QLabel>
 #include <QStyle>
 #include <QStatusBar>
-#include <QSqlDatabase>
-#include <QSqlQuery>
-#include <QSqlError>
-#include <QFile>
-#include <QDebug>
 #include <QMenuBar>
 #include <QApplication>
-#include <QDesktopServices>
-#include <QDir>
 
 #include "configure.h"
 #include "SummaryTab.h"
@@ -39,53 +32,11 @@ namespace Absencoid {
 MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     setWindowIcon(QIcon(":/icon.png"));
 
-    new Style(":/icons.png", this);
-
     #ifdef ADMIN_VERSION
     setWindowTitle(tr("Absencoid %1 [správce]").arg(APP_VERSION_LONG));
     #else
     setWindowTitle(tr("Absencoid %1 [uživatel]").arg(APP_VERSION_LONG));
     #endif
-
-    /* Místo pro uložení aplikačních dat */
-    QString location = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
-
-    /* Pokud je místo prázdné, ukládáme do domovského adresáře */
-    if(location.isEmpty())
-        location = QDir::homePath() + "/" + QApplication::applicationName();
-
-    /* Vytvoříme adresář, pokud ještě neexistuje */
-    if(!QFile::exists(location)) {
-        QDir dir;
-        dir.mkpath(location);
-    }
-
-    /* Databáze */
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(location+"/absencoid.db");
-    db.open();
-
-    /* Pokud databáze nemá žádné tabulky, jejich inicializace z přidaného SQL souboru */
-    if(db.tables().empty()) {
-        qDebug() << tr("Inicializace nové prázdné databáze.");
-
-        QSqlQuery query;
-        QFile file(":/absencoid.sql");
-        file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-        /* Načtení vstupního SQL a rozdělění podle ; na jednotlivé dotazy (QtSql
-            neumí provést multidotaz) */
-        QStringList queries = QString::fromUtf8(file.readAll().data()).split(";\n", QString::SkipEmptyParts);
-
-        /* Provádění jednotlivých dotazů */
-        for(int i = 0; i != queries.count(); ++i) {
-            if(!query.exec(queries[i])) {
-                qDebug() << tr("Nepodařilo se inicializovat novou prázdnou databázi!")
-                         << query.lastError() << query.lastQuery();
-                break;
-            }
-        }
-    }
 
     /* Menu */
     QMenuBar* menu = new QMenuBar();
