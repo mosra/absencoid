@@ -15,6 +15,8 @@
 #include <QDebug>
 #include <QMenuBar>
 #include <QApplication>
+#include <QDesktopServices>
+#include <QDir>
 
 #include "configure.h"
 #include "SummaryTab.h"
@@ -45,9 +47,22 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     setWindowTitle(tr("Absencoid %1 [uživatel]").arg(APP_VERSION_LONG));
     #endif
 
+    /* Místo pro uložení aplikačních dat */
+    QString location = QDesktopServices::storageLocation(QDesktopServices::DataLocation);
+
+    /* Pokud je místo prázdné, ukládáme do domovského adresáře */
+    if(location.isEmpty())
+        location = QDir::homePath() + "/" + QApplication::applicationName();
+
+    /* Vytvoříme adresář, pokud ještě neexistuje */
+    if(!QFile::exists(location)) {
+        QDir dir;
+        dir.mkpath(location);
+    }
+
     /* Databáze */
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("absencoid.db");
+    db.setDatabaseName(location+"/absencoid.db");
     db.open();
 
     /* Pokud databáze nemá žádné tabulky, jejich inicializace z přidaného SQL souboru */
