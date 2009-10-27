@@ -27,6 +27,12 @@ class ClassesModel: public QAbstractTableModel {
     Q_OBJECT
 
     public:
+        /** @brief Sloupce */
+        enum Columns {
+            SUMMARY = 0,    /**< @brief Souhrn: Jméno předmětu (vyučující) */
+            NAME = 1,       /**< @brief Jméno předmětu */
+            TEACHER = 2     /**< @brief Vyučující */
+        };
 
         /**
         * @brief Konstanta značící jakoukoli hodinu

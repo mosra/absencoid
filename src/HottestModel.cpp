@@ -1,13 +1,14 @@
 #include "HottestModel.h"
 
 #include <QDebug>
+#include <QFont>
+#include <QBrush>
 
 #include "TeachersModel.h"
 #include "ClassesModel.h"
 #include "TimetableModel.h"
 #include "ChangesModel.h"
 #include "AbsencesModel.h"
-#include <QFont>
 
 namespace Absencoid {
 
@@ -96,8 +97,19 @@ QVariant HottestModel::headerData(int section, Qt::Orientation orientation, int 
 QVariant HottestModel::data(const QModelIndex& index, int role) const {
     if(!index.isValid()) return QVariant();
 
+    /* Zelené pozadí pro předměty, ve kterých učitel nepočítá */
+    if(role == Qt::BackgroundRole) {
+        if(!teachersModel->index(
+            classesModel->index(
+                classesModel->indexFromId(classes[index.row()].id),
+                ClassesModel::TEACHER
+            ).data(Qt::EditRole).toInt(),
+            TeachersModel::COUNTS
+        ).data(Qt::CheckStateRole).toBool())
+            return QBrush("#ccffcc");
+
     /* Název předmětu (bez jména učitele) */
-    if(index.column() == 0 && role == Qt::DisplayRole) {
+    } else if(index.column() == 0 && role == Qt::DisplayRole) {
         /* ID = 0 => sourhn ostatních předmětů bez absence */
         if(classes[index.row()].id == 0) return tr("Ostatní");
 

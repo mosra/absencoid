@@ -8,14 +8,21 @@ namespace Absencoid {
 /**
  * @brief Datový model pro učitele
  *
- * Obousměrný přístup k datům učitelů.
+ * Poskytuje třísloupcovou tabulku:
+ * <ul>
+ *  <li>Jméno</li>
+ *  <li>Zda zapisuje absence</li>
+ *  <li>Zda uznává školní akce</li>
+ * </ul>
+ * @todo Jiné chování učitele u různých předmětů
  */
 class TeachersModel: public QAbstractTableModel {
     Q_OBJECT
 
     public:
-        /** @brief Flags */
-        enum Flags {
+        /** @brief Sloupce */
+        enum Columns {
+            NAME = 0,                   /**< @brief Jméno učitele */
             COUNTS = 1,                 /** @brief Zda učitel počítá absence */
             ACCEPTS = 2                 /** @brief Zda učitel uznává školní akce */
         };
