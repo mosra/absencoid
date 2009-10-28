@@ -96,6 +96,9 @@ Section "Instalační sekce" SecDummy
     CreateShortCut  "$SMPROGRAMS\Absencoid\Absencoid.lnk" "$INSTDIR\absencoid.exe"
     CreateShortCut  "$SMPROGRAMS\Absencoid\Odinstalovat.lnk" "$INSTDIR\uninstall.exe"
 
+    /* Ikonka na ploše */
+    CreateShortCut "$DESKTOP\Absencoid.lnk" "$INSTDIR\absencoid.exe"
+
 SectionEnd
 
 /*
@@ -124,6 +127,9 @@ Section "Uninstall"
     Delete "$SMPROGRAMS\Absencoid\Odinstalovat.lnk"
 
     RMDir "$SMPROGRAMS\Absencoid"
+
+    /* Smažeme ikonku na ploše */
+    Delete "$DESKTOP\Absencoid.lnk"
 
     /* Smažeme po sobě i registry */
     DeleteRegKey HKCU "Software\Modern UI Test"
