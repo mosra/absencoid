@@ -25,17 +25,13 @@
  * Globální nastavení
  */
 
-    /* TODO: Obrázky
-
     !define MUI_HEADERIMAGE
 
-    /* Bitmapa pro hlavičku - 150x57 px * /
-    !define MUI_HEADERIMAGE_BITMAP "header.bmp"
+    /* Bitmapa pro hlavičku - 150x57 px */
+    !define MUI_HEADERIMAGE_BITMAP "nsis-header.bmp"
 
-    /* Bitmapa pro první stránku - 164x314 px * /
-    !define MUI_WELCOMEFINISHPAGE_BITMAP "welcome.bmp"
-
-    */
+    /* Bitmapa pro první stránku - 164x314 px */
+    !define MUI_WELCOMEFINISHPAGE_BITMAP "nsis-welcome.bmp"
 
     /* Varování při ukončení */
     !define MUI_ABORTWARNING

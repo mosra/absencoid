@@ -31,6 +31,10 @@ mkdir -p sqldrivers
 iconv -f UTF-8 -t Windows-1250 ../installer.nsi -o _installer.nsi
 iconv -f UTF-8 -t Windows-1250 CHANGELOG.txt -o _CHANGELOG.txt
 
+# Konverze obrázků do BMP
+convert ../graphics/nsis-header.png BMP3:nsis-header.bmp
+convert ../graphics/nsis-welcome.png BMP3:nsis-welcome.bmp
+
 # Vytvoření instaláku
 makensis _installer.nsi || exit 1
 
