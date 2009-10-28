@@ -137,6 +137,6 @@ Section "Uninstall"
     Delete "$DESKTOP\Absencoid [uživatel].lnk"
 
     /* Smažeme po sobě i registry */
-    DeleteRegKey HKCU "Software\Modern UI Test"
+    DeleteRegKey HKCU "Software\Absencoid"
 
 SectionEnd
