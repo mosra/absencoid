@@ -13,7 +13,11 @@ cd ..
 # Vytvoření adresáře pro tvoření instaláku, naplnění soubory
 mkdir -p $nsisdir ; cd $nsisdir
 cp ../$builddir/src/absencoid.exe . || exit 1
-cp ../CHANGELOG.txt . || exit 1
+
+# Osekání HTML z disclaimeru, spojení s changelogem do jednoho souboru
+sed -e 's/<[^>]*>//g' ../data/disclaimer.txt > disclaimer.txt
+echo -e "\n\nNovinky a změny v této verzi:\n" >> disclaimer.txt
+cat ../CHANGELOG.txt >> disclaimer.txt
 
 i486-mingw32-strip absencoid.exe
 
@@ -29,7 +33,7 @@ mkdir -p sqldrivers
 
 # Konverze do nativního Windows kódování
 iconv -f UTF-8 -t Windows-1250 ../installer.nsi -o _installer.nsi
-iconv -f UTF-8 -t Windows-1250 CHANGELOG.txt -o _CHANGELOG.txt
+iconv -f UTF-8 -t Windows-1250 disclaimer.txt -o _disclaimer.txt
 
 # Konverze obrázků do BMP
 convert ../graphics/nsis-header.png BMP3:nsis-header.bmp
@@ -39,4 +43,4 @@ convert ../graphics/nsis-welcome.png BMP3:nsis-welcome.bmp
 makensis _installer.nsi || exit 1
 
 # Úklid
-rm _installer.nsi _CHANGELOG.txt
+rm _installer.nsi _disclaimer.txt

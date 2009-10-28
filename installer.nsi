@@ -46,7 +46,7 @@
     !insertmacro MUI_PAGE_WELCOME
 
     /* Licence (zatím jen changelog) - převedený z UTF-8 */
-    !insertmacro MUI_PAGE_LICENSE "_CHANGELOG.txt"
+    !insertmacro MUI_PAGE_LICENSE "_disclaimer.txt"
 
     /* Nastavení instalačního adresáře */
     !insertmacro MUI_PAGE_DIRECTORY

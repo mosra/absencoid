@@ -5,6 +5,7 @@
 #include <QBoxLayout>
 #include <QScrollArea>
 #include <QIcon>
+#include <QFile>
 
 #include "configure.h"
 
@@ -35,21 +36,11 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
 
     /* Disclaimer */
     QLabel* disclaimerLabel = new QLabel(tr("Zřeknutí se odpovědnosti:"));
-    QLabel* disclaimer = new QLabel(tr(
-    "<strong>Autor v žádném případě neodpovídá za škody způsobené vaší "
-    "přílišnou důvěrou v tento amatérský pokus o uchránění vás před komiskami. "
-    "Data vypočtená tímto programem už z principu zákona schválnosti nemohou "
-    "být úplně správná, takže je vyloženě hovadina na ně spoléhat a hákovat "
-    "jak o život."
-    "<br /><br />"
-    "Toto prohlášení platí i pro druhou stranu barikády, autor nenese žádnou "
-    "odpovědnost za nárůst počtu absencí, za což by se této aplikaci nebo "
-    "nedejbože autorovi mohla mylně klást vina. Tato aplikace není příčina, "
-    "ale důsledek absencí.</strong>"
-    "<br /><br />"
-    "Odpovědnost se nevztahuje ani na poškození softwaru, hardwaru či jiné "
-    "smrtelné újmy na zdraví, způsobené přímo i nepřímo používáním této "
-    "aplikace ani jejích odvozenin."));
+
+    /* Text disclaimeru ze souboru */
+    QFile file(":/disclaimer.txt");
+    file.open(QFile::ReadOnly | QFile::Text);
+    QLabel* disclaimer = new QLabel(QString::fromUtf8(file.readAll().data()));
     disclaimer->setAlignment(Qt::AlignTop | Qt::AlignLeft);
     disclaimer->setWordWrap(true);
 
