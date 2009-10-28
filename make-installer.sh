@@ -7,7 +7,7 @@ nsisdir=build-nsis
 mkdir -p $builddir ; cd $builddir
 
 # Různé edice programu
-if [ $# -gt 1 -a "$1" = "admin" ] ; then
+if [ $# -gt 0 -a "$1" = "admin" ] ; then
     sed -e 's/uživatelská edice/správcovská edice/g' \
         -e 's/-user.exe/-admin.exe/g' ../installer.nsi \
         -e 's/\[uživatel\]/[správce]/g' > ../$nsisdir/installer.nsi
