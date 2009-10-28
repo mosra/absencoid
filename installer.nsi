@@ -70,6 +70,11 @@
 
 Section "Instalační sekce" SecDummy
 
+    /* Odinstalování staré verze, pokud je přítomná v instalačním adresáři */
+    IfFileExists "$INSTDIR\uninstall.exe" 0 +3
+        MessageBox MB_OK "Byla nalezena starší instalace programu ve stejném adresáři.$\nBude provedena automatická odinstalace."
+        ExecWait '"$INSTDIR\uninstall.exe" /S _?=$INSTDIR'
+
     SetOutPath "$INSTDIR"
 
     File "absencoid.exe"
@@ -94,7 +99,7 @@ Section "Instalační sekce" SecDummy
     /* Položka ve Start menu */
     CreateDirectory "$SMPROGRAMS\Absencoid"
     CreateShortCut  "$SMPROGRAMS\Absencoid\Absencoid [uživatel].lnk" "$INSTDIR\absencoid.exe"
-    CreateShortCut  "$SMPROGRAMS\Absencoid\Odinstalovat.lnk" "$INSTDIR\uninstall.exe"
+    CreateShortCut  "$SMPROGRAMS\Absencoid\Odinstalovat [uživatel].lnk" "$INSTDIR\uninstall.exe"
 
     /* Ikonka na ploše */
     CreateShortCut "$DESKTOP\Absencoid [uživatel].lnk" "$INSTDIR\absencoid.exe"
@@ -124,7 +129,7 @@ Section "Uninstall"
 
     /* Smažeme položky ve Start menu */
     Delete "$SMPROGRAMS\Absencoid\Absencoid [uživatel].lnk"
-    Delete "$SMPROGRAMS\Absencoid\Odinstalovat.lnk"
+    Delete "$SMPROGRAMS\Absencoid\Odinstalovat [uživatel].lnk"
 
     RMDir "$SMPROGRAMS\Absencoid"
 
