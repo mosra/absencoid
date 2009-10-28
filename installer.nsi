@@ -9,7 +9,7 @@
  */
 
     /* Název instaláku a výstupní soubor */
-    Name "Absencoid"
+    Name "Absencoid 1.0 beta"
     OutFile "absencoid-1.0-beta.exe"
 
     /* Default adresář pro instalaci */

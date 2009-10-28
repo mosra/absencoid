@@ -5,6 +5,12 @@
 
 #cmakedefine ADMIN_VERSION
 
+/*
+ * Další místa, kde změnit číslo verze:
+ *      /CHANGELOG.txt
+ *      /installer.nsi
+ */
+
 #ifdef ADMIN_VERSION
 #define APP_VERSION         "0.92"
 #else
