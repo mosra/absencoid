@@ -10,7 +10,7 @@
 
     /* Název instaláku a výstupní soubor */
     Name "Absencoid 1.0 beta"
-    OutFile "absencoid-1.0-beta.exe"
+    OutFile "absencoid-1.0-beta-user.exe"
 
     /* Default adresář pro instalaci */
     InstallDir "$PROGRAMFILES\Absencoid"
@@ -41,7 +41,7 @@
  */
 
     /* Uvítací stránka */
-    !define MUI_WELCOMEPAGE_TITLE "Absencoid 1.0 beta"
+    !define MUI_WELCOMEPAGE_TITLE "Absencoid 1.0 beta$\n(uživatelská edice)"
     !define MUI_WELCOMEPAGE_TEXT "Tento instalační program provede instalaci Absencoidu na váš počítač."
     !insertmacro MUI_PAGE_WELCOME
 
@@ -93,11 +93,11 @@ Section "Instalační sekce" SecDummy
 
     /* Položka ve Start menu */
     CreateDirectory "$SMPROGRAMS\Absencoid"
-    CreateShortCut  "$SMPROGRAMS\Absencoid\Absencoid.lnk" "$INSTDIR\absencoid.exe"
+    CreateShortCut  "$SMPROGRAMS\Absencoid\Absencoid [uživatel].lnk" "$INSTDIR\absencoid.exe"
     CreateShortCut  "$SMPROGRAMS\Absencoid\Odinstalovat.lnk" "$INSTDIR\uninstall.exe"
 
     /* Ikonka na ploše */
-    CreateShortCut "$DESKTOP\Absencoid.lnk" "$INSTDIR\absencoid.exe"
+    CreateShortCut "$DESKTOP\Absencoid [uživatel].lnk" "$INSTDIR\absencoid.exe"
 
 SectionEnd
 
@@ -123,13 +123,13 @@ Section "Uninstall"
     RMDir "$INSTDIR"
 
     /* Smažeme položky ve Start menu */
-    Delete "$SMPROGRAMS\Absencoid\Absencoid.lnk"
+    Delete "$SMPROGRAMS\Absencoid\Absencoid [uživatel].lnk"
     Delete "$SMPROGRAMS\Absencoid\Odinstalovat.lnk"
 
     RMDir "$SMPROGRAMS\Absencoid"
 
     /* Smažeme ikonku na ploše */
-    Delete "$DESKTOP\Absencoid.lnk"
+    Delete "$DESKTOP\Absencoid [uživatel].lnk"
 
     /* Smažeme po sobě i registry */
     DeleteRegKey HKCU "Software\Modern UI Test"

@@ -6,7 +6,17 @@ nsisdir=build-nsis
 # Build
 mkdir -p $builddir ; cd $builddir
 
-cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain-Qt4-mingw32.cmake .. || exit 1
+# Různé edice programu
+if [ $# -gt 1 -a "$1" = "admin" ] ; then
+    sed -e 's/uživatelská edice/správcovská edice/g' \
+        -e 's/-user.exe/-admin.exe/g' ../installer.nsi \
+        -e 's/\[uživatel\]/[správce]/g' > ../$nsisdir/installer.nsi
+    cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain-Qt4-mingw32.cmake -DADMIN_VERSION=ON .. || exit 1
+else
+    cp ../installer.nsi ../$nsisdir/
+    cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain-Qt4-mingw32.cmake -DADMIN_VERSION=OFF .. || exit 1
+fi
+
 make -j3 || exit 1
 cd ..
 
@@ -32,7 +42,7 @@ mkdir -p sqldrivers
     cp /usr/i486-mingw32/bin/plugins/sqldrivers/qsqlite4.dll sqldrivers/ || exit 1
 
 # Konverze do nativního Windows kódování
-iconv -f UTF-8 -t Windows-1250 ../installer.nsi -o _installer.nsi
+iconv -f UTF-8 -t Windows-1250 installer.nsi -o _installer.nsi
 iconv -f UTF-8 -t Windows-1250 disclaimer.txt -o _disclaimer.txt
 
 # Konverze obrázků do BMP
