@@ -1,5 +1,36 @@
 --------------------------------------------------------------------------------
-  Verze 0.91 (1.0 beta)                                             11.10.2009
+  Verze 1.0                                                         28.10.2009
+--------------------------------------------------------------------------------
+Finální verze, pokud se nenajdou nějaké další chyby či chybějící funkce.
+
+Novinky:
+- Instalátor - nainstaluje program, vytvoří zástupce v menu Start a na ploše,
+  odinstalátor zase vše odinstaluje. Je možné (ale zbytečné) mít současně
+  nainstalovanou správcovskou i uživatelskou edici (každou v jiné složce),
+  přičemž obě budou pracovat se stejnými daty.
+- Nové téma ikonek:
+    - Hezčí označení aktivního rozvrhu pomocí ikonky
+    - Ikonky pro aktualizační dialog
+    - Přidána spousta chybějících ikonek
+- Označení školních akcí v tabulce nejžhavějších absencí: Pokud učitel daného
+  předmětu uznává školní akce, nejsou školní akce započítávány do celkového
+  počtu absencí (a do procent), ale jsou uvedeny zvlášť jako např "+5 školních",
+  pro kontrolu. Pokud učitel školní akce neuznává, jsou započítány normálně do
+  počtu absencí a do procent.
+- Předměty, u kterých učitel nezapisuje absence, jsou v tabulce nejžhavějších
+  absencí podbarveny zeleně.
+- Databáze ukládána do domovského adresáře uživatele (díky tomu bylo možné
+  vytvořit instalátor).
+
+Vylepšení / změny:
+- Neodsazování vytvořené zálohy / aktualizačního souboru - snižuje jejich
+  velikost více než o polovinu.
+
+Opravy chyb:
+- Neukládaly se stavy zaškrtávacích políček v tabu Souhrn.
+
+--------------------------------------------------------------------------------
+  Verze 0.92 (1.0 beta)                                             11.10.2009
 --------------------------------------------------------------------------------
 Obsahuje všechno, co obsahovat má.
 

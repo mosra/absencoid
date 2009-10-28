@@ -12,11 +12,11 @@
  */
 
 #ifdef ADMIN_VERSION
-#define APP_VERSION         "0.92"
+#define APP_VERSION         "1.0"
 #else
-#define APP_VERSION         "0.92bfu"
+#define APP_VERSION         "1.0bfu"
 #endif
 
-#define APP_VERSION_LONG    "1.0 beta"
+#define APP_VERSION_LONG    "1.0"
 
 #endif

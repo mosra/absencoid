@@ -33,9 +33,9 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     setWindowIcon(QIcon(":/icon.png"));
 
     #ifdef ADMIN_VERSION
-    setWindowTitle(tr("Absencoid %1 [správce]").arg(APP_VERSION_LONG));
+    setWindowTitle(tr("Absencoid [správce]"));
     #else
-    setWindowTitle(tr("Absencoid %1 [uživatel]").arg(APP_VERSION_LONG));
+    setWindowTitle(tr("Absencoid [uživatel]"));
     #endif
 
     /* Menu */
