@@ -80,7 +80,7 @@ MainWindow::MainWindow(): tabWidget(new QTabWidget(this)) {
     tabWidget->addTab(changesTab, Style::style()->icon(Style::ChangesTab), tr("Změny"));
 
     /* Absence */
-    AbsencesTab* absencesTab = new AbsencesTab(classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
+    AbsencesTab* absencesTab = new AbsencesTab(teachersTab->getTeachersModel(), classesTab->getClassesModel(), timetableTab->getTimetableModel(), changesTab->getChangesModel());
     tabWidget->addTab(absencesTab, Style::style()->icon(Style::AbsencesTab), tr("Absence"));
 
     /* Souhrn - potřebuje data rozvrhu, ale absence potřebují jeho aktuální

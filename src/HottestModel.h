@@ -45,6 +45,7 @@ class HottestModel: public QAbstractTableModel {
             int id;             /**< @brief ID předmětu */
             int hours;          /**< @brief Počet hodin dosud */
             int absences;       /**< @brief Počet absencí dosud */
+            int schoolEvents;    /**< @brief Počet školních absencí */
             int hoursForecast;  /**< @brief Předpověď počtu hodin */
 
             /** @brief Porovnávací operátor pro řazení */

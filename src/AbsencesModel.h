@@ -6,6 +6,7 @@
 
 namespace Absencoid {
 
+class TeachersModel;
 class ClassesModel;
 class TimetableModel;
 class ChangesModel;
@@ -31,7 +32,7 @@ class AbsencesModel: public QAbstractTableModel {
         /**
          * @brief Konstruktor
          */
-        AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, ChangesModel* _changesModel, QObject* parent = 0);
+        AbsencesModel(TeachersModel* _teachersModel, ClassesModel* _classesModel, TimetableModel* _timetableModel, ChangesModel* _changesModel, QObject* parent = 0);
 
         /**
          * @brief Počet sloupců
@@ -77,13 +78,17 @@ class AbsencesModel: public QAbstractTableModel {
          * @brief Celkový počet absencí
          *
          * Vrátí celkový počet platných absencí (absencí v neprázdných hodinách)
-         * v daném pololetí pro daný předmět.
+         * v daném pololetí pro daný předmět. Tato funkce defaultně spočítá jen
+         * ty absence, které nejsou označeny jako školní akce. Pokud učitel
+         * daného předmětu neuznává školní akce, jsou započítány všechny absence.
          *
-         * @param   classId     ID předmětu, pokud uvedeno 0, vrátí celkový
-         *                      počet absencí.
+         * @param   classId             ID předmětu, pokud uvedeno 0, vrátí
+         *                              celkový počet absencí.
+         * @param   schoolEventsOnly    Spočítat jen absence označené jako školní
+         *                              akce.
          * @return  Počet absencí
          */
-        int absencesCount(int classId = 0);
+        int absencesCount(int classId = 0, bool schoolEventsOnly = false);
 
     public slots:
         /**
@@ -141,6 +146,7 @@ class AbsencesModel: public QAbstractTableModel {
             QList<int> classIndexes;        /** @brief ID předmětů v jednotlivých hodinách */
         };
 
+        TeachersModel* teachersModel;   /** @brief Model učitelů */
         ClassesModel* classesModel;     /** @brief Model předmětů */
         TimetableModel* timetableModel; /** @brief Model rozvrhů */
         ChangesModel* changesModel;     /** @brief Model změn */

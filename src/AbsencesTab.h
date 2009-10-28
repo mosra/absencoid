@@ -9,6 +9,7 @@ class QPushButton;
 namespace Absencoid {
 
 class AbsencesModel;
+class TeachersModel;
 class ClassesModel;
 class TimetableModel;
 class ChangesModel;
@@ -20,7 +21,7 @@ class AbsencesTab: public QWidget {
         /**
          * @brief Konstruktor
          */
-        AbsencesTab(ClassesModel* classesModel, TimetableModel* timetablesModel, ChangesModel* changesModel, QWidget* parent = 0);
+        AbsencesTab(TeachersModel* teachersModel, ClassesModel* classesModel, TimetableModel* timetablesModel, ChangesModel* changesModel, QWidget* parent = 0);
 
         /** @brief Získání modelu absencí */
         AbsencesModel* getAbsencesModel() { return absencesModel; }

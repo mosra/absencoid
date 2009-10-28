@@ -37,11 +37,12 @@ void HottestModel::reload() {
             continue;
 
         int absences = absencesModel->absencesCount(id);
+        int schoolEventAbsences = absencesModel->absencesCount(id, true);
         int hours = timetableModel->lessonCount(id, true)+changesModel->deltaHours(id, true);
         int hoursForecast = timetableModel->lessonCount(id)+changesModel->deltaHours(id);
 
         /* Nulový počet absencí => přidáváme do "ostatních předmětů" */
-        if(absences == 0) {
+        if(absences == 0 && schoolEventAbsences == 0) {
             other.hours += hours;
             other.hoursForecast += hoursForecast;
 
@@ -52,6 +53,7 @@ void HottestModel::reload() {
             c.hours = hours;
             c.hoursForecast = hoursForecast;
             c.absences = absences;
+            c.schoolEvents = schoolEventAbsences;
             classes.append(c);
         }
     }
@@ -124,9 +126,13 @@ QVariant HottestModel::data(const QModelIndex& index, int role) const {
         if(hours == 0) percent = 0;
         else percent = absences*100/hours;
 
-        if(role == Qt::DisplayRole)
-            return tr("%1/%2 (%3%)").arg(absences).arg(hours).arg(percent);
-        if(role == Qt::FontRole && percent >= 25) {
+        if(role == Qt::DisplayRole) {
+            QString schoolEvents;
+            if(classes[index.row()].schoolEvents != 0)
+                schoolEvents = tr(" +%1 školních").arg(classes[index.row()].schoolEvents);
+
+            return tr("%1/%2 (%3%)%4").arg(absences).arg(hours).arg(percent).arg(schoolEvents);
+        } else if(role == Qt::FontRole && percent >= 25) {
             QFont font;
             font.setBold(true);
             return font;
@@ -141,9 +147,13 @@ QVariant HottestModel::data(const QModelIndex& index, int role) const {
         if(hoursForecast == 0) percent = 0;
         else percent = absences*100/hoursForecast;
 
-        if(role == Qt::DisplayRole)
-            return tr("%1/%2 (%3%)").arg(absences).arg(hoursForecast).arg(percent);
-        if(role == Qt::FontRole && percent >= 25) {
+        if(role == Qt::DisplayRole) {
+            QString schoolEvents;
+            if(classes[index.row()].schoolEvents != 0)
+                schoolEvents = tr(" +%1").arg(classes[index.row()].schoolEvents);
+
+            return tr("%1/%2 (%3%)%4").arg(absences).arg(hoursForecast).arg(percent).arg(schoolEvents);
+        } else if(role == Qt::FontRole && percent >= 25) {
             QFont font;
             font.setBold(true);
             return font;

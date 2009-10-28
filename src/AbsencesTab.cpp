@@ -15,9 +15,9 @@
 namespace Absencoid {
 
 /* Konstruktor */
-AbsencesTab::AbsencesTab(ClassesModel* classesModel, TimetableModel* timetableModel, ChangesModel* changesModel, QWidget* parent): QWidget(parent) {
+AbsencesTab::AbsencesTab(TeachersModel* teachersModel, ClassesModel* classesModel, TimetableModel* timetableModel, ChangesModel* changesModel, QWidget* parent): QWidget(parent) {
     /* Model */
-    absencesModel = new AbsencesModel(classesModel, timetableModel, changesModel);
+    absencesModel = new AbsencesModel(teachersModel, classesModel, timetableModel, changesModel);
 
     /* Tabulka s absencemi */
     absencesView = new QTableView;

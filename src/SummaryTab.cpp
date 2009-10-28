@@ -216,11 +216,11 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     /* Model nejžhavějších absencí */
     hottestModel = new HottestModel(teachersModel, classesModel, timetableTab->getTimetableModel(), changesModel, absencesModel);
     hottestView->setModel(hottestModel);
-    hottestView->resizeRowsToContents();
     hottestView->verticalHeader()->setHidden(true);
     hottestView->setColumnWidth(0, 60);
-    hottestView->setColumnWidth(1, 110);
-    hottestView->setColumnWidth(2, 110);
+    hottestView->setColumnWidth(1, 165);
+    hottestView->setColumnWidth(2, 100);
+    hottestView->resizeRowsToContents();
 
     /* Propojení změn v absencích se znovunačtením modelu */
     connect(absencesModel, SIGNAL(dataChanged(QModelIndex,QModelIndex)),

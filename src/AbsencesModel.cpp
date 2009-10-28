@@ -6,6 +6,7 @@
 #include <QFont>
 #include <QBrush>
 
+#include "TeachersModel.h"
 #include "ClassesModel.h"
 #include "TimetableModel.h"
 #include "ChangesModel.h"
@@ -15,7 +16,7 @@ namespace Absencoid {
 const int AbsencesModel::SCHOOL_EVENT = 0x8000;
 
 /* Konstruktor */
-AbsencesModel::AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, ChangesModel* _changesModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel), changesModel(_changesModel) {
+AbsencesModel::AbsencesModel(TeachersModel* _teachersModel, ClassesModel* _classesModel, TimetableModel* _timetableModel, ChangesModel* _changesModel, QObject* parent): QAbstractTableModel(parent), teachersModel(_teachersModel), classesModel(_classesModel), timetableModel(_timetableModel), changesModel(_changesModel) {
     reload();
 }
 
@@ -294,16 +295,28 @@ bool AbsencesModel::removeRows(int row, int count, const QModelIndex& parent) {
 }
 
 /* Počet absencí */
-int AbsencesModel::absencesCount(int classId) {
+int AbsencesModel::absencesCount(int classId, bool schoolEventsOnly) {
     int count = 0;
 
     int classIndex = classesModel->indexFromId(classId);
+
+    /* Pokud učitel neuznává školní absence, počítat i vše jako neškolní */
+    bool countAll = false;
+    int teacherIndex = classesModel->index(classIndex, ClassesModel::TEACHER).data(Qt::EditRole).toInt();
+    if(!teachersModel->index(teacherIndex, TeachersModel::ACCEPTS).data(Qt::CheckStateRole).toBool())
+        countAll = true;
 
     /* Procházení všech absencí */
     for(int i = 0; i != absences.count(); ++i) {
         /* Datum mimo rozsah */
         if(absences[i].date < timetableModel->beginDate() || absences[i].date > timetableModel->endDate())
             continue;
+
+        /* Počítáme jen školní akce a (absence není školní, nebo učitel školní akce neznává) => konec */
+        if(schoolEventsOnly && (countAll || !(absences[i].hours & SCHOOL_EVENT))) continue;
+
+        /* Absence je školní, nezapočítáváme školní akce a učitel uznává školní akce => konec */
+        if(!schoolEventsOnly && !countAll && absences[i].hours & SCHOOL_EVENT) continue;
 
         /* Jednotlivé hodiny */
         for(int hour = 0; hour != 10; ++hour) {
