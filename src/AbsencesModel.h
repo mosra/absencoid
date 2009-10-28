@@ -115,7 +115,7 @@ class AbsencesModel: public QAbstractTableModel {
          *
          * Spojuje se binárním ORem s AbsencesModel::Absence::hours.
          */
-        static const int SCHOOL_ACTION;
+        static const int SCHOOL_EVENT;
 
         /** @brief Struktura pro absenci */
         struct Absence {

@@ -12,7 +12,7 @@
 
 namespace Absencoid {
 
-const int AbsencesModel::SCHOOL_ACTION = 0x8000;
+const int AbsencesModel::SCHOOL_EVENT = 0x8000;
 
 /* Konstruktor */
 AbsencesModel::AbsencesModel(ClassesModel* _classesModel, TimetableModel* _timetableModel, ChangesModel* _changesModel, QObject* parent): QAbstractTableModel(parent), classesModel(_classesModel), timetableModel(_timetableModel), changesModel(_changesModel) {
@@ -140,10 +140,10 @@ QVariant AbsencesModel::data(const QModelIndex& index, int role) const {
     /* Zda je to školní akce */
     } else if(index.column() == 1) {
         if(role == Qt::DisplayRole)
-            return absences[index.row()].hours & SCHOOL_ACTION ? tr("Ano") : tr("Ne");
+            return absences[index.row()].hours & SCHOOL_EVENT ? tr("Ano") : tr("Ne");
 
         if(role == Qt::CheckStateRole)
-            return absences[index.row()].hours & SCHOOL_ACTION ? Qt::Checked : Qt::Unchecked;
+            return absences[index.row()].hours & SCHOOL_EVENT ? Qt::Checked : Qt::Unchecked;
 
     /* Zameškané hodiny */
     } else if(index.column() < 12) {
@@ -199,10 +199,10 @@ bool AbsencesModel::setData(const QModelIndex& index, const QVariant& value, int
         /* Školní akce */
         if(index.column() == 1) {
             /* Zaškrtnutí */
-            if(value.toBool())  absences[index.row()].hours |= SCHOOL_ACTION;
+            if(value.toBool())  absences[index.row()].hours |= SCHOOL_EVENT;
 
             /* Odškrtnutí */
-            else                absences[index.row()].hours &= ~SCHOOL_ACTION;
+            else                absences[index.row()].hours &= ~SCHOOL_EVENT;
 
         /* Hodiny */
         } else {
@@ -445,7 +445,7 @@ bool AbsencesModel::saveRow(int index) {
 
     /* Řádek je již uložený, nebo nemá ještě vyplněnou ani jednu absenci, konec.
         Vracíme true, protože chyba nenastala, uloží se případně jindy. */
-    if(absences[index].id != 0 || (absences[index].hours & ~SCHOOL_ACTION) == 0)
+    if(absences[index].id != 0 || (absences[index].hours & ~SCHOOL_EVENT) == 0)
         return true;
 
     QSqlQuery query;
