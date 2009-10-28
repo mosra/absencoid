@@ -43,4 +43,4 @@ convert ../graphics/nsis-welcome.png BMP3:nsis-welcome.bmp
 makensis _installer.nsi || exit 1
 
 # Úklid
-rm _installer.nsi
+rm _installer.nsi _disclaimer.txt
