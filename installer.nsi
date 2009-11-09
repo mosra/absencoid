@@ -4,13 +4,15 @@
 
     !include "MUI2.nsh"
 
+/* DŮLEŽITÉ: ČÍSLO VERZE JE ZDE NA TŘECH (SLOVY 3) MÍSTECH! */
+
 /*
  * Hlavní nastavení
  */
 
     /* Název instaláku a výstupní soubor */
-    Name "Absencoid 1.0"
-    OutFile "absencoid-1.0-user.exe"
+    Name "Absencoid 1.1"
+    OutFile "absencoid-1.1-user.exe"
 
     /* Default adresář pro instalaci */
     InstallDir "$PROGRAMFILES\Absencoid"
@@ -41,7 +43,7 @@
  */
 
     /* Uvítací stránka */
-    !define MUI_WELCOMEPAGE_TITLE "Absencoid 1.0$\n(uživatelská edice)"
+    !define MUI_WELCOMEPAGE_TITLE "Absencoid 1.1$\n(uživatelská edice)"
     !define MUI_WELCOMEPAGE_TEXT "Tento instalační program provede instalaci Absencoidu na váš počítač."
     !insertmacro MUI_PAGE_WELCOME
 

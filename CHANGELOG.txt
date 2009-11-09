@@ -1,4 +1,13 @@
 --------------------------------------------------------------------------------
+  Verze 1.1                                                         09.11.2009
+--------------------------------------------------------------------------------
+Kritická oprava kritické bezpečnostní chyby.
+
+Opravy chyb:
+- Procenta absencí byla zaokrouhlována DOLŮ na celá čísla. Nyní se pro jistotu
+  vypisují rovnou s přesností na setiny.
+
+--------------------------------------------------------------------------------
   Verze 1.0                                                         28.10.2009
 --------------------------------------------------------------------------------
 Finální verze, pokud se nenajdou nějaké další chyby či chybějící funkce.
