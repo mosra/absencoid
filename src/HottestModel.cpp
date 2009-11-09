@@ -122,16 +122,16 @@ QVariant HottestModel::data(const QModelIndex& index, int role) const {
         int absences = classes[index.row()].absences;
         int hours = classes[index.row()].hours;
 
-        int percent;
+        double percent;
         if(hours == 0) percent = 0;
-        else percent = absences*100/hours;
+        else percent = (double) absences*100/ (double) hours;
 
         if(role == Qt::DisplayRole) {
             QString schoolEvents;
             if(classes[index.row()].schoolEvents != 0)
-                schoolEvents = tr(" +%1 školních").arg(classes[index.row()].schoolEvents);
+                schoolEvents = tr(" +%1 šk.").arg(classes[index.row()].schoolEvents);
 
-            return tr("%1/%2 (%3%)%4").arg(absences).arg(hours).arg(percent).arg(schoolEvents);
+            return tr("%1/%2 (%3%)%4").arg(absences).arg(hours).arg(percent, 0, 'f', 2).arg(schoolEvents);
         } else if(role == Qt::FontRole && percent >= 25) {
             QFont font;
             font.setBold(true);
@@ -143,16 +143,16 @@ QVariant HottestModel::data(const QModelIndex& index, int role) const {
         int absences = classes[index.row()].absences;
         int hoursForecast = classes[index.row()].hoursForecast;
 
-        int percent;
+        double percent;
         if(hoursForecast == 0) percent = 0;
-        else percent = absences*100/hoursForecast;
+        else percent = (double) absences*100/(double) hoursForecast;
 
         if(role == Qt::DisplayRole) {
             QString schoolEvents;
             if(classes[index.row()].schoolEvents != 0)
                 schoolEvents = tr(" +%1").arg(classes[index.row()].schoolEvents);
 
-            return tr("%1/%2 (%3%)%4").arg(absences).arg(hoursForecast).arg(percent).arg(schoolEvents);
+            return tr("%1/%2 (%3%)%4").arg(absences).arg(hoursForecast).arg(percent, 0, 'f', 2).arg(schoolEvents);
         } else if(role == Qt::FontRole && percent >= 25) {
             QFont font;
             font.setBold(true);

@@ -218,8 +218,8 @@ SummaryTab::SummaryTab(TeachersModel* teachersModel, ClassesModel* classesModel,
     hottestView->setModel(hottestModel);
     hottestView->verticalHeader()->setHidden(true);
     hottestView->setColumnWidth(0, 60);
-    hottestView->setColumnWidth(1, 165);
-    hottestView->setColumnWidth(2, 100);
+    hottestView->setColumnWidth(1, 150);
+    hottestView->setColumnWidth(2, 115);
     hottestView->resizeRowsToContents();
 
     /* Propojení změn v absencích se znovunačtením modelu */
