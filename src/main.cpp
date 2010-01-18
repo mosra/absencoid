@@ -11,6 +11,10 @@
 #include "MainWindow.h"
 #include "Style.h"
 
+/** @todo Dokumentace */
+/** @todo Není zálohován / obnovován stav, zda je daná absence školní! */
+/** @todo Hangups při navazujících rozvrzích */
+
 using namespace Absencoid;
 
 int main(int argc, char** argv)
