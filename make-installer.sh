@@ -4,6 +4,7 @@ builddir=build-win32
 nsisdir=build-nsis
 
 # Build
+mkdir -p $nsisdir
 mkdir -p $builddir ; cd $builddir
 
 # Různé edice programu
@@ -21,7 +22,8 @@ make -j3 || exit 1
 cd ..
 
 # Vytvoření adresáře pro tvoření instaláku, naplnění soubory
-mkdir -p $nsisdir ; cd $nsisdir
+cd $nsisdir
+cp ../CHANGELOG.txt . || exit 1
 cp ../$builddir/src/absencoid.exe . || exit 1
 
 # Osekání HTML z disclaimeru, spojení s changelogem do jednoho souboru
