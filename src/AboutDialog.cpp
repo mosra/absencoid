@@ -27,11 +27,11 @@ AboutDialog::AboutDialog(QWidget* parent): QDialog(parent) {
     #else
     "Uživatelská edice"
     #endif
-    "<br />Verze: %1 (%2-%3)<br /><br />"
+    "<br />Verze: %1 (%2)<br /><br />"
     "Program, logo, ikonky: © <em>Mosra</em>.<br />"
     "Dotazy a nalezené chyby pište na <a href=\"mailto:mosra@centrum.cz\">"
     "mosra@centrum.cz</a> (mail) nebo mosra@jabbim.cz (jabber).")
-    .arg(APP_VERSION_LONG).arg(APP_VERSION).arg(SVN_VERSION));
+    .arg(APP_VERSION_LONG).arg(APP_VERSION));
     name->setWordWrap(true);
 
     /* Disclaimer */
