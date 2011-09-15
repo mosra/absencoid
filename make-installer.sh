@@ -11,10 +11,10 @@ if [ $# -gt 0 -a "$1" = "admin" ] ; then
     sed -e 's/uživatelská edice/správcovská edice/g' \
         -e 's/-user.exe/-admin.exe/g' ../installer.nsi \
         -e 's/\[uživatel\]/[správce]/g' > ../$nsisdir/installer.nsi
-    cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain-Qt4-mingw32.cmake -DADMIN_VERSION=ON .. || exit 1
+    cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/archlinux/Qt4-mingw32.cmake -DADMIN_VERSION=ON .. || exit 1
 else
     cp ../installer.nsi ../$nsisdir/
-    cmake -DCMAKE_TOOLCHAIN_FILE=../Toolchain-Qt4-mingw32.cmake -DADMIN_VERSION=OFF .. || exit 1
+    cmake -DCMAKE_TOOLCHAIN_FILE=../toolchains/archlinux/Qt4-mingw32.cmake -DADMIN_VERSION=OFF .. || exit 1
 fi
 
 make -j3 || exit 1
