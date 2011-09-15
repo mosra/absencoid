@@ -34,14 +34,15 @@ cat ../CHANGELOG.txt >> disclaimer.txt
 i486-mingw32-strip absencoid.exe
 
 # Zkopírování potřebných DLL (pokud zde ještě nejsou)
-for dll in mingwm10.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtSql4.dll QtXml4.dll ; do
+for dll in mingwm10.dll libgcc_s_sjlj-1.dll libstdc++-6.dll QtCore4.dll QtGui4.dll QtNetwork4.dll QtSql4.dll QtXml4.dll ; do
     [ -e $dll ] || cp /usr/i486-mingw32/bin/$dll . || exit 1
 done
+[ -e libgcc_s_dw2-1.dll ] || cp /usr/i486-mingw32/bin/qt-bin/libgcc_s_dw2-1.dll . || exit 1
 
 # Jedno DLL v podsložce
 mkdir -p sqldrivers
 [ -e sqldrivers/qsqlite4.dll ] || \
-    cp /usr/i486-mingw32/bin/plugins/sqldrivers/qsqlite4.dll sqldrivers/ || exit 1
+    cp /usr/i486-mingw32/bin/qt-plugins/sqldrivers/qsqlite4.dll sqldrivers/ || exit 1
 
 # Konverze do nativního Windows kódování
 iconv -f UTF-8 -t Windows-1250 installer.nsi -o _installer.nsi
